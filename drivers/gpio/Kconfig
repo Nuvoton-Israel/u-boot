@@ -329,4 +329,10 @@ config MT7621_GPIO
 	help
 	  Say yes here to support MediaTek MT7621 compatible GPIOs.
 
+config NPCM750_GPIO
+	bool "NuvoTon NPCM750 GPIO driver"
+	depends on DM_GPIO
+	help
+	  Support GPIO controllers on NuvoTon NPCM750.
+
 endmenu

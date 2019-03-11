@@ -17,6 +17,7 @@
 		spi0 = "/fiu0@fb000000";
 		mmc0 = "/sdhci0@f0840000";
 		mmc1 = "/sdhci1@f0842000";
+		gpio6 = "/gpio6@f0016000";
 	};
 
 	clks: clock-control@f0801000 {
@@ -66,6 +67,16 @@
 		reg = <0xf0842000 0x200>;
 		index = <0x1>;
 		bus-width = <0x8>;
+	};
+
+	gpio6@f0016000 {
+		compatible = "nuvoton,npcm750-gpio";
+		reg = <0xf0016000 0x1000>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-bank-name = "gpio6";
+		gpio-count = <32>;
+		gpio-port = <6>;
 	};
 
 };
