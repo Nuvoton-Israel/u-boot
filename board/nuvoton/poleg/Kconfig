@@ -9,5 +9,11 @@ config SYS_VENDOR
 config SYS_CONFIG_NAME
 	default "poleg"
 
+config GENERIC_MMC
+	bool "Check CONFIG_DM_MMC is set or not"
+	depends on MMC_SDHCI_NPCMX50
+	help
+	  Select this config to alert you, if CONFIG_DM_MMC is not set
+	  for Nuvoton Porject
 
 endif

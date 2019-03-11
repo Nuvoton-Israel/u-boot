@@ -96,4 +96,6 @@
 #define CONFIG_SYS_MAX_FLASH_BANKS      1
 #endif
 
+#define CONFIG_GENERIC_MMC
+
 #endif

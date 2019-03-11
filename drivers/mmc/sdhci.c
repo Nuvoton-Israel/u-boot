@@ -19,6 +19,47 @@ void *aligned_buffer = (void *)CONFIG_FIXED_SDHCI_ALIGNED_BUFFER;
 void *aligned_buffer;
 #endif
 
+static void sdhci_dumpregs(struct sdhci_host *host)
+{
+	printf("\n=== REGISTER DUMP (%s) ===\n", host->name);
+	printf("Sys addr: 0x%08x | Version:  0x%08x\n",
+			sdhci_readl(host, SDHCI_DMA_ADDRESS),
+			sdhci_readw(host, SDHCI_HOST_VERSION));
+	printf("Blk size: 0x%08x | Blk cnt:  0x%08x\n",
+			sdhci_readw(host, SDHCI_BLOCK_SIZE),
+			sdhci_readw(host, SDHCI_BLOCK_COUNT));
+	printf("Argument: 0x%08x | Trn mode: 0x%08x\n",
+			sdhci_readl(host, SDHCI_ARGUMENT),
+			sdhci_readw(host, SDHCI_TRANSFER_MODE));
+		printf("Present:  0x%08x | Host ctl: 0x%08x\n",
+			sdhci_readl(host, SDHCI_PRESENT_STATE),
+			sdhci_readb(host, SDHCI_HOST_CONTROL));
+		printf("Power:    0x%08x | Blk gap:  0x%08x\n",
+			sdhci_readb(host, SDHCI_POWER_CONTROL),
+			sdhci_readb(host, SDHCI_BLOCK_GAP_CONTROL));
+		printf("Wake-up:  0x%08x | Clock:    0x%08x\n",
+			sdhci_readb(host, SDHCI_WAKE_UP_CONTROL),
+			sdhci_readw(host, SDHCI_CLOCK_CONTROL));
+		printf("Timeout:  0x%08x | Int stat: 0x%08x\n",
+			sdhci_readb(host, SDHCI_TIMEOUT_CONTROL),
+			sdhci_readl(host, SDHCI_INT_STATUS));
+		printf("Int enab: 0x%08x | Sig enab: 0x%08x\n",
+			sdhci_readl(host, SDHCI_INT_ENABLE),
+			sdhci_readl(host, SDHCI_SIGNAL_ENABLE));
+		printf("AC12 err: 0x%08x | Slot int: 0x%08x\n",
+			sdhci_readw(host, SDHCI_ACMD12_ERR),
+			sdhci_readw(host, SDHCI_SLOT_INT_STATUS));
+		printf("Caps:     0x%08x | Caps_1:   0x%08x\n",
+			sdhci_readl(host, SDHCI_CAPABILITIES),
+			sdhci_readl(host, SDHCI_CAPABILITIES_1));
+		printf("Cmd:      0x%08x | Max curr: 0x%08x\n",
+			sdhci_readw(host, SDHCI_COMMAND),
+			sdhci_readl(host, SDHCI_MAX_CURRENT));
+		printf("Host ctl2: 0x%08x\n",
+			sdhci_readw(host, SDHCI_HOST_CONTROL2));
+	printf("========= REGISTER DUMP END ==========\n");
+}
+
 static void sdhci_reset(struct sdhci_host *host, u8 mask)
 {
 	unsigned long timeout;
@@ -30,6 +71,7 @@ static void sdhci_reset(struct sdhci_host *host, u8 mask)
 		if (timeout == 0) {
 			printf("%s: Reset 0x%x never completed.\n",
 			       __func__, (int)mask);
+			sdhci_dumpregs(host);
 			return;
 		}
 		timeout--;
@@ -174,6 +216,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 				       cmd_timeout);
 			} else {
 				puts("timeout.\n");
+				sdhci_dumpregs(host);
 				return -ECOMM;
 			}
 		}
@@ -274,6 +317,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 			} else {
 				printf("%s: Timeout for status update!\n",
 				       __func__);
+				sdhci_dumpregs(host);
 				return -ETIMEDOUT;
 			}
 		}
@@ -409,6 +453,7 @@ static int sdhci_set_clock(struct mmc *mmc, unsigned int clock)
 		if (timeout == 0) {
 			printf("%s: Internal clock never stabilised.\n",
 			       __func__);
+			sdhci_dumpregs(host);
 			return -EBUSY;
 		}
 		timeout--;

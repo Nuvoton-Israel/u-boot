@@ -15,6 +15,8 @@
 	aliases {
 		console = "/serial@f0004000";
 		spi0 = "/fiu0@fb000000";
+		mmc0 = "/sdhci0@f0840000";
+		mmc1 = "/sdhci1@f0842000";
 	};
 
 	clks: clock-control@f0801000 {
@@ -50,6 +52,20 @@
 			reg = <0>; /* Chip select 0 */
 			memory-map = <0x80000000 0x4000000>;
 		};
+	};
+
+	sdhci0@f0840000 {
+		compatible = "nuvoton,npcmx50-sdhci-SD";
+		reg = <0xf0840000 0x2000>;
+		index = <0x0>;
+		bus-width = <0x4>;
+	};
+
+	sdhci1@f0842000 {
+		compatible = "nuvoton,npcmx50-sdhci-eMMC";
+		reg = <0xf0842000 0x200>;
+		index = <0x1>;
+		bus-width = <0x8>;
 	};
 
 };

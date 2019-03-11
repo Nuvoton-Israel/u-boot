@@ -45,27 +45,27 @@ int dram_init(void)
 
 	int RAMsize = (readl(&gcr->intcr3) >> 8) & 0x3;
 
-    switch(RAMsize)
-    {
-        case 0:
-			gd->ram_size = 0x08000000; /* 128 MB. */
-			break;
-        case 1:
-			gd->ram_size = 0x10000000; /* 256 MB. */
-			break;
-        case 2:
-        /* 3 and 4 should be 1 GB and 2 GB but as a workaround
-           to correctly load linux we set it as 512 MB         */
-        case 3:
-        case 4:
-			gd->ram_size = 0x20000000; /* 512 MB. */
-			break;
+	switch(RAMsize)
+	{
+		case 0:
+				gd->ram_size = 0x08000000; /* 128 MB. */
+				break;
+		case 1:
+				gd->ram_size = 0x10000000; /* 256 MB. */
+				break;
+		case 2:
+		/* 3 and 4 should be 1 GB and 2 GB but as a workaround
+			to correctly load linux we set it as 512 MB         */
+		case 3:
+		case 4:
+				gd->ram_size = 0x20000000; /* 512 MB. */
+				break;
 
-        default:
-           break;
-    }
+		default:
+			break;
+	}
 
-    return 0;
+	return 0;
 }
 
 #ifdef CONFIG_BOARD_EARLY_INIT_F
@@ -83,6 +83,19 @@ int board_early_init_f(void)
 }
 #endif
 
+#ifdef CONFIG_GENERIC_MMC
+int board_mmc_init(bd_t *bis)
+{
+	int ret = -1;
+
+	printf("please enable CONFIG_DM_MMC\n");
+
+	if (ret)
+		printf("mmc init failed\n");
+
+	return ret;
+}
+#endif
 
 int board_eth_init(bd_t *bis)
 {
@@ -104,4 +117,3 @@ int checkboard(void)
 	return 0;
 }
 #endif
-
