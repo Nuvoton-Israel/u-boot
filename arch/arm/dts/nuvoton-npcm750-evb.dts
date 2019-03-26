@@ -101,6 +101,66 @@
 		bus-width = <0x8>;
 	};
 
+	gpio0@f0010000 {
+		compatible = "nuvoton,npcm750-gpio";
+		reg = <0xf0010000 0x1000>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-bank-name = "gpio0";
+		gpio-count = <32>;
+		gpio-port = <0>;
+	};
+
+	gpio1@f0011000 {
+		compatible = "nuvoton,npcm750-gpio";
+		reg = <0xf0011000 0x1000>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-bank-name = "gpio1";
+		gpio-count = <32>;
+		gpio-port = <1>;
+	};
+
+	gpio2@f0015000 {
+		compatible = "nuvoton,npcm750-gpio";
+		reg = <0xf0012000 0x1000>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-bank-name = "gpio2";
+		gpio-count = <32>;
+		gpio-port = <2>;
+	};
+
+	gpio3@f0013000 {
+		compatible = "nuvoton,npcm750-gpio";
+		reg = <0xf0013000 0x1000>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-bank-name = "gpio3";
+		gpio-count = <32>;
+		gpio-port = <3>;
+	};
+
+	gpio4@f0014000 {
+		compatible = "nuvoton,npcm750-gpio";
+		reg = <0xf0014000 0x1000>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-bank-name = "gpio4";
+		gpio-count = <32>;
+		gpio-port = <4>;
+	};
+
+	gpio5@f0015000 {
+		compatible = "nuvoton,npcm750-gpio";
+		reg = <0xf0015000 0x1000>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-bank-name = "gpio5";
+		gpio-count = <32>;
+		gpio-port = <5>;
+	};
+
 	gpio6@f0016000 {
 		compatible = "nuvoton,npcm750-gpio";
 		reg = <0xf0016000 0x1000>;
@@ -109,6 +169,16 @@
 		gpio-bank-name = "gpio6";
 		gpio-count = <32>;
 		gpio-port = <6>;
+	};
+
+	gpio7@f0017000 {
+		compatible = "nuvoton,npcm750-gpio";
+		reg = <0xf0017000 0x1000>;
+		#gpio-cells = <2>;
+		gpio-controller;
+		gpio-bank-name = "gpio7";
+		gpio-count = <32>;
+		gpio-port = <7>;
 	};
 
 	gmac0 {
