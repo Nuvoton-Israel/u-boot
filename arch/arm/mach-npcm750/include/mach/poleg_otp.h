@@ -53,6 +53,9 @@ struct poleg_otp_regs {
 #define PROGRAM_ARM             0x1
 #define PROGRAM_INIT            0xBF79E5D0
 
+#define OTP2_BASE               0xF018A000
+#define FUSTRAP                 (OTP2_BASE + 0x10)
+
 // Read cycle initiation value
 #define READ_INIT               0x02
 

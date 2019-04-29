@@ -25,21 +25,14 @@ DECLARE_GLOBAL_DATA_PTR;
 
 static bool is_security_enabled(void)
 {
-	u8 val[4];
-	int ret, i;
-
-	// read FUSTRAP.SECBOOT from otp
-	for (i = 0; i < sizeof(val); i++) {
-		ret = fuse_read(NPCM750_FUSE_SA, SA_FUSE_FUSTRAP_OFFSET, (u32*)(val + i));
-		if (ret != 0)
-			return false;
-	}
-
-	// if OSECBOOT in otp is set
-	if (*(u32*)val & SA_FUSE_FUSTRAP_OSECBOOT_MASK)
+	u32 val = readl(FUSTRAP);
+	if( val & FUSTRAP_O_SECBOOT ){
+		printf("Security is enabled\n");
 		return true;
-
-	return false;
+	}else{
+		printf("Security is NOT enabled\n");
+		return false;
+	}
 }
 
 static int secure_boot_configuration(void)
