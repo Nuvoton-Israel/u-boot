@@ -37,9 +37,16 @@
 		spi0 = "/fiu0@fb000000";
 		spi3 = "/fiu3@c0000000";
 		spi4 = "/pspi1@f0200000";
-		mmc0 = "/sdhci0@f0840000";
+		//mmc0 = "/sdhci0@f0840000";
 		mmc1 = "/sdhci1@f0842000";
+		gpio0 = "/gpio0@f0010000";
+		gpio1 = "/gpio1@f0011000";
+		gpio2 = "/gpio2@f0012000";
+		gpio3 = "/gpio3@f0013000";
+		gpio4 = "/gpio4@f0014000";
+		gpio5 = "/gpio5@f0015000";
 		gpio6 = "/gpio6@f0016000";
+		gpio7 = "/gpio7@f0017000";
 	};
 
 	clks: clock-control@f0801000 {
@@ -140,12 +147,12 @@
 		clocks = <&clks CLK_APB5>;
 	};
 
-	sdhci0@f0840000 {
+	/*sdhci0@f0840000 {
 		compatible = "nuvoton,npcmx50-sdhci-SD";
 		reg = <0xf0840000 0x2000>;
 		index = <0x0>;
 		bus-width = <0x4>;
-	};
+	};*/
 
 	sdhci1@f0842000 {
 		compatible = "nuvoton,npcmx50-sdhci-eMMC";
@@ -181,7 +188,7 @@
 		gpio-port = <1>;
 	};
 
-	gpio2@f0015000 {
+	gpio2@f0012000 {
 		compatible = "nuvoton,npcm750-gpio";
 		reg = <0xf0012000 0x1000>;
 		#gpio-cells = <2>;
