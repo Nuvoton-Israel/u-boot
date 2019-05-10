@@ -47,6 +47,7 @@
 		gpio5 = "/gpio5@f0015000";
 		gpio6 = "/gpio6@f0016000";
 		gpio7 = "/gpio7@f0017000";
+		usb0 = "/usbd0";
 	};
 
 	clks: clock-control@f0801000 {
@@ -54,6 +55,11 @@
 		#clock-cells = <1>;
 		reg = <0xf0801000 0x70>;
 		u-boot,dm-pre-reloc;
+	};
+
+	usbd0 {
+		compatible = "nuvoton,poleg-usbd";
+		reg = <0xF0830100 0x200>;
 	};
 
 	serial0: serial0@f0001000 {

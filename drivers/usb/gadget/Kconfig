@@ -156,6 +156,12 @@ config USB_FUNCTION_THOR
 
 endif # USB_GADGET_DOWNLOAD
 
+config NPCM750_UDC
+	bool "Poleg USB Device Controller"
+	select USB_GADGET_DUALSPEED
+	help
+	  Poleg USB Device Controller
+
 config USB_ETHER
 	bool "USB Ethernet Gadget"
 	depends on NET
