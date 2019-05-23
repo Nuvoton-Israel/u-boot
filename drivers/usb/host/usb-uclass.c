@@ -36,7 +36,7 @@ int submit_int_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
-	if (!ops->interrupt)
+	if ( !ops || !ops->interrupt)
 		return -ENOSYS;
 
 	return ops->interrupt(bus, udev, pipe, buffer, length, interval);
@@ -50,7 +50,7 @@ int submit_control_msg(struct usb_device *udev, unsigned long pipe,
 	struct usb_uclass_priv *uc_priv = bus->uclass->priv;
 	int err;
 
-	if (!ops->control)
+	if (!ops || !ops->control)
 		return -ENOSYS;
 
 	err = ops->control(bus, udev, pipe, buffer, length, setup);
@@ -71,7 +71,7 @@ int submit_bulk_msg(struct usb_device *udev, unsigned long pipe, void *buffer,
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
-	if (!ops->bulk)
+	if (!ops || !ops->bulk)
 		return -ENOSYS;
 
 	return ops->bulk(bus, udev, pipe, buffer, length);
@@ -84,7 +84,7 @@ struct int_queue *create_int_queue(struct usb_device *udev,
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
-	if (!ops->create_int_queue)
+	if (!ops || !ops->create_int_queue)
 		return NULL;
 
 	return ops->create_int_queue(bus, udev, pipe, queuesize, elementsize,
@@ -96,7 +96,7 @@ void *poll_int_queue(struct usb_device *udev, struct int_queue *queue)
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
-	if (!ops->poll_int_queue)
+	if (!ops || !ops->poll_int_queue)
 		return NULL;
 
 	return ops->poll_int_queue(bus, udev, queue);
@@ -107,7 +107,7 @@ int destroy_int_queue(struct usb_device *udev, struct int_queue *queue)
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
-	if (!ops->destroy_int_queue)
+	if (!ops || !ops->destroy_int_queue)
 		return -ENOSYS;
 
 	return ops->destroy_int_queue(bus, udev, queue);
@@ -119,7 +119,7 @@ int usb_alloc_device(struct usb_device *udev)
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
 	/* This is only requird by some controllers - current XHCI */
-	if (!ops->alloc_device)
+	if (!ops || !ops->alloc_device)
 		return 0;
 
 	return ops->alloc_device(bus, udev);
@@ -130,7 +130,7 @@ int usb_reset_root_port(struct usb_device *udev)
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
-	if (!ops->reset_root_port)
+	if (!ops || !ops->reset_root_port)
 		return -ENOSYS;
 
 	return ops->reset_root_port(bus, udev);
@@ -141,7 +141,7 @@ int usb_update_hub_device(struct usb_device *udev)
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
-	if (!ops->update_hub_device)
+	if (!ops || !ops->update_hub_device)
 		return -ENOSYS;
 
 	return ops->update_hub_device(bus, udev);
@@ -152,7 +152,7 @@ int usb_get_max_xfer_size(struct usb_device *udev, size_t *size)
 	struct udevice *bus = udev->controller_dev;
 	struct dm_usb_ops *ops = usb_get_ops(bus);
 
-	if (!ops->get_max_xfer_size)
+	if (!ops || !ops->get_max_xfer_size)
 		return -ENOSYS;
 
 	return ops->get_max_xfer_size(bus, size);
@@ -205,6 +205,11 @@ static void usb_scan_bus(struct udevice *bus, bool recurse)
 	struct usb_bus_priv *priv;
 	struct udevice *dev;
 	int ret;
+
+	if( !usb_get_ops(bus) ){
+		printf("skip scanning bus %d for devices, due to ops is NULL...\n",bus->seq);
+		return;
+	}
 
 	priv = dev_get_uclass_priv(bus);
 
