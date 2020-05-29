@@ -7,7 +7,7 @@
 #include "nuvoton-npcm730-gbs-pincfg.dtsi"
 
 / {
-	model = "Quanta npcm730 BMC Board (Device Tree v00.01)";
+	model = "Quanta npcm730 BMC Board (Device Tree v00.02)";
 	compatible = "nuvoton,poleg", "quanta,gbs";
 
 	pinctrl: pinctrl@f0800000 {
@@ -58,9 +58,6 @@
 				&gpio191o_pins
 				&gpio192ol_pins
 				&gpio197o_pins
-				&gpio208o_pins
-				&gpio210o_pins
-				&gpio211o_pins
 				&gpio212o_pins
 				&gpio213o_pins
 				&gpio215ol_pins
@@ -75,27 +72,59 @@
 				&gpio10_pins
 				&gpio11_pins
 				&gpio13_pins
+				&gpio14_pins
 				&gpio17_pins
 				&gpio24_pins
 				&gpio32_pins
+				&gpio37_pins
+				&gpio38_pins
+				&gpio39_pins
+				&gpio40_pins
 				&gpio57_pins
 				&gpio58_pins
 				&gpio59_pins
+				&gpio69_pins
 				&gpio70_pins
 				&gpio71_pins
 				&gpio72_pins
 				&gpio73_pins
+				&gpio88_pins
+				&gpio92_pins
 				&gpio93_pins
+				&gpio120_pins
+				&gpio121_pins
+				&gpio122_pins
+				&gpio123_pins
+				&gpio124_pins
+				&gpio125_pins
+				&gpio126_pins
+				&gpio136_pins
+				&gpio137_pins
+				&gpio138_pins
+				&gpio139_pins
+				&gpio140_pins
+				&gpio141_pins
+				&gpio142_pins
 				&gpio143_pins
 				&gpio146_pins
 				&gpio170_pins
 				&gpio177_pins
+				&gpio194_pins
+				&gpio195_pins
+				&gpio196_pins
 				&gpio199_pins
+				&gpio202_pins
 				&gpio203_pins
+				&gpio208_pins
+				&gpio209_pins
+				&gpio210_pins
+				&gpio211_pins
+				&gpio214_pins
 				/* group pins */
 				&iox1_pins
 				&jtag2_pins
 				&serirq_pins
-				&lpc_pins>;
+				&lpc_pins
+				&clkreq_pins>;
 	};
 };
