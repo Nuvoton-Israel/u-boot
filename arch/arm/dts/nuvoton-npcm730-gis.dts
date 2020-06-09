@@ -1,0 +1,103 @@
+/dts-v1/;
+#include <dt-bindings/clock/npcm750_poleg-clock.h>
+#include <dt-bindings/gpio/gpio.h>
+#include "nuvoton-npcm730.dts"
+#include "nuvoton-npcm730-gis-pincfg.dtsi"
+/ {
+	model = "Quanta npcm730 BMC Board (Device Tree v00.16)";
+	compatible = "nuvoton,poleg", "quanta,gis";
+
+	pinctrl: pinctrl@f0800000 {
+		compatible = "nuvoton,npcm7xx-pinctrl";
+		pinctrl-names = "default";
+		pinctrl-0 = <
+				&gpio0od_pins
+				&gpio1pp_pins
+				&gpio2pp_pins
+				&gpio3pp_pins
+				&gpio6od_pins
+				&gpio7od_pins
+				&gpio10_pins
+				&gpio11_pins
+				&gpio12od_pins
+				&gpio13_pins
+				&gpio15od_pins
+				&gpio16pp_pins
+				&gpio24_pins
+				&gpio25_pins
+				&gpio26od_pins
+				&gpio27pp_pins
+				&gpio37pp_pins
+				&gpio38_pins
+				&gpio59od_pins
+				&gpio64_pins
+				&gpio65_pins
+				&gpio66od_pins
+				&gpio67od_pins
+				&gpio68pp_pins
+				&gpio69pp_pins
+				&gpio70od_pins
+				&gpio72od_pins
+				&gpio73_pins
+				&gpio74_pins
+				&gpio75pp_pins
+				&gpio76od_pins
+				&gpio77od_pins
+				&gpio80pp_pins
+				&gpio81pp_pins
+				&gpio82od_pins
+				&gpio83od_pins
+				&gpio84od_pins
+				&gpio85od_pins
+				&gpio86od_pins
+				&gpio87od_pins
+				&gpio89od_pins
+				&gpio90pp_pins
+				&gpio91od_pins
+				&gpio92od_pins
+				&gpio94_pins
+				&gpio110pp_pins
+				&gpio111pp_pins
+				&gpio112pp_pins
+				&gpio113pp_pins
+				&gpio131od_pins
+				&gpio132od_pins
+				&gpio133od_pins
+				&gpio138_pins
+				&gpio139_pins
+				&gpio140_pins
+				&gpio143_pins
+				&gpio145od_pins
+				&gpio148od_pins
+				&gpio149od_pins
+				&gpio150od_pins
+				&gpio151od_pins
+				&gpio152od_pins
+				&gpio156_pins
+				&gpio157od_pins
+				&gpio158od_pins
+				&gpio159od_pins
+				&gpio160od_pins
+				&gpio169od_pins
+				&gpio170od_pins
+				&gpio173od_pins
+				&gpio188od_pins
+				&gpio189od_pins
+				&gpio191pp_pins
+				&gpio192pp_pins
+				&gpio198pp_pins
+				&gpio200pp_pins
+				&gpio206pp_pins
+				&gpio207pp_pins
+				&gpio208pp_pins
+				&gpio209pp_pins
+				&gpio210pp_pins
+				&gpio211_pins
+				&gpio212_pins
+				&gpio218pp_pins
+				&gpio219od_pins
+				&gpio222od_pins
+				&gpio228_pins
+				&gpio230_pins>;
+	};
+};
