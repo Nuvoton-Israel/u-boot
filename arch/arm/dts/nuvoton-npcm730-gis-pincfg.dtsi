@@ -76,6 +76,12 @@
 			drive-push-pull;
 			persist-enable;
 		};
+		gpio20_pins: gpio20-pins {
+			pins = "GPIO20/SMB4CSDA/SMB15SDA";
+			bias-disable;
+			input-enable;
+			event-clear;
+		};
 		gpio24_pins: gpio24-pins {
 			pins = "GPIO24/IOXHDO";
 			bias-disable;
@@ -355,6 +361,7 @@
 			bias-disable;
 			input-enable;
 			event-clear;
+			active-low;
 		};
 		gpio145od_pins: gpio145od-pins {
 			pins = "GPIO145/PWM5";
@@ -484,6 +491,12 @@
 			bias-disable;
 			output-low;
 			drive-push-pull;
+		};
+		gpio199_pins: gpio199-pins {
+			pins = "GPIO199/SMB0DSCL";
+			bias-disable;
+			input-enable;
+			event-clear;
 		};
 		gpio200pp_pins: gpio200pp-pins { //MON_BMC_ALIVE_R
 			pins = "GPIO200/R2CK";
