@@ -159,6 +159,7 @@
 			bias-disable;
 			input-enable;
 			persist-enable;
+			event-clear;
 		};
 		gpio60ol_pins: gpio60ol-pins {
 			pins = "GPIO60/SMB3DSCL";
