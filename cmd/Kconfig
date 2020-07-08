@@ -1,5 +1,10 @@
 menu "Command line interface"
 
+config CMD_NUC_TST
+	bool "mfgtest"
+	help
+	  Run MFG test.
+
 config CMDLINE
 	bool "Support U-Boot commands"
 	default y
