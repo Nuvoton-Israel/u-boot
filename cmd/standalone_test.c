@@ -11,8 +11,10 @@
 #include <command.h>
 #include <net.h>
 #include <asm/arch/poleg_info.h>
+#ifdef CMD_NUC_TST_HEADER_LOG
 #include <spi_flash.h>
 #include <spi.h>
+#endif
 
 //                                        S     T     D     A     L     T     S     T
 #define TEST_TAG_FLASH_IMAGE_VAL          {0x53, 0x54, 0x44, 0x41, 0x4C, 0x54, 0x53, 0x54}
@@ -29,15 +31,18 @@ unsigned long do_go_exec(ulong (*entry)(int, char * const []), int argc,
 
 static int do_stdalonetst(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
-	u32 rc, rc_spi, *result;
+	u32 rc;
 	int rcode = 0, i=0, test_bin_number;
+	const u8 tag[TEST_TAG_FLASH_IMAGE_SIZE] = TEST_TAG_FLASH_IMAGE_VAL;
+	u32 image_addr[TEST_IMG_CNT], tst_bin_size[TEST_IMG_CNT], exec_addr[TEST_IMG_CNT], exec_result[TEST_IMG_CNT], start_addr;
+#ifdef CMD_NUC_TST_HEADER_LOG
+	u32 rc_spi;
 	struct spi_flash *flash;
 	struct udevice *udev;
 	u32 result_addr, addr_align;
 	int offset;
 	u8 *buf = NULL;
-	const u8 tag[TEST_TAG_FLASH_IMAGE_SIZE] = TEST_TAG_FLASH_IMAGE_VAL;
-	u32 image_addr[TEST_IMG_CNT], tst_bin_size[TEST_IMG_CNT], exec_addr[TEST_IMG_CNT], exec_result[TEST_IMG_CNT], start_addr;
+#endif
 
 	// standalone test images should be a part of the flash image, right after the uboot
 	start_addr = POLEG_UBOOT_END;
@@ -109,7 +114,7 @@ static int do_stdalonetst(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 		else
 			env_set(tmp, "Pass");
 		env_save();
-
+#ifdef CMD_NUC_TST_HEADER_LOG
 		rc_spi = spi_flash_probe_bus_cs(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
 			CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE, &udev);
 		if (rc_spi)
@@ -159,7 +164,7 @@ static int do_stdalonetst(cmd_tbl_t *cmdtp, int flag, int argc, char * const arg
 		}
 
 		free(buf);
-
+#endif
 		return rcode;
 	}
 

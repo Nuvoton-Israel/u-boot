@@ -23,7 +23,7 @@
 #include <linux/compiler.h>
 #include <spi.h>
 #include <spi_flash.h>
-#ifdef CONFIG_CMD_NUC_TST
+#ifdef CMD_NUC_TST_HEADER_LOG
 #include <asm/arch/poleg_info.h>
 #endif
 
@@ -987,7 +987,7 @@ static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
 static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
-#ifdef CONFIG_CMD_NUC_TST
+#ifdef CMD_NUC_TST_HEADER_LOG
 	struct spi_flash *flash;
 	struct udevice *udev;
 	u32 result_addr, addr_align, start_addr, rc;
@@ -1088,6 +1088,7 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 		env_set("MTEST", "Pass");
 	env_save();
 
+#ifdef CMD_NUC_TST_HEADER_LOG
 	// First Header is right after the uboot, and it's always for mtest
 	start_addr = POLEG_UBOOT_END;
 
@@ -1140,6 +1141,7 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 	}
 
 	free(buf_spi);
+#endif
 #endif
 
 	return ret;

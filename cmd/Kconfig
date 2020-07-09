@@ -2,8 +2,14 @@ menu "Command line interface"
 
 config CMD_NUC_TST
 	bool "mfgtest"
+	default y
 	help
 	  Run MFG test.
+
+config CMD_NUC_TST_HEADER_LOG
+	bool "save mfgtest log in header"
+	help
+	  Save MFG test log in Header.
 
 config CMDLINE
 	bool "Support U-Boot commands"
