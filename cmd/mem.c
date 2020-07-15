@@ -23,9 +23,6 @@
 #include <linux/compiler.h>
 #include <spi.h>
 #include <spi_flash.h>
-#ifdef CMD_NUC_TST_HEADER_LOG
-#include <asm/arch/poleg_info.h>
-#endif
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -987,14 +984,6 @@ static ulong mem_test_quick(vu_long *buf, ulong start_addr, ulong end_addr,
 static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 			char * const argv[])
 {
-#ifdef CMD_NUC_TST_HEADER_LOG
-	struct spi_flash *flash;
-	struct udevice *udev;
-	u32 result_addr, addr_align, start_addr, rc;
-	int offset;
-	u8 *buf_spi = NULL;
-#endif
-
 	ulong start, end;
 	vu_long *buf, *dummy;
 	ulong iteration_limit = 0;
@@ -1080,69 +1069,6 @@ static int do_mem_mtest(cmd_tbl_t *cmdtp, int flag, int argc,
 			iteration, errs);
 		ret = errs != 0;
 	}
-
-#ifdef CONFIG_CMD_NUC_TST
-	if(errs!=0)
-		env_set("MTEST", "Fail");
-	else
-		env_set("MTEST", "Pass");
-	env_save();
-
-#ifdef CMD_NUC_TST_HEADER_LOG
-	// First Header is right after the uboot, and it's always for mtest
-	start_addr = POLEG_UBOOT_END;
-
-	rc = spi_flash_probe_bus_cs(CONFIG_SF_DEFAULT_BUS, CONFIG_SF_DEFAULT_CS,
-		CONFIG_SF_DEFAULT_SPEED, CONFIG_SF_DEFAULT_MODE, &udev);
-	if (rc)
-	{
-		printf("spi_flash_probe_bus_cs fail\n");
-		return rc;
-	}
-
-	flash = dev_get_uclass_priv(udev);
-	if (!flash)
-	{
-		printf("dev_get_uclass_priv fail\n");
-		return -1;
-	}
-
-	result_addr = start_addr + 0x50;
-	// erase the whole sector
-	addr_align = result_addr & ~(u32)(flash->erase_size -1);
-	offset = result_addr - addr_align;
-	addr_align -= SPI_FLASH_BASE_ADDR;
-
-	buf_spi = (u8 *)malloc(flash->erase_size);
-	if (buf_spi) {
-		spi_flash_read(flash, addr_align, flash->erase_size, buf_spi);
-	} else {
-		printf("%s(): failed to alloc buffer, skip writing result\n", __func__);
-		return -1;
-	}
-
-	buf_spi[offset]= (errs&0xFF);
-	buf_spi[offset+1]= (errs&0xFF00)>>8;
-	buf_spi[offset+2]= (errs&0xFF0000)>>16;
-	buf_spi[offset+3]= (errs&0xFF000000)>>24;
-
-	rc = spi_flash_erase(flash, addr_align, flash->erase_size);
-	if (rc != 0)
-	{
-		printf("%s(): spi_flash_erase fail\n", __func__);
-		return rc;
-	}
-
-	rc = spi_flash_write(flash, addr_align, flash->erase_size, buf_spi);
-	if (rc != 0)
-	{
-		printf("%s(): spi_flash_write fail\n", __func__);
-		return rc;
-	}
-
-	free(buf_spi);
-#endif
-#endif
 
 	return ret;
 }
