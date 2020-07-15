@@ -14,6 +14,7 @@
 			bias-disable;
 			input-enable;
 			persist-enable;
+			event-clear;
 		};
 		gpio6o_pins:gpio6o-pins {
 			pins = "GPIO6/IOX2CK/SMB2DSDA";
@@ -147,12 +148,14 @@
 			bias-disable;
 			input-enable;
 			persist-enable;
+			event-clear;
 		};
 		gpio58_pins: gpio58-pins {
 			pins = "GPIO58/R1MDIO";
 			bias-disable;
 			input-enable;
 			persist-enable;
+			event-clear;
 		};
 		gpio59_pins: gpio59-pins {
 			pins = "GPIO59/SMB3DSDA";
@@ -172,6 +175,7 @@
 			bias-disable;
 			input-enable;
 			persist-enable;
+			event-clear;
 		};
 		gpio70_pins: gpio70-pins {
 			pins = "GPIO70/FANIN6";
@@ -200,6 +204,12 @@
 			input-enable;
 			persist-enable;
 			event-clear;
+		};
+		gpio74ol_pins: gpio74ol_pins {
+			pins = "GPIO74/FANIN10";
+			bias-disable;
+			output-low;
+			persist-enable;
 		};
 		gpio76o_pins: gpio76o-pins {
 			pins = "GPIO76/FANIN12";
@@ -308,12 +318,14 @@
 			bias-disable;
 			input-enable;
 			persist-enable;
+			event-clear;
 		};
 		gpio121_pins: gpio121-pins {
 			pins = "GPIO121/SMB2CSCL";
 			bias-disable;
 			input-enable;
 			persist-enable;
+			event-clear;
 		};
 		gpio122_pins: gpio122-pins {
 			pins = "GPIO122/SMB2BSDA";

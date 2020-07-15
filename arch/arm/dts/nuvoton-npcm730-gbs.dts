@@ -25,6 +25,7 @@
 				&gpio19ol_pins
 				&gpio25ol_pins
 				&gpio60ol_pins
+				&gpio74ol_pins
 				&gpio76o_pins
 				&gpio77ol_pins
 				&gpio78ol_pins
