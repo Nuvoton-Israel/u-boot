@@ -270,11 +270,10 @@
 			output-low;
 			persist-enable;
 		};
-		gpio91ol_pins: gpio91ol-pins {
+		gpio91o_pins: gpio91o-pins {
 			pins = "GPIO91/R2MDC";
 			bias-disable;
-			active-low;
-			output-low;
+			output-high;
 			persist-enable;
 		};
 		gpio92_pins: gpio92-pins {
