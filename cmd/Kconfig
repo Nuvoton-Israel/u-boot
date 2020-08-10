@@ -541,6 +541,11 @@ config CMD_MEMORY
 	    base - print or set address offset
 	    loop - initialize loop on address range
 
+config CMD_GFX
+        bool "gfx"
+        help
+          gfx test commands.
+
 config CMD_MEMTEST
 	bool "memtest"
 	help
