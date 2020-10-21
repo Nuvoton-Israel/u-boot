@@ -1,0 +1,280 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2020 Fii USA Inc. 
+// Maintainer: Brandon Ong <Brandon.Ong@fii-na.com>
+
+/dts-v1/;
+#include "nuvoton-common-npcm7xx.dtsi"
+#include "nuvoton-npcm730-kudo-pincfg.dtsi"
+
+/ {
+	model = "Fii Kudo Board (Device Tree v00.01)";
+	compatible = "nuvoton,poleg", "kudo";
+
+	chosen {
+		stdout-path = &serial0;
+		tick-timer = &timer0;
+	};
+
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		serial3 = &serial3;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		i2c5 = &i2c5;
+		i2c6 = &i2c6;
+		i2c7 = &i2c7;
+		i2c8 = &i2c8;
+		i2c9 = &i2c9;
+		i2c10 = &i2c10;
+		i2c11 = &i2c11;
+		i2c12 = &i2c12;
+		i2c13 = &i2c13;
+		i2c14 = &i2c14;
+		i2c15 = &i2c15;
+		spi0 = &fiu0;
+		spi3 = &fiu3;
+		spi4 = &fiux;
+		spi5 = &pspi1;
+		mmc1 = &sdhci1;
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
+		gpio5 = &gpio5;
+		gpio6 = &gpio6;
+		gpio7 = &gpio7;
+		usb0 = &usbd0;
+		eth0 = &emc0;
+		eth1 = &gmac0;
+	};
+
+	fiu0: fiu0@fb000000 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&spi0cs1_pins>;
+		status = "okay";
+		spi_flash@0 {
+			compatible = "spi-flash";
+			reg = <0>; /* Chip select 0 */
+			memory-map = <0x80000000 0x4000000>;
+		};
+		spi_flash@1 {
+			compatible = "spi-flash";
+			reg = <1>;
+			memory-map = <0x88000000 0x4000000>;
+		};
+	};
+
+	fiu3: fiu3@c0000000 {
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&spi3_pins
+			&spi3quad_pins>;
+		spi_flash@0 {
+			compatible = "spi-flash";
+			reg = <0>; /* Chip select 0 */
+			memory-map = <0xA0000000 0x8000000>;
+		};
+	};
+
+	fiux: fiux@fb001000 {
+		status = "okay";
+		spi_flash@0 {
+			compatible = "spi-flash";
+			reg = <0>; /* Chip select 0 */
+		 };
+	};
+
+	pspi1: pspi1@f0200000 {
+		status = "okay";
+	};
+
+	usbd0: usbd0@f0830100 {
+		status = "okay";
+	};
+
+
+	sdhci1: sdhci1@f0842000 {
+		status = "okay";
+	};
+
+	otp: otp@f0189000 {
+		status = "okay";
+	};
+
+	rng: rng@f000b000 {
+		status = "okay";
+	};
+
+	aes: aes@f0858000 {
+		status = "okay";
+	};
+
+	sha: sha@f085a000 {
+		status = "okay";
+	};
+
+	gmac0: gmac0@f0802000 {
+		status = "okay";
+	};
+
+	emc0: emc0@f0825000 {
+		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&r1_pins
+			&r1err_pins>;
+		fixed-link {
+			speed = <100>;
+			full-dulpex;
+		};
+	};
+
+	ehci: ehci {
+		status = "okay";
+	};
+
+	i2c0: i2c-bus@f0080000 {
+		status = "okay";
+	};
+
+	i2c1: i2c-bus@f0081000 {
+		status = "okay";
+	};
+
+	i2c2: i2c-bus@f0082000 {
+		status = "okay";
+	};
+
+	i2c3: i2c-bus@f0083000 {
+		status = "okay";
+	};
+
+	i2c4: i2c-bus@f0084000 {
+		status = "okay";
+	};
+
+	i2c5: i2c-bus@f0085000 {
+		status = "okay";
+	};
+
+	i2c6: i2c-bus@f0086000 {
+		status = "okay";
+	};
+
+	i2c7: i2c-bus@f0087000 {
+		status = "okay";
+	};
+
+	i2c8: i2c-bus@f0088000 {
+		status = "okay";
+	};
+
+	i2c9: i2c-bus@f0089000 {
+		status = "okay";
+	};
+
+	i2c10: i2c-bus@f008a000 {
+		status = "okay";
+	};
+
+	i2c11: i2c-bus@f008b000 {
+		status = "okay";
+	};
+
+	i2c12: i2c-bus@f008c000 {
+		status = "okay";
+	};
+
+	i2c13: i2c-bus@f008d000 {
+		status = "okay";
+	};
+
+	i2c14: i2c-bus@f008e000 {
+		status = "okay";
+	};
+
+	i2c15: i2c-bus@f008f000 {
+		status = "okay";
+	};
+
+	pinctrl: pinctrl@f0800000 {
+		compatible = "nuvoton,npcm7xx-pinctrl";
+	        pinctrl-names = "default";
+		pinctrl-0 = <
+	                &gpio50i_pins
+		        &gpio51oh_pins
+			&gpio52i_pins
+	                &gpio53oh_pins
+		        &gpio54i_pins
+			&gpio55ol_pins
+	                &gpio61oh_pins
+		        &gpio62oh_pins
+			&gpio63oh_pins
+	                &gpio64oh_pins
+		        &gpio65ol_pins
+			&gpio66oh_pins
+	                &gpio67oh_pins
+		        &gpio68ol_pins
+			&gpio69i_pins
+	                &gpio70ol_pins
+		        &gpio71i_pins
+			&gpio72i_pins
+	                &gpio73i_pins
+		        &gpio74i_pins
+			&gpio75i_pins
+	                &gpio76i_pins
+		        &gpio77i_pins
+			&gpio78i_pins
+	                &gpio79ol_pins
+		        &gpio80oh_pins
+			&gpio81i_pins
+	                &gpio82i_pins
+		        &gpio83i_pins
+			&gpio95i_pins
+	                &gpio120i_pins
+		        &gpio121i_pins
+			&gpio122i_pins
+	                &gpio123i_pins
+		        &gpio124i_pins
+			&gpio125i_pins
+	                &gpio126i_pins
+		        &gpio127i_pins
+			&gpio136i_pins
+	                &gpio137oh_pins
+		        &gpio138i_pins
+			&gpio139i_pins
+	                &gpio140i_pins
+		        &gpio141i_pins
+			&gpio144i_pins
+	                &gpio145i_pins
+		        &gpio146i_pins
+	                &gpio147oh_pins
+		        &gpio161ol_pins
+	                &gpio162oh_pins
+		        &gpio163i_pins
+	                &gpio167ol_pins
+		        &gpio168ol_pins
+	                &gpio169oh_pins
+		        &gpio170ol_pins
+	                &gpio175oh_pins
+		        &gpio176ol_pins
+	                &gpio177i_pins
+		        &gpio190oh_pins
+	                &gpio191oh_pins
+		        &gpio194oh_pins
+			&gpio195ol_pins
+	                &gpio196ol_pins
+		        &gpio197oh_pins
+	                &gpio199i_pins
+		        &gpio202ol_pins
+			&gpio203ol_pins
+	                &gpio218oh_pins
+		        &gpio219oh_pins
+			>;
+	};
+};
