@@ -178,7 +178,18 @@ void hw_sha1(const uchar * in_addr, uint buflen,
     */
 int hw_sha_init(struct hash_algo *algo, void **ctxp)
 {
-    return SHA_Init(&sha_handle);
+    const char *algo_name1 = "sha1";
+    const char *algo_name2 = "sha256";
+
+    SHA_Init(&sha_handle);
+    SHA_Power(true);
+    SHA_Reset();
+    if (!strcmp(algo_name1, algo->name))
+        return SHA_Start(&sha_handle, npcm750_sha_type_sha1);
+    else if (!strcmp(algo_name2, algo->name))
+        return SHA_Start(&sha_handle, npcm750_sha_type_sha2);
+    else
+        return -EPROTO;
 }
 
 /*
@@ -213,7 +224,8 @@ int hw_sha_update(struct hash_algo *algo, void *ctx, const void *buf,
 int hw_sha_finish(struct hash_algo *algo, void *ctx, void *dest_buf,
              int size)
 {
-    return SHA_Finish(&sha_handle, dest_buf);
+    SHA_RET_CHECK(SHA_Finish(&sha_handle, dest_buf));
+    return SHA_Power(false);
 }
 
 /*----------------------------------------------------------------------------*/
