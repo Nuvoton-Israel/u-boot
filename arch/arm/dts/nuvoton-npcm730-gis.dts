@@ -4,7 +4,7 @@
 #include "nuvoton-npcm730.dts"
 #include "nuvoton-npcm730-gis-pincfg.dtsi"
 / {
-	model = "Quanta npcm730 BMC Board (Device Tree v01.01)";
+	model = "Quanta npcm730 BMC Board (Device Tree v01.05)";
 	compatible = "nuvoton,poleg", "quanta,gis";
 
 	pinctrl: pinctrl@f0800000 {
@@ -82,6 +82,9 @@
 				&gpio169od_pins
 				&gpio170od_pins
 				&gpio173od_pins
+				&gpio178_pins
+				&gpio179_pins
+				&gpio180_pins
 				&gpio188od_pins
 				&gpio189od_pins
 				&gpio191pp_pins

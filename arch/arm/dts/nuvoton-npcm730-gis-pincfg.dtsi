@@ -367,6 +367,7 @@
 			pins = "GPIO145/PWM5";
 			bias-disable;
 			drive-open-drain;
+			output-high;
 			persist-enable;
 		};
 		gpio148od_pins: gpio148od-pins {
@@ -459,6 +460,18 @@
 			output-low;
 			drive-open-drain;
 			persist-enable;
+		};
+		gpio178_pins: gpio178-pins {
+			pins = "GPIO178/R1TXD0";
+			drive-strength = <8>;
+		};
+		gpio179_pins: gpio179-pins {
+			pins = "GPIO179/R1TXD1";
+			drive-strength = <8>;
+		};
+		gpio180_pins: gpio180-pins {
+			pins = "GPIO180/R1TXEN";
+			drive-strength = <8>;
 		};
 		gpio188od_pins: gpio188od-pins {
 			pins = "GPIO188/SPI3D2/nSPI3CS2";
@@ -601,12 +614,14 @@
 			bias-disable;
 			input-enable;
 			event-clear;
+			active-low;
 		};
 		gpio230_pins: gpio230-pins { //FM_CPU1_FIVR_FAULT_LVT3_PLD
 			pins = "GPIO230/SPIXD3";
 			bias-disable;
 			input-enable;
 			event-clear;
+			active-low;
 		};
 	};
 };
