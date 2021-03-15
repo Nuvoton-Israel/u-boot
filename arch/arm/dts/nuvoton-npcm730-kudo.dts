@@ -206,75 +206,121 @@
 		compatible = "nuvoton,npcm7xx-pinctrl";
 	        pinctrl-names = "default";
 		pinctrl-0 = <
-	                &gpio50i_pins
-		        &gpio51oh_pins
-			&gpio52i_pins
-	                &gpio53oh_pins
-		        &gpio54i_pins
-			&gpio55ol_pins
-	                &gpio61oh_pins
-		        &gpio62oh_pins
-			&gpio63oh_pins
-	                &gpio64oh_pins
-		        &gpio65ol_pins
-			&gpio66oh_pins
-	                &gpio67oh_pins
-		        &gpio68ol_pins
-			&gpio69i_pins
-	                &gpio70ol_pins
-		        &gpio71i_pins
-			&gpio72i_pins
-	                &gpio73i_pins
-		        &gpio74i_pins
-			&gpio75i_pins
-	                &gpio76i_pins
-		        &gpio77i_pins
-			&gpio78i_pins
-	                &gpio79ol_pins
-		        &gpio80oh_pins
-			&gpio81i_pins
-	                &gpio82i_pins
-		        &gpio83i_pins
-			&gpio95i_pins
-	                &gpio120i_pins
-		        &gpio121i_pins
-			&gpio122i_pins
-	                &gpio123i_pins
-		        &gpio124i_pins
-			&gpio125i_pins
-	                &gpio126i_pins
-		        &gpio127i_pins
-			&gpio136i_pins
-	                &gpio137oh_pins
-		        &gpio138i_pins
-			&gpio139i_pins
-	                &gpio140i_pins
-		        &gpio141i_pins
-			&gpio144i_pins
-	                &gpio145i_pins
-		        &gpio146i_pins
-	                &gpio147oh_pins
-		        &gpio161ol_pins
-	                &gpio162oh_pins
-		        &gpio163i_pins
-	                &gpio167ol_pins
-		        &gpio168ol_pins
-	                &gpio169oh_pins
-		        &gpio170ol_pins
-	                &gpio175oh_pins
-		        &gpio176ol_pins
-	                &gpio177i_pins
-		        &gpio190oh_pins
-	                &gpio191oh_pins
-		        &gpio194oh_pins
-			&gpio195ol_pins
-	                &gpio196ol_pins
-		        &gpio197oh_pins
-	                &gpio199i_pins
-		        &gpio202ol_pins
+			/* LED Pins*/
+			//&gpio7oh_pins
+			&gpio24ol_pins
+			&gpio169ol_pins
+
+			/* Mux Pins */
+			/* UART Mux*/
+			&gpio167oh_pins
+			&gpio161oh_pins
+			&gpio177oh_pins
+			&gpio198ol_pins
+
+			&gpio87oh_pins
+			&gpio88oh_pins
+			&gpio89oh_pins
+			&gpio91oh_pins
+			&gpio168oh_pins
+			&gpio12oh_pins
+			&gpio218oh_pins
+			&gpio164ol_pins
+			&gpio16oh_pins
+			&gpio84ol_pins
+			&gpio85ol_pins
+			&gpio86ol_pins
+			&gpio120ol_pins
+
+			/* Control Pins */
+			&gpio10ol_pins
+			&gpio69ol_pins
 			&gpio203ol_pins
-	                &gpio218oh_pins
-		        &gpio219oh_pins
+			&gpio70oh_pins
+			&gpio94ol_pins
+			&gpio90oh_pins
+			&gpio196ol_pins
+			&gpio197oh_pins
+			&gpio14oh_pins
+			&gpio66ol_pins
+			&gpio67ol_pins
+			&gpio125ol_pins
+			&gpio4ol_pins
+			&gpio5ol_pins
+			&gpio46ol_pins
+			&gpio187ol_pins
+			&gpio165ol_pins
+			&gpio166ol_pins
+			&gpio77oh_pins
+			&gpio170ol_pins
+			&gpio206oh_pins
+			&gpio175ol_pins
+			&gpio219oh_pins
+			&gpio15oh_pins
+			&gpio139ol_pins
+			&gpio141oh_pins
+			&gpio202ol_pins
+
+			/* Monitor Pins */
+			&gpio192i_pins
+			&gpio199i_pins
+			&gpio13i_pins
+			&gpio25i_pins
+			&gpio59i_pins
+			&gpio60i_pins
+			&gpio6i_pins
+			&gpio11i_pins
+			&gpio162i_pins
+			&gpio163i_pins
+			&gpio37i_pins
+			&gpio93i_pins
+			&gpio64i_pins
+			&gpio68i_pins
+			&gpio71i_pins
+			&gpio72i_pins
+			&gpio73i_pins
+			&gpio74i_pins
+			&gpio75i_pins
+			&gpio76i_pins
+			&gpio78i_pins
+			&gpio79i_pins
+			&gpio80i_pins
+			&gpio81i_pins
+			&gpio82i_pins
+			&gpio83i_pins
+			&gpio144i_pins
+			&gpio145i_pins
+			&gpio146i_pins
+			&gpio147i_pins
+			&gpio160i_pins
+			&gpio231i_pins
+			&gpio9i_pins
+			&gpio38i_pins
+			&gpio39i_pins
+			&gpio40i_pins
+			&gpio92i_pins
+			&gpio121i_pins
+			&gpio122i_pins
+			&gpio123i_pins
+			&gpio124i_pins
+			&gpio126i_pins
+			&gpio136i_pins
+			&gpio138i_pins
+			&gpio140i_pins
+			&gpio142i_pins
+			&gpio190i_pins
+			&gpio194i_pins
+			&gpio195i_pins
+
+			// BSP RX/TX
+			&bmcuart0a_pins /* BSP RX/TX */
+			// BU1 RX/TD
+			&bmcuart1_pins /* BU1 RX/TD */
+			// TX/RX D2
+			&uart2_pins /* TX/RX D2 */
+			// Set system reset to high
+			&gpio65oh_pins
+			&gpio127oh_pins
 			>;
 	};
 };
