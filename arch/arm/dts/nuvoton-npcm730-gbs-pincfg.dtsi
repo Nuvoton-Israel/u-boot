@@ -422,6 +422,7 @@
 			bias-disable;
 			input-enable;
 			persist-enable;
+			event-clear;
 		};
 		gpio148o_pins: gpio148o-pins {
 			pins = "GPIO148/MMCDT4";
