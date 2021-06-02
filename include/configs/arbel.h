@@ -58,6 +58,7 @@
 #define CONFIG_SYS_PBSIZE               (CONFIG_SYS_CBSIZE + sizeof(CONFIG_SYS_PROMPT) + 16)
 #define CONFIG_SYS_PROMPT_HUSH_PS2	    "> "
 
+#define CONFIG_SYS_BOOTM_LEN            (20 << 20)
 #define CONFIG_SYS_BOOTMAPSZ            (20 << 20)
 #define CONFIG_SYS_LOAD_ADDR            0x8000
 #define CONFIG_SYS_SDRAM_BASE           0x0
