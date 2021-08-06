@@ -21,6 +21,7 @@
 #include <spi_flash.h>
 #include <spi.h>
 #include <asm/gpio.h>
+#include <asm/arch/arbel_espi.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -527,8 +528,30 @@ int get_board_version_id(void)
 	return pcb_version;
 }
 
+void ESPI_ConfigAutoHandshake (u32 AutoHsCfg)
+{
+	writel( AutoHsCfg,
+	        NPCM850_ESPI_BA + ESPIHINDP);
+}
+
+void ESPI_Config (
+        ESPI_IO_MODE  ioMode,
+        ESPI_MAX_FREQ maxFreq,
+        u32           ch_supp
+)
+{
+	u32 var = readl(NPCM850_ESPI_BA + ESPICFG);
+	var |= ioMode << ESPICFG_IOMODE;
+	var |= maxFreq << ESPICFG_MAXFREQ;
+	var |= ((ch_supp & ESPICFG_CHNSUPP_MASK) << ESPICFG_CHNSUPP_SHFT);
+	writel( var,
+	        NPCM850_ESPI_BA + ESPICFG);
+}
+
 int board_init(void)
 {
+	u32 espi_ch_supp;
+
 #ifdef CONFIG_ETH_DESIGNWARE
 	unsigned int start;
 
@@ -653,6 +676,27 @@ int board_init(void)
 	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
 	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
 #endif
+
+	espi_ch_supp = fdtdec_get_config_int(gd->fdt_blob, "espi-channel-support", 0);
+
+	if (espi_ch_supp > 0) {
+	  u32 hindp = 0x00011110 | espi_ch_supp;
+	  // Set ESPI_SEL bit in MFSEL4 register.
+	  writel((readl(&gcr->mfsel4) | (1 << MFSEL4_ESPISEL)), &gcr->mfsel4);
+
+	  // In eSPI HOST INDEPENDENCE register, set bits
+	  // AUTO_SBLD, AUTO_FCARDY, AUTO_OOBCRDY,
+	  // AUTO_VWCRDY, AUTO_PCRDY, AUTO_HS1, AUTO_HS2, AUTO_HS3.
+	  ESPI_ConfigAutoHandshake(hindp);
+
+	  // In eSPI ESPICFG register set ESPICFG.MAXREQ to 33 MHz and ESPICFG. IOMODE
+	  // to Quad.
+	  ESPI_Config(ESPI_IO_MODE_SINGLE_DUAL_QUAD, ESPI_MAX_33_MHz, espi_ch_supp);
+	}
+	else {
+	  // set LPCSEL bit in MFSEL1 register.
+	  writel((readl(&gcr->mfsel1) | (1 << MFSEL1_LPCSEL)), &gcr->mfsel1);
+	}
 
 	return 0;
 }
