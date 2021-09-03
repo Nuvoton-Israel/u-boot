@@ -11,6 +11,7 @@ config ANDROID_BOOT_IMAGE
 
 config FIT
 	bool "Support Flattened Image Tree"
+	select HASH
 	select MD5
 	select SHA1
 	help
