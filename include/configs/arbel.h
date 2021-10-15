@@ -95,7 +95,17 @@
 		"stdin=serial\0"   \
 		"stdout=serial\0"   \
 		"stderr=serial\0"    \
-		"ethact=eth${eth_num}\0"   \
+		"ethact=gmac1\0"   \
+		"autostart=no\0"   \
+		"ethaddr=00:00:F7:A0:00:FC\0"    \
+		"eth1addr=00:00:F7:A0:00:FD\0"   \
+		"eth2addr=00:00:F7:A0:00:FE\0"    \
+		"eth3addr=00:00:F7:A0:00:FF\0"    \
+		"gatewayip=192.168.0.17\0"    \
+		"serverip=192.168.0.17\0"    \
+		"ipaddr=192.168.0.15\0"    \
+		"physpeed=1000\0"    \
+		"gmacloopb=0\0"    \
 		"romboot=echo Booting Kernel from flash; echo +++ uimage at 0x${uimage_flash_addr}; " \
 		"echo Using bootargs: ${bootargs};bootm ${uimage_flash_addr}\0" \
 		"autostart=yes\0"   \

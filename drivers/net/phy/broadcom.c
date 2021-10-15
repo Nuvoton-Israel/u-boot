@@ -52,6 +52,72 @@ static void bcm_phy_write_misc(struct phy_device *phydev,
 	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_DATA, value);
 }
 
+/* Broadcom BCM54612E */
+static int bcm54612e_config(struct phy_device *phydev)
+{
+	u32 reg = 0;
+
+	genphy_config_aneg(phydev);
+
+	phy_reset(phydev);
+
+	/* 125Mhz Clock Output Enable */
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL);
+	reg |= 0xD34;
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL, reg);
+
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_DATA);
+	reg |= (1 << 1);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_DATA, reg);
+
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL);
+	reg &= 0xfffff000;
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL, reg);
+
+	genphy_restart_aneg(phydev);
+
+	return 0;
+}
+
+/* Broadcom BCM54210E */
+static int bcm54210e_config(struct phy_device *phydev)
+{
+	u32 reg = 0;
+
+	genphy_config_aneg(phydev);
+
+	phy_reset(phydev);
+
+	/* 125Mhz Clock Output Enable */
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL);
+	reg = 0xD07;
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL, reg);
+
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_DATA);
+	reg |= (1 << 0);
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_DATA, reg);
+
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_DATA);
+
+	reg = phy_read(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL);
+	reg &= 0xfffff000;
+	phy_write(phydev, MDIO_DEVAD_NONE, MIIM_BCM54XX_EXP_SEL, reg);
+
+	genphy_restart_aneg(phydev);
+
+	return 0;
+}
+
+/* Broadcom BCM54210S */
+static int bcm54210s_config(struct phy_device *phydev)
+{
+	genphy_config_aneg(phydev);
+
+	phy_reset(phydev);
+
+	return 0;
+}
+
 /* Broadcom BCM5461S */
 static int bcm5461_config(struct phy_device *phydev)
 {
@@ -323,6 +389,39 @@ static int bcm5482_startup(struct phy_device *phydev)
 	return bcm54xx_parse_status(phydev);
 }
 
+static int bcm5221_config(struct phy_device *phydev)
+{
+	genphy_config_aneg(phydev);
+
+	phy_reset(phydev);
+
+	return 0;
+}
+
+static int bcm5221_startup(struct phy_device *phydev)
+{
+	int ret;
+
+	/* Read the Status (2x to make sure link is right) */
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
+	return genphy_parse_link(phydev);
+}
+
+static int bcm54210_startup(struct phy_device *phydev)
+{
+	int ret;
+
+	/* Read the Status (2x to make sure link is right) */
+	ret = genphy_update_link(phydev);
+	if (ret)
+		return ret;
+
+	return genphy_parse_link(phydev);
+}
+
 static struct phy_driver BCM5461S_driver = {
 	.name = "Broadcom BCM5461S",
 	.uid = 0x2060c0,
@@ -363,12 +462,55 @@ static struct phy_driver BCM_CYGNUS_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver BCM5221_driver = {
+	.name = "Broadcom BCM5221",
+	.uid = 0x4061e4,
+	.mask = 0xfffff0,
+	.features = PHY_BASIC_FEATURES,
+	.config = &bcm5221_config,
+	.startup = &bcm5221_startup,
+	.shutdown = &genphy_shutdown,
+};
+
+static struct phy_driver BCM54612E_driver = {
+	.name = "Broadcom BCM54612E",
+	.uid = 0x03625e6a,
+	.mask = 0xfffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &bcm54612e_config,
+	.startup = &bcm54xx_startup,
+	.shutdown = &genphy_shutdown,
+};
+
+static struct phy_driver BCM54210E_driver = {
+	.name = "Broadcom BCM54210E",
+	.uid = 0x600d84a0,
+	.mask = 0xfffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &bcm54210e_config,
+	.startup = &bcm54210_startup,
+	.shutdown = &genphy_shutdown,
+};
+
+static struct phy_driver BCM54210S_driver = {
+	.name = "Broadcom BCM54210S",
+	.uid = 0x600d8595,
+	.mask = 0xfffffff0,
+	.features = PHY_GBIT_FEATURES,
+	.config = &bcm54210s_config,
+	.startup = &bcm54210_startup,
+	.shutdown = &genphy_shutdown,
+};
 int phy_broadcom_init(void)
 {
 	phy_register(&BCM5482S_driver);
 	phy_register(&BCM5464S_driver);
 	phy_register(&BCM5461S_driver);
 	phy_register(&BCM_CYGNUS_driver);
+	phy_register(&BCM5221_driver);
+	phy_register(&BCM54612E_driver);
+	phy_register(&BCM54210E_driver);
+	phy_register(&BCM54210S_driver);
 
 	return 0;
 }

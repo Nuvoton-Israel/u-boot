@@ -760,6 +760,7 @@ static struct phy_device *create_phy_by_mask(struct mii_dev *bus,
 		/* If the PHY ID is mostly f's, we didn't find anything */
 		if (r == 0 && (phy_id & 0x1fffffff) != 0x1fffffff) {
 			is_c45 = (devad == MDIO_DEVAD_NONE) ? false : true;
+			printf("\nFound phy_id=0x%08x addr=0x%02x ", phy_id, addr);
 			return phy_device_create(bus, addr, phy_id, is_c45,
 						 interface);
 		}
@@ -1070,7 +1071,7 @@ struct phy_device *phy_connect(struct mii_dev *bus, int addr,
 	if (phydev)
 		phy_connect_dev(phydev, dev);
 	else
-		printf("Could not get PHY for %s: addr %d\n", bus->name, addr);
+		printf("\nCould not get PHY for %s: addr %d\n", bus->name, addr);
 	return phydev;
 }
 

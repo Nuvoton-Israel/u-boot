@@ -30,6 +30,17 @@
 #include <power/regulator.h>
 #include "designware.h"
 
+#ifdef CONFIG_ARCH_NPCM8XX
+#include <asm/io.h>
+
+//#define debug printf
+
+#define SR_MII_CTRL_SS6_BIT6  6
+#define SR_MII_CTRL_ANEN_BIT12  12
+#define SR_MII_CTRL_SS13_BIT13  13
+#define SR_MII_STS_LINKUP_BIT2  2
+#endif
+
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 #ifdef CONFIG_DM_ETH
@@ -241,6 +252,9 @@ static int _dw_write_hwaddr(struct dw_eth_dev *priv, u8 *mac_id)
 static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 			  struct phy_device *phydev)
 {
+#ifdef CONFIG_ARCH_NPCM8XX
+	unsigned int start;
+#endif
 	u32 conf = readl(&mac_p->conf) | FRAMEBURSTENABLE | DISABLERXOWN;
 
 	if (!phydev->link) {
@@ -265,6 +279,55 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 	       (phydev->duplex) ? "full" : "half",
 	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
 
+	debug("dw_adjust_link readl(&mac_p->conf) = 0x%x \n",readl(&mac_p->conf));
+
+#ifdef CONFIG_ARCH_NPCM8XX
+		if( phydev->interface == PHY_INTERFACE_MODE_SGMII)
+		{
+			writew(0x1F00, 0xF07801FE);           /* Get access to 0x3E... (SR_MII_STS) */
+			/* Clear SGMII PHY default auto neg. */
+			writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_ANEN_BIT12), 0xF0780000);
+
+			switch (phydev->speed) {
+			    case SPEED_1000:
+				/* Set SGMII PHY 10/100/1000   SS6=1  */
+				writew(readw(0xF0780000) | (1 << SR_MII_CTRL_SS6_BIT6), 0xF0780000);
+				/* Set SGMII PHY 10/100/1000   SS13=0 */
+				writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_SS13_BIT13), 0xF0780000);
+				break;
+			    case SPEED_100:
+				/* Set SGMII PHY 10/100/1000   SS6=0  */
+				writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_SS6_BIT6), 0xF0780000);
+				/* Set SGMII PHY 10/100/1000   SS13=1 */
+				writew(readw(0xF0780000) | (1 << SR_MII_CTRL_SS13_BIT13), 0xF0780000);
+				break;
+			    case SPEED_10:
+				/* Set SGMII PHY 10/100/1000   SS6=0  */
+				writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_SS6_BIT6), 0xF0780000);
+				/* Set SGMII PHY 10/100/1000   SS13=0 */
+				writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_SS13_BIT13), 0xF0780000);
+				break;
+			    default:
+				break;
+			}
+
+			start = get_timer(0);
+			printf("SGMII PHY Wait for link up \n");
+			/* SGMII PHY Wait for link up */
+			while (!(readw(0xF0780002) & (1 << SR_MII_STS_LINKUP_BIT2)))
+			{
+				if (get_timer(start) >= 3*CONFIG_SYS_HZ)
+				{
+					printf("PHY link up timeout\n");
+					return -ETIMEDOUT;
+				}
+
+				mdelay(1);
+			};
+			printf("SGMII PHY Wait for link up done \n");
+		}
+#endif
+
 	return 0;
 }
 
@@ -285,6 +348,9 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
 	unsigned int start;
 	int ret;
+#ifdef CONFIG_ARCH_NPCM8XX
+	char * is_loopback;
+#endif
 
 	writel(readl(&dma_p->busmode) | DMAMAC_SRST, &dma_p->busmode);
 
@@ -296,8 +362,18 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 		writel(readl(&mac_p->conf) | MII_PORTSELECT, &mac_p->conf);
 	else
 		writel(readl(&mac_p->conf) & ~MII_PORTSELECT, &mac_p->conf);
-
+#ifdef CONFIG_ARCH_NPCM8XX
+	is_loopback = env_get("gmacloopb");
+	if (simple_strtoul(is_loopback, NULL, 10))
+	{
+		writel(readl(&mac_p->conf) | (1 << 12), &mac_p->conf);   //  gmac internal loopback !!!!!!
+		printf("GMAC Loop-Back On!\n");
+	}
+#endif
 	start = get_timer(0);
+#ifdef CONFIG_ARCH_NPCM8XX
+	printf("DMAMAC_SRST wait\n");
+#endif
 	while (readl(&dma_p->busmode) & DMAMAC_SRST) {
 		if (get_timer(start) >= CONFIG_MACRESET_TIMEOUT) {
 			printf("DMA reset timeout\n");
@@ -306,7 +382,9 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 
 		mdelay(100);
 	};
-
+#ifdef CONFIG_ARCH_NPCM8XX
+	printf("DMAMAC_SRST wait done\n");
+#endif
 	/*
 	 * Soft reset above clears HW address registers.
 	 * So we have to set it here once again.
@@ -861,6 +939,7 @@ static const struct udevice_id designware_eth_ids[] = {
 	{ .compatible = "amlogic,meson-axg-dwmac" },
 	{ .compatible = "st,stm32-dwmac" },
 	{ .compatible = "snps,arc-dwmac-3.70a" },
+	{ .compatible = "nuvoton,npcmX50-dwmac" },
 	{ }
 };
 

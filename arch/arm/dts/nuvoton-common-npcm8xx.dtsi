@@ -282,11 +282,7 @@
 		pinctrl-names = "default";
 		pinctrl-0 = <&sg1mdio_pins>;
 		snps,reset-active-low;
-#ifdef CONFIG_TARGET_ARBEL_PALLADIUM
-		snps,reset-delays-us = <0 10 1000>;
-#else
 		snps,reset-delays-us = <0 10000 1000000>;
-#endif
 		snps,reset-gpio = <&gpio5 30 GPIO_ACTIVE_LOW>;    /* gpio190 */
 		status = "disabled";
 	};
@@ -312,11 +308,7 @@
 			     &r3rxer_pins>;
 #endif
 		snps,reset-active-low;
-#ifdef CONFIG_TARGET_ARBEL_PALLADIUM
-		snps,reset-delays-us = <0 10 1000>;
-#else
 		snps,reset-delays-us = <0 10000 1000000>;
-#endif
 		snps,reset-gpio = <&gpio5 2 GPIO_ACTIVE_LOW>;    /* gpio162 */
 		status = "disabled";
 	};
@@ -330,11 +322,7 @@
 			/*   &r1err_pins  */   /* Work around */
 			     &r1md_pins>;
 		snps,reset-active-low;
-#ifdef CONFIG_TARGET_ARBEL_PALLADIUM
-		snps,reset-delays-us = <0 10 1000>;
-#else
 		snps,reset-delays-us = <0 10000 1000000>;
-#endif
 		snps,reset-gpio = <&gpio2 30 GPIO_ACTIVE_LOW>;    /* gpio94 */
 		status = "disabled";
 	};
@@ -348,11 +336,7 @@
 			/*   &r2err_pins  */   /* Work around */
 			     &r2md_pins>;
 		snps,reset-active-low;
-#ifdef CONFIG_TARGET_ARBEL_PALLADIUM
-		snps,reset-delays-us = <0 10 1000>;
-#else
 		snps,reset-delays-us = <0 10000 1000000>;
-#endif
 		snps,reset-gpio = <&gpio2 29 GPIO_ACTIVE_LOW>;    /* gpio93 */
 		status = "disabled";
 	};
