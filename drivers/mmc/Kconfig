@@ -607,6 +607,17 @@ config MMC_SDHCI_S5P
 
 	  If unsure, say N.
 
+config MMC_SDHCI_NPCMX50
+	bool "SDHCI support on Nuvoton NPCMX50 device"
+	depends on MMC_SDHCI
+	help
+	  This selects the Secure Digital Host Controller Interface (SDHCI)
+	  on Nuvoton NPCMX50 devic
+
+	  If you have a controller with this interface, say Y here.
+
+	  If unsure, say N.
+
 config MMC_SDHCI_SPEAR
 	bool "SDHCI support on ST SPEAr platform"
 	depends on MMC_SDHCI
