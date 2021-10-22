@@ -79,6 +79,38 @@
 			groups = "smb15";
 			function = "smb15";
 		};
+		smb16_pins: smb16-pins {
+			groups = "smb16";
+			function = "smb16";
+		};
+		smb17_pins: smb17-pins {
+			groups = "smb17";
+			function = "smb17";
+		};
+		smb18_pins: smb18-pins {
+			groups = "smb18";
+			function = "smb18";
+		};
+		smb19_pins: smb19-pins {
+			groups = "smb19";
+			function = "smb19";
+		};
+		smb20_pins: smb20-pins {
+			groups = "smb20";
+			function = "smb20";
+		};
+		smb21_pins: smb21-pins {
+			groups = "smb21";
+			function = "smb21";
+		};
+		smb22_pins: smb22-pins {
+			groups = "smb22";
+			function = "smb22";
+		};
+		smb23_pins: smb23-pins {
+			groups = "smb23";
+			function = "smb23";
+		};
 		smb4d_pins: smb4d-pins {
 			groups = "smb4d";
 			function = "smb4d";

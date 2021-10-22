@@ -40,6 +40,17 @@
 		i2c13 = &i2c13;
 		i2c14 = &i2c14;
 		i2c15 = &i2c15;
+		i2c16 = &i2c16;
+		i2c17 = &i2c17;
+		i2c18 = &i2c18;
+		i2c19 = &i2c19;
+		i2c20 = &i2c20;
+		i2c21 = &i2c21;
+		i2c22 = &i2c22;
+		i2c23 = &i2c23;
+		i2c24 = &i2c24;
+		i2c25 = &i2c25;
+		i2c26 = &i2c26;
 		spi0 = &fiu0;
 		spi1 = &fiu1;
 		spi3 = &fiu3;
@@ -251,7 +262,51 @@
 	i2c15: i2c-bus@f008f000 {
 		status = "okay";
 	};
-	
+
+	i2c16: i2c-bus@fff00000 {
+		status = "okay";
+	};
+
+	i2c17: i2c-bus@fff01000 {
+		status = "okay";
+	};
+
+	i2c18: i2c-bus@fff02000 {
+		status = "okay";
+	};
+
+	i2c19: i2c-bus@fff03000 {
+		status = "okay";
+	};
+
+	i2c20: i2c-bus@fff04000 {
+		status = "okay";
+	};
+
+	i2c21: i2c-bus@fff05000 {
+		status = "okay";
+	};
+
+	i2c22: i2c-bus@fff06000 {
+		status = "okay";
+	};
+
+	i2c23: i2c-bus@fff07000 {
+		status = "okay";
+	};
+
+	i2c24: i2c-bus@fff08000 {
+		status = "okay";
+	};
+
+	i2c25: i2c-bus@fff09000 {
+		status = "okay";
+	};
+
+	i2c26: i2c-bus@fff0a000 {
+		status = "okay";
+	};
+
 	pinctrl: pinctrl@f0800000 {
 		pinctrl-names = "default";
 		pinctrl-0 = <   
