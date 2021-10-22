@@ -1950,7 +1950,7 @@ endmenu
 menu "Security commands"
 config CMD_AES
 	bool "Enable the 'aes' command"
-	select AES
+	select AES if !ARCH_NPCM
 	help
 	  This provides a means to encrypt and decrypt data using the AES
 	  (Advanced Encryption Standard). This algorithm uses a symetric key

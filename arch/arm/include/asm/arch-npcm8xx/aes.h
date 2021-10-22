@@ -1,11 +1,9 @@
 #ifndef _ARBEL_AES_H_
 #define _ARBEL_AES_H_
 
-#include <uboot_aes.h>
-
 #define AES_OP_ENCRYPT          0
 #define AES_OP_DECRYPT          1
-#define SIZE_AES_BLOCK          (AES_KEY_LENGTH)
+#define SIZE_AES_BLOCK          (AES128_KEY_LENGTH)
 
 struct poleg_aes_regs {
 	unsigned char reserved_0[0x400];    // 0x000

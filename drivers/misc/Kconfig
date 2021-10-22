@@ -502,4 +502,13 @@ config ESM_PMIC
 	  Support ESM (Error Signal Monitor) on PMIC devices. ESM is used
 	  typically to reboot the board in error condition.
 
+config NPCMX50_OTP
+	bool "BMC NPCMX50 On-Chip OTP Memory Support"
+	depends on (ARM && ARCH_NPCM)
+	default n
+	help
+	  Support NPCMX50 BMC OTP memory (fuse).
+	  To compile this driver as a module, choose M here: the module
+	  will be called npcmX50_otp.
+
 endmenu

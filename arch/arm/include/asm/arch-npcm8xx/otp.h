@@ -1,11 +1,19 @@
 #ifndef _ARBEL_OTP_H_
 #define _ARBEL_OTP_H_
 
+#if defined (CONFIG_ARCH_NPCM8XX)
+	typedef enum {
+	NPCMX50_KEY_SA    = 0,
+	NPCMX50_FUSE_SA   = 0,
+	NPCMX50_NUM_OF_SA   = 1
+} npcm_otp_storage_array;
+#else
 typedef enum {
 	NPCMX50_KEY_SA    = 0,
 	NPCMX50_FUSE_SA   = 1,
 	NPCMX50_NUM_OF_SA = 2
-} poleg_otp_storage_array;
+} npcm_otp_storage_array;
+#endif
 
 // arrray images in flash, to program during fisrt boot (offsets in sector)
 #define SA_KEYS_FLASH_IMAGE_OFFSET      (0x000)
@@ -18,7 +26,7 @@ typedef enum {
 #define SA_FUSE_FUSTRAP_OFFSET          (0x00)
 #define SA_FUSE_FUSTRAP_OSECBOOT_MASK   (0x00800000)
 
-struct poleg_otp_regs {
+struct npcm_otp_regs {
 	unsigned int fst;
 	unsigned int faddr;
 	unsigned int fdata;
@@ -31,9 +39,16 @@ struct poleg_otp_regs {
 #define FST_RDST                (1 << 1)
 #define FST_RIEN                (1 << 2)
 
+#if defined (CONFIG_ARCH_NPCM8XX)
+#define FADDR_BYTEADDR(addr)        ((addr) << 3)
+#define FADDR_BITPOS(pos)           ((pos) << 0)
+#define FADDR_VAL(addr, pos)        (FADDR_BITPOS(pos) | FADDR_BYTEADDR(addr))
+#define FADDR_IN_PROG               (1 << 16)
+#else
 #define FADDR_BYTEADDR(addr)    ((addr) << 0)
 #define FADDR_BITPOS(pos)       ((pos) << 10)
 #define FADDR_VAL(addr, pos)    (FADDR_BYTEADDR(addr) | FADDR_BITPOS(pos))
+#endif
 
 #define FDATA_MASK              (0xff)
 
@@ -59,14 +74,18 @@ struct poleg_otp_regs {
 // Value to clean FDATA contents
 #define FDATA_CLEAN_VALUE       0x01
 
-
+#if defined (CONFIG_ARCH_NPCM8XX)
+#define NPCMX50_OTP_ARR_BYTE_SIZE        8192
+#else
 #define NPCMX50_OTP_ARR_BYTE_SIZE        1024
+#endif
+
 #define MIN_PROGRAM_PULSES               4
 #define MAX_PROGRAM_PULSES               20
 
 int  fuse_program_data(u32 bank, u32 word, u8 *data, u32 size);
 int  npcmX50_otp_select_key(u8 key_index);
-bool npcmX50_otp_is_fuse_array_disabled(poleg_otp_storage_array arr);
+bool npcmX50_otp_is_fuse_array_disabled(npcm_otp_storage_array arr);
 void npcmX50_otp_nibble_parity_ecc_encode(u8 *datain, u8 *dataout, u32 size);
 void npcmX50_otp_majority_rule_ecc_encode(u8 *datain, u8 *dataout, u32 size);
 

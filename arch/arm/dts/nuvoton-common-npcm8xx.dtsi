@@ -178,7 +178,7 @@
 	};
 
 	sha: sha@f085a000 {
-		compatible = "nuvoton,npcm750-sha";
+		compatible = "nuvoton,npcmX50-sha";
 		reg = <0x0 0xf085a000 0x0 0x1000>;
 		clocks = <&clks CLK_AHB>;
 		clock-names = "clk_ahb";

@@ -2,4 +2,19 @@ menu "Hardware crypto devices"
 
 source drivers/crypto/fsl/Kconfig
 
+config NPCMX50_AES
+	bool "Support the NPCMX50 AES algorithm"
+	select NPCMX50_OTP
+	help
+	  This provides a means to encrypt and decrypt data using the NPCM750
+	  AES (Advanced Encryption Standard). This algorithm uses a symetric
+	  key and is widely used as a streaming cipher. This command only
+	  supports AES256-CBC.
+
+config NPCMX50_SHA
+	bool "Enable NPCMX50 cryptographic HW SHA accelerator"
+	help
+	  This option enables support of NPCMX50 cryptographic HW SHA accelerator.
+	  It supports SHA1 and SHA256 hashing algorithms.
+
 endmenu
