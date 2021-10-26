@@ -137,6 +137,11 @@
 
 	gmac4: gmac4 {   /* GMAC4- RMII2 */
 		status = "okay";
+		pinctrl-names = "default";
+		pinctrl-0 = <&r2_pins>;
+		snps,bitbang-mii;
+		snps,mdc-gpio = <&gpio2 27 GPIO_ACTIVE_HIGH>;    /* gpio91 */
+		snps,mdio-gpio = <&gpio2 28 GPIO_ACTIVE_HIGH>;    /* gpio92 */
 	};
 
 	usb_dev0: usb-dev0@f0830100 {

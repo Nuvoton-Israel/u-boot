@@ -240,6 +240,9 @@ struct dw_eth_dev {
 #endif
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc reset_gpio;
+	struct gpio_desc mdc_gpio;
+	struct gpio_desc mdio_gpio;
+	int mdio_val;
 #endif
 #ifdef CONFIG_CLK
 	struct clk *clocks;	/* clock list */

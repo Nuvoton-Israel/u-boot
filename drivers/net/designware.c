@@ -844,6 +844,30 @@ int designware_eth_probe(struct udevice *dev)
 	}
 	priv->bus = miiphy_get_dev_by_name(dev->name);
 
+#if defined(CONFIG_BITBANGMII) && defined(CONFIG_DM_GPIO)
+	if (dev_read_bool(dev, "snps,bitbang-mii")) {
+		printf("\n%s: use bitbang mii..\n", dev->name);
+		ret = gpio_request_by_name(dev, "snps,mdc-gpio", 0,
+				&priv->mdc_gpio, GPIOD_IS_OUT);
+		if (ret) {
+			printf("no mdc-gpio\n");
+			return ret;
+		}
+		ret = gpio_request_by_name(dev, "snps,mdio-gpio", 0,
+				&priv->mdio_gpio, GPIOD_IS_OUT);
+		if (ret) {
+			printf("no mdio-gpio\n");
+			return ret;
+		}
+		dm_gpio_set_value(&priv->mdc_gpio, 1);
+		bb_miiphy_buses[0].priv = priv;
+		sprintf(bb_miiphy_buses[0].name, dev->name);
+		priv->bus->read = bb_miiphy_read;
+		priv->bus->write = bb_miiphy_write;
+		priv->bus->reset = NULL;
+	}
+#endif
+
 	ret = dw_phy_init(priv, dev);
 	debug("%s, ret=%d\n", __func__, ret);
 	if (!ret)
@@ -963,4 +987,85 @@ static struct pci_device_id supported[] = {
 };
 
 U_BOOT_PCI_DEVICE(eth_designware, supported);
+#endif
+
+#if defined(CONFIG_BITBANGMII) && CONFIG_IS_ENABLED(DM_GPIO)
+int npcm_eth_bb_init(struct bb_miiphy_bus *bus)
+{
+	return 0;
+}
+
+static int npcm_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
+{
+	struct dw_eth_dev *priv = bus->priv;
+	struct gpio_desc *desc = &priv->mdio_gpio;
+	desc->flags = 0;
+	dm_gpio_set_dir_flags(&priv->mdio_gpio, GPIOD_IS_OUT);
+
+	return 0;
+}
+
+static int npcm_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
+{
+	struct dw_eth_dev *priv = bus->priv;
+	struct gpio_desc *desc = &priv->mdio_gpio;
+	desc->flags = 0;
+	dm_gpio_set_dir_flags(&priv->mdio_gpio, GPIOD_IS_IN);
+
+	return 0;
+}
+
+static int npcm_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
+{
+	struct dw_eth_dev *priv = bus->priv;
+
+	if (v)
+		dm_gpio_set_value(&priv->mdio_gpio, 1);
+	else
+		dm_gpio_set_value(&priv->mdio_gpio, 0);
+
+	return 0;
+}
+
+static int npcm_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
+{
+	struct dw_eth_dev *priv = bus->priv;
+
+	*v = dm_gpio_get_value(&priv->mdio_gpio);
+	return 0;
+}
+
+static int npcm_eth_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
+{
+	struct dw_eth_dev *priv = bus->priv;
+
+	if (v)
+		dm_gpio_set_value(&priv->mdc_gpio, 1);
+	else
+		dm_gpio_set_value(&priv->mdc_gpio, 0);
+
+	return 0;
+}
+
+static int npcm_eth_bb_delay(struct bb_miiphy_bus *bus)
+{
+	udelay(1);
+
+	return 0;
+}
+
+struct bb_miiphy_bus bb_miiphy_buses[] = {
+	{
+		.name		= "npcm_eth",
+		.init		= npcm_eth_bb_init,
+		.mdio_active	= npcm_eth_bb_mdio_active,
+		.mdio_tristate	= npcm_eth_bb_mdio_tristate,
+		.set_mdio	= npcm_eth_bb_set_mdio,
+		.get_mdio	= npcm_eth_bb_get_mdio,
+		.set_mdc	= npcm_eth_bb_set_mdc,
+		.delay		= npcm_eth_bb_delay,
+	}
+};
+
+int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
 #endif
