@@ -764,6 +764,8 @@
 		compatible = "nuvoton,npcmX50-i2c-bus";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&smb8_pins>;
 		status = "disabled";
 	};
 
@@ -772,6 +774,8 @@
 		compatible = "nuvoton,npcmX50-i2c-bus";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&smb9_pins>;
 		status = "disabled";
 	};
 
@@ -780,6 +784,8 @@
 		compatible = "nuvoton,npcmX50-i2c-bus";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&smb10_pins>;
 		status = "disabled";
 	};
 
