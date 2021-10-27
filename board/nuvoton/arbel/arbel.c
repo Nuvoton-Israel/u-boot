@@ -661,14 +661,11 @@ int board_init(void)
 int dram_init(void)
 {
 	struct npcm850_gcr *gcr = (struct npcm850_gcr *)(uintptr_t)npcm850_get_base_gcr();
-#ifdef CONFIG_TARGET_ARBEL_PALLADIUM
-    struct clk_ctl *clkctl = (struct clk_ctl *)(uintptr_t)npcm850_get_base_clk();
-#endif
 
+// For bootblock 0.0.5 and below:
 #if 0
 	int RAMsize = (readl(&gcr->intcr4) >> 20) & 0x7;   /* Read only 3bit's MSB of GMMAP0 */
 
-// For bootblock 0.0.5 and below:
 	switch(RAMsize)
 	{
 		case 1:
@@ -786,6 +783,7 @@ int checkboard(void)
 #endif
 
 #ifdef CONFIG_LAST_STAGE_INIT
+#ifdef SECURE_BOOT
 static bool is_security_enabled(void)
 {
 	struct npcm850_gcr *gcr = (struct npcm850_gcr *)(uintptr_t)npcm850_get_base_gcr();
@@ -913,10 +911,10 @@ static int secure_boot_configuration(void)
 
 	return 0;
 }
+#endif
 
 int last_stage_init(void)
 {
-	int rc;
 	char value[32];
 	struct udevice *dev = gd->cur_serial_dev;
 
@@ -937,16 +935,15 @@ int last_stage_init(void)
 		env_set("console", value);
 
 	}
-#if 0
+#ifdef SECURE_BOOT
 	if (is_security_enabled()) {
 
-		rc = check_nist_version();
+		int rc = check_nist_version();
 		if (rc != 0)
 			return rc;
 	} else {
-
 		// OTP can be programmed only in basic mode
-		rc = secure_boot_configuration();
+		int rc = secure_boot_configuration();
 		if (rc != 0)
 			return rc;
 	}
