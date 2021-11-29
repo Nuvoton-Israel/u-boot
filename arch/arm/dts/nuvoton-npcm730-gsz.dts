@@ -4,8 +4,12 @@
 #include "nuvoton-npcm730.dts"
 #include "nuvoton-npcm730-gsz-pincfg.dtsi"
 / {
-	model = "Quanta npcm730 BMC Board (Device Tree v00.05e)";
+	model = "Quanta npcm730 BMC Board (Device Tree v00.07)";
 	compatible = "nuvoton,poleg", "quanta,gsz";
+
+    config {
+            espi-channel-support = <0xf>;
+    };
 
 	pinctrl: pinctrl@f0800000 {
 		compatible = "nuvoton,npcm7xx-pinctrl";

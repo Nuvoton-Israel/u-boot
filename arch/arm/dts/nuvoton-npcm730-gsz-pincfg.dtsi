@@ -113,7 +113,7 @@
 		gpio32pp_pins: gpio32pp-pins {
 			pins = "GPIO32/nSPI0CS1";
 			bias-disable;
-			output-high;
+			output-low;
 			drive-push-pull;
 			persist-enable;
 		};
@@ -478,7 +478,7 @@
 		gpio187pp_pins: gpio187pp-pins {
 			pins = "GPIO187/nSPI3CS1";
 			bias-disable;
-			output-low;
+			output-high;
 			drive-push-pull;
 			persist-enable;
 		};
