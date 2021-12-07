@@ -1,0 +1,24 @@
+if ARCH_NPCM750
+
+choice
+	prompt "NPCM board select"
+
+config TARGET_POLEG
+    bool "POLEG board"
+
+endchoice
+
+
+config SYS_CPU
+        default "armv7"
+
+config SYS_SOC
+	default "npcm750"
+
+config SYS_MEM_TOP_HIDE
+	hex "Reserved TOP memory"
+	default 0x03000000
+
+source "board/nuvoton/poleg/Kconfig"
+
+endif

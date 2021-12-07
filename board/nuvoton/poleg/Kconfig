@@ -1,0 +1,30 @@
+if TARGET_POLEG
+
+config SYS_BOARD
+	default "poleg"
+
+config SYS_VENDOR
+	default "nuvoton"
+
+config SYS_CONFIG_NAME
+	default "poleg"
+
+config NIST_VERSION_ADDR
+	hex "Linux NIST version address"
+	default 0x0
+	help
+	  The address of the Linux NIST version, which should be identical
+	  to the u-boot version.
+
+choice
+	prompt "Target board select"
+	default TARGET_POLEG_EVB
+config TARGET_POLEG_EVB
+	bool "Poleg EVB"
+
+config TARGET_POLEG_RUNBMC
+	bool "Poleg RunBMC"
+
+endchoice
+
+endif

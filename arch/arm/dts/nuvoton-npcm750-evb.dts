@@ -1,0 +1,194 @@
+/dts-v1/;
+#include "nuvoton-common-npcm7xx.dtsi"
+
+/ {
+	model = "Nuvoton npcm750 Development Board";
+	compatible = "nuvoton,poleg", "nuvoton,npcm750";
+
+	chosen {
+		stdout-path = &serial0;
+		tick-timer = &timer0;
+	};
+
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		serial3 = &serial3;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		i2c5 = &i2c5;
+		i2c6 = &i2c6;
+		i2c7 = &i2c7;
+		i2c8 = &i2c8;
+		i2c9 = &i2c9;
+		i2c10 = &i2c10;
+		i2c11 = &i2c11;
+		i2c12 = &i2c12;
+		i2c13 = &i2c13;
+		i2c14 = &i2c14;
+		i2c15 = &i2c15;
+		spi0 = &fiu0;
+		spi3 = &fiu3;
+		spi4 = &pspi1;
+		mmc0 = &sdhci0;
+		mmc1 = &sdhci1;
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
+		gpio5 = &gpio5;
+		gpio6 = &gpio6;
+		gpio7 = &gpio7;
+		usb0 = &usbd0;
+		eth0 = &emc0;
+		eth1 = &emc1;
+		eth2 = &gmac0;
+		eth3 = &gmac1;
+	};
+
+	fiu0: fiu0@fb000000 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&spi0cs1_pins>;
+		status = "okay";
+		spi_flash@0 {
+			compatible = "spi-flash";
+			reg = <0>; /* Chip select 0 */
+			memory-map = <0x80000000 0x4000000>;
+		};
+		spi_flash@1 {
+			compatible = "spi-flash";
+			reg = <1>;
+			memory-map = <0x88000000 0x2000000>;
+		};
+	};
+
+	fiu3: fiu3@c0000000 {
+		status = "okay";
+		spi_flash@0 {
+			compatible = "spi-flash";
+			reg = <0>; /* Chip select 0 */
+			memory-map = <0xA0000000 0x2000000>;
+		};
+	};
+
+	pspi1: pspi1@f0200000 {
+		status = "okay";
+	};
+
+	usbd0: usbd0@f0830100 {
+		status = "okay";
+	};
+
+	pspi1: pspi1@f0200000 {
+		status = "okay";
+	};
+
+	sdhci1: sdhci1@f0842000 {
+		status = "okay";
+	};
+
+	otp: otp@f0189000 {
+		status = "okay";
+	};
+
+	rng: rng@f000b000 {
+		status = "okay";
+	};
+
+	aes: aes@f0858000 {
+		status = "okay";
+	};
+
+	sha: sha@f085a000 {
+		status = "okay";
+	};
+
+	gmac0: gmac0@f0802000 {
+		status = "okay";
+	};
+
+	gmac1: gmac1@f0804000 {
+		status = "okay";
+	};
+
+	emc0: emc0@f0825000 {
+		status = "okay";
+	};
+
+	emc1: emc1@f0826000 {
+		status = "okay";
+	};
+
+	ehci: ehci {
+		status = "okay";
+	};
+
+	i2c0: i2c-bus@f0080000 {
+		status = "okay";
+	};
+
+	i2c1: i2c-bus@f0081000 {
+		status = "okay";
+	};
+
+	i2c2: i2c-bus@f0082000 {
+		status = "okay";
+	};
+
+	i2c3: i2c-bus@f0083000 {
+		status = "okay";
+	};
+
+	i2c4: i2c-bus@f0084000 {
+		status = "okay";
+	};
+
+	i2c5: i2c-bus@f0085000 {
+		status = "okay";
+	};
+
+	i2c6: i2c-bus@f0086000 {
+		status = "okay";
+	};
+
+	i2c7: i2c-bus@f0087000 {
+		status = "okay";
+	};
+
+	i2c8: i2c-bus@f0088000 {
+		status = "okay";
+	};
+
+	i2c9: i2c-bus@f0089000 {
+		status = "okay";
+	};
+
+	i2c10: i2c-bus@f008a000 {
+		status = "okay";
+	};
+
+	i2c11: i2c-bus@f008b000 {
+		status = "okay";
+	};
+
+	i2c12: i2c-bus@f008c000 {
+		status = "okay";
+	};
+
+	i2c13: i2c-bus@f008d000 {
+		status = "okay";
+	};
+
+	i2c14: i2c-bus@f008e000 {
+		status = "okay";
+	};
+
+	i2c15: i2c-bus@f008f000 {
+		status = "okay";
+	};
+};

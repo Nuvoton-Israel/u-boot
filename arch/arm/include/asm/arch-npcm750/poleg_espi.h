@@ -1,0 +1,9 @@
+#ifndef __POLEG_ESPI_H_
+#define __POLEG_ESPI_H_
+
+#define NPCM750_ESPI_BA			0xF009F000
+#define ESPICFG					0x04
+#define ESPICFG_CHNSUPP_MASK	0x0F
+#define ESPICFG_CHNSUPP_SHFT	24
+
+#endif
