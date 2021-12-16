@@ -67,6 +67,7 @@ struct poleg_otp_regs {
 #define MIN_PROGRAM_PULSES               4
 #define MAX_PROGRAM_PULSES               20
 
+int fuse_prog_image(u32 bank, uintptr_t address);
 int  fuse_program_data(u32 bank, u32 word, u8 *data, u32 size);
 int  npcm750_otp_select_key(u8 key_index);
 bool npcm750_otp_is_fuse_array_disabled(poleg_otp_storage_array arr);
