@@ -240,7 +240,7 @@
 	};
 
 	gmac0: gmac0@f0802000 {
-		compatible = "nuvoton,npcm750-dwmac";
+		compatible = "nuvoton,npcm-dwmac";
 		reg = <0xF0802000 0x2000>;
 		phy-mode = "rgmii";
 		pinctrl-names = "default";
@@ -250,7 +250,7 @@
 	};
 
 	gmac1: gmac1@f0804000 {
-		compatible = "nuvoton,npcm750-dwmac";
+		compatible = "nuvoton,npcm-dwmac";
 		reg = <0xF0804000 0x2000>;
 		phy-mode = "rgmii";
 		pinctrl-names = "default";
