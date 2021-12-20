@@ -1,3 +1,5 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+
 #ifndef _NPCM_AES_H_
 #define _NPCM_AES_H_
 
@@ -5,7 +7,7 @@
 #define AES_OP_DECRYPT          1
 #define SIZE_AES_BLOCK          (AES128_KEY_LENGTH)
 
-struct poleg_aes_regs {
+struct npcm_aes_regs {
 	unsigned char reserved_0[0x400];    // 0x000
 	unsigned int aes_key_0;             // 0x400
 	unsigned int aes_key_1;             // 0x404
@@ -35,18 +37,16 @@ struct poleg_aes_regs {
 	unsigned int aes_fifo_status;       // 0x600
 };
 
-#define AES_BUSY_BIT            (1 << 0)
+#define AES_BUSY_BIT            BIT(0)
+#define SW_RESET_BIT            BIT(0)
+#define AES_SK_BIT              BIT(0)
 
-#define SW_RESET_BIT            (1 << 0)
-
-#define AES_SK_BIT              (1 << 0)
-
-#define DIN_FIFO_FULL           (1 << 0)
-#define DIN_FIFO_EMPTY          (1 << 1)
-#define DOUT_FIFO_FULL          (1 << 2)
-#define DOUT_FIFO_EMPTY         (1 << 3)
-#define DIN_FIFO_OVERFLOW       (1 << 4)
-#define DOUT_FIFO_UNDERFLOW     (1 << 5)
+#define DIN_FIFO_FULL           BIT(0)
+#define DIN_FIFO_EMPTY          BIT(1)
+#define DOUT_FIFO_FULL          BIT(2)
+#define DOUT_FIFO_EMPTY         BIT(3)
+#define DIN_FIFO_OVERFLOW       BIT(4)
+#define DOUT_FIFO_UNDERFLOW     BIT(5)
 
 int npcm_aes_select_key(u8 fkeyind);
 

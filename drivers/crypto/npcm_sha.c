@@ -896,6 +896,7 @@ static int npcm_sha_bind(struct udevice *dev)
 
 static const struct udevice_id npcm_sha_ids[] = {
     { .compatible = "nuvoton,npcm845-sha" },
+    { .compatible = "nuvoton,npcm750-sha" },
     { }
 };
 
