@@ -306,6 +306,13 @@ config PINCTRL_NPCM8XX
   help
     Support MFSEL control on Nuvoton NPCM8xx SoC.
 
+config PINCTRL_NPCM7XX
+  bool "Nuvoton NPCM7xx pin control driver"
+  depends on DM && PINCTRL_GENERIC && ARCH_NPCM750
+  default y
+  help
+    Support MFSEL control on Nuvoton NPCM8xx SoC.
+
 endif
 
 source "drivers/pinctrl/broadcom/Kconfig"
