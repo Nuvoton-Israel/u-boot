@@ -44,7 +44,7 @@ static int npcm_sdhci_bind(struct udevice *dev)
 }
 
 static const struct udevice_id npcm_mmc_ids[] = {
-	{ .compatible = "nuvoton,npcm750-sdhci" },
+	{ .compatible = "nuvoton,npcmx50-sdhci-eMMC" },
 	{ .compatible = "nuvoton,npcm845-sdhci" },
 	{ }
 };
