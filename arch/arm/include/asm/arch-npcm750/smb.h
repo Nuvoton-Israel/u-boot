@@ -1,12 +1,13 @@
+/* SPDX-License-Identifier: GPL-2.0+ */
+
 #ifndef _NPCM_SMB_H_
 #define _NPCM_SMB_H_
-#include <linux/bitops.h>
 
 /* SMBCTL1 */
 #define SMBCTL1_START		BIT(0)
 #define SMBCTL1_STOP		BIT(1)
 #define SMBCTL1_INTEN		BIT(2)
-#define SMBCTL1_ACK			BIT(4)
+#define SMBCTL1_ACK		BIT(4)
 #define SMBCTL1_STASTRE		BIT(7)
 
 /* SMBCTL2 */
@@ -18,18 +19,18 @@
 
 /* SMBCST */
 #define SMBCST_BB		BIT(1)
-#define SMBCST_TGSCL	BIT(5)
+#define SMBCST_TGSCL		BIT(5)
 
 /* SMBST */
 #define SMBST_XMIT		BIT(0)
-#define SMBST_MASTER	BIT(1)
-#define SMBST_STASTR	BIT(3)
-#define SMBST_NEGACK	BIT(4)
+#define SMBST_MASTER		BIT(1)
+#define SMBST_STASTR		BIT(3)
+#define SMBST_NEGACK		BIT(4)
 #define SMBST_BER		BIT(5)
 #define SMBST_SDAST		BIT(6)
 
 /* SMBCST3 in bank0 */
-#define SMBCST3_EO_BUSY	BIT(7)
+#define SMBCST3_EO_BUSY		BIT(7)
 
 /* SMBFIF_CTS in bank1 */
 #define SMBFIF_CTS_CLR_FIFO	BIT(6)
@@ -65,7 +66,7 @@ struct smb_bank1_regs {
 	u8 rxf_ctl;
 };
 
-struct npcm_smb_regs {
+struct npcm_i2c_regs {
 	u16	sda;
 	u16 st;
 	u16 cst;

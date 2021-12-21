@@ -31,7 +31,7 @@
 
 #define NPCM750_BASE(device, base) \
 static inline unsigned long __attribute__((no_instrument_function)) \
-	npcm750_get_base_##device(void) \
+	npcm_get_base_##device(void) \
 { \
 	return NPCM750_##base; \
 }

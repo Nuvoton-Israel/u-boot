@@ -43,7 +43,7 @@ enum pll_clks {
 
 static u32 clk_get_pll_freq(struct clk_ctl *pll_clk, enum pll_clks pll)
 {
-	struct npcm750_gcr *gcr = (struct npcm750_gcr *)npcm750_get_base_gcr();
+	struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
 	u32 pllval;
 	u32 fin = EXT_CLOCK_FREQUENCY_KHZ; /* 25KHz */
 	u32 fout, nr, nf, no;

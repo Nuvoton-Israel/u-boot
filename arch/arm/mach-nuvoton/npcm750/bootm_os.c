@@ -17,7 +17,7 @@
 
 static int npcm750_check_selftest (void)
 {
-	struct npcm750_gcr *gcr = (struct npcm750_gcr *)npcm750_get_base_gcr();
+	struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
 	int ret = 0;
 	int val = 0;
 

@@ -1226,9 +1226,9 @@ static int npcm7xx_pinctrl_probe(struct udevice *dev)
 {
 	struct npcm7xx_pinctrl_priv *priv = dev_get_priv(dev);
 
-	priv->gcr_base = npcm750_get_base_gcr();
-	priv->clk_base = npcm750_get_base_clk();
-	priv->gpio_base = npcm750_get_base_gpio();
+	priv->gcr_base = npcm_get_base_gcr();
+	priv->clk_base = npcm_get_base_clk();
+	priv->gpio_base = npcm_get_base_gpio();
 
 	return 0;
 }

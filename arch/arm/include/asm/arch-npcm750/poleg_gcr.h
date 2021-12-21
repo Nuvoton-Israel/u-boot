@@ -183,5 +183,6 @@
 #define I2CSEGCTL_S0DWE				21
 #define I2CSEGCTL_S4DEN				24
 #define I2CSEGCTL_S4DWE				25
+#define I2CSEGCTL_INIT_VAL		0x9333F000
 
 #endif

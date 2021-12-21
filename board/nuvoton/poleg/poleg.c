@@ -203,8 +203,8 @@ static int secure_boot_configuration(void)
 
 int board_init(void)
 {
-	struct npcm750_gcr *gcr = (struct npcm750_gcr *)npcm750_get_base_gcr();
-	struct clk_ctl *clkctl = (struct clk_ctl *)npcm750_get_base_clk();
+	struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
+	struct clk_ctl *clkctl = (struct clk_ctl *)npcm_get_base_clk();
 	int nodeoff;
 	u32 reg_val = 0;
 	u32 espi_ch_supp;
@@ -251,7 +251,7 @@ int board_init(void)
 
 int dram_init(void)
 {
-	struct npcm750_gcr *gcr = (struct npcm750_gcr *)npcm750_get_base_gcr();
+	struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
 
 	int RAMsize = (readl(&gcr->intcr3) >> 8) & 0x7;
 

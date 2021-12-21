@@ -29,7 +29,7 @@
 #error "no target board defined!"
 #endif
 
-struct npcm750_gcr {
+struct npcm_gcr {
 	unsigned int  pdid;
 	unsigned int  pwron;
 	unsigned char res1[0x4];

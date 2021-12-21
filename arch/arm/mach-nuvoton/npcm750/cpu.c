@@ -28,7 +28,7 @@
 
 int print_cpuinfo (void)
 {
-	struct npcm750_gcr *gcr = (struct npcm750_gcr *)npcm750_get_base_gcr();
+	struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
 	unsigned int id, mdlr;
 
 	mdlr = readl(&gcr->mdlr);

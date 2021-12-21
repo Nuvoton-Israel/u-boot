@@ -41,7 +41,7 @@ void reset_misc(void)
 
 enum reset_type npcm7xx_reset_reason(void)
 {
-	struct npcm750_gcr *gcr = (struct npcm750_gcr *)npcm750_get_base_gcr();
+	struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
 	enum reset_type type = UNKNOWN;
     u32 value = readl(&gcr->ressr);
 
