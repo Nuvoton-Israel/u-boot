@@ -1589,7 +1589,7 @@ U_BOOT_DRIVER(pinctrl_npcm7xx) = {
 	.name = "nuvoton_npcm7xx_pinctrl",
 	.id = UCLASS_PINCTRL,
 	.of_match = npcm7xx_pinctrl_ids,
-	.plat_auto = sizeof(struct npcm7xx_pinctrl_priv),
+	.priv_auto = sizeof(struct npcm7xx_pinctrl_priv),
 	.ops = &npcm7xx_pinctrl_ops,
 	.probe = npcm7xx_pinctrl_probe,
 };
