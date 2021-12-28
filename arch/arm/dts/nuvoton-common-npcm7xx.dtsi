@@ -291,7 +291,7 @@
 
 	i2c0: i2c-bus@f0080000 {
 		reg = <0xf0080000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -301,7 +301,7 @@
 
 	i2c1: i2c-bus@f0081000 {
 		reg = <0xf0081000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -311,7 +311,7 @@
 
 	i2c2: i2c-bus@f0082000 {
 		reg = <0xf0082000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -321,7 +321,7 @@
 
 	i2c3: i2c-bus@f0083000 {
 		reg = <0xf0083000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -331,7 +331,7 @@
 
 	i2c4: i2c-bus@f0084000 {
 		reg = <0xf0084000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -341,7 +341,7 @@
 
 	i2c5: i2c-bus@f0085000 {
 		reg = <0xf0085000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -351,7 +351,7 @@
 
 	i2c6: i2c-bus@f0086000 {
 		reg = <0xf0086000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -361,7 +361,7 @@
 
 	i2c7: i2c-bus@f0087000 {
 		reg = <0xf0087000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -371,7 +371,7 @@
 
 	i2c8: i2c-bus@f0088000 {
 		reg = <0xf0088000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -381,7 +381,7 @@
 
 	i2c9: i2c-bus@f0089000 {
 		reg = <0xf0089000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -391,7 +391,7 @@
 
 	i2c10: i2c-bus@f008a000 {
 		reg = <0xf008a000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -401,7 +401,7 @@
 
 	i2c11: i2c-bus@f008b000 {
 		reg = <0xf008b000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -411,7 +411,7 @@
 
 	i2c12: i2c-bus@f008c000 {
 		reg = <0xf008c000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -421,7 +421,7 @@
 
 	i2c13: i2c-bus@f008d000 {
 		reg = <0xf008d000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -431,7 +431,7 @@
 
 	i2c14: i2c-bus@f008e000 {
 		reg = <0xf008e000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";
@@ -441,7 +441,7 @@
 
 	i2c15: i2c-bus@f008f000 {
 		reg = <0xf008f000 0x1000>;
-		compatible = "nuvoton,npcm750-i2c-bus";
+		compatible = "nuvoton,npcm750-i2c";
 		clocks = <&clks CLK_APB2>;
 		clock-frequency = <100000>;
 		pinctrl-names = "default";

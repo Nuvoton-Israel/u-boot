@@ -496,6 +496,7 @@ static int npcm_i2c_probe(struct udevice *dev)
 	struct npcm_i2c_regs *reg;
 	struct clk clk;
 	int ret;
+	u32 val;
 
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret) {
@@ -521,7 +522,20 @@ static int npcm_i2c_probe(struct udevice *dev)
 	}
 	if (IS_ENABLED(CONFIG_ARCH_NPCM8XX))
 		writel(I2CSEGCTL_INIT_VAL, &gcr->i2csegctl);
-
+	if (IS_ENABLED(CONFIG_ARCH_NPCM750)) {
+		if(bus->module_num == 0) {
+			val = readl(&gcr->i2csegsel) & ~(3 << I2CSEGSEL_S0DECFG);
+                	writel(val, &gcr->i2csegsel);
+                	val = readl(&gcr->i2csegctl) | (1 << I2CSEGCTL_S0DWE) | (1 << I2CSEGCTL_S0DEN);
+                	writel(val, &gcr->i2csegctl);
+		}
+		else if(bus->module_num == 4) {
+			val = readl(&gcr->i2csegsel) & ~(3 << I2CSEGSEL_S4DECFG);
+                	writel(val, &gcr->i2csegsel);
+                	val = readl(&gcr->i2csegctl) | (1 << I2CSEGCTL_S4DWE) | (1 << I2CSEGCTL_S4DEN);
+                	writel(val, &gcr->i2csegctl);
+		}
+	}
 	/* enable SMB moudle */
 	writeb(readb(&reg->ctl2) | SMBCTL2_ENABLE, &reg->ctl2);
 
