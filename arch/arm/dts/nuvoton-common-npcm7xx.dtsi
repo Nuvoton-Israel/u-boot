@@ -121,7 +121,7 @@
 	};
 
 	sdhci0: sdhci0@f0840000 {
-		compatible = "nuvoton,npcmx50-sdhci-SD";
+		compatible = "nuvoton,npcm750-sdhci-SD";
 		reg = <0xf0840000 0x2000>;
 		index = <0x0>;
 		bus-width = <0x4>;
@@ -131,7 +131,7 @@
 	};
 
 	sdhci1: sdhci1@f0842000 {
-		compatible = "nuvoton,npcmx50-sdhci-eMMC";
+		compatible = "nuvoton,npcm750-sdhci-eMMC";
 		reg = <0xf0842000 0x200>;
 		index = <0x1>;
 		bus-width = <0x8>;
