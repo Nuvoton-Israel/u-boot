@@ -514,6 +514,11 @@ config RTL8169
 config SMC911X
 	bool "SMSC LAN911x and LAN921x controller driver"
 
+config ETH_NPCM750
+        bool "Nuvoton NPCM750 Ethernet MAC"
+        help
+      support NPCM750 EMAC
+
 if SMC911X
 
 if !DM_ETH
