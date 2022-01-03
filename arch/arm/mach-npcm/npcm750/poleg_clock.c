@@ -115,7 +115,7 @@ static int poleg_uart_init_clk(struct clk_ctl *uart_clk)
 		| (CLKSEL_UARTCKSEL_PLL2 << CLKSEL_UARTCKSEL),
 		&uart_clk->clksel);
 
-	return 0;
+	return 24000000;
 }
 
 enum sd_num {
