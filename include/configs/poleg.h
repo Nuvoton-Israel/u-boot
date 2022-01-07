@@ -21,6 +21,9 @@
 #define CONFIG_CMDLINE_TAG
 #define CONFIG_INITRD_TAG
 
+#define CONFIG_SYS_USB_OHCI_MAX_ROOT_PORTS   1
+#define CONFIG_USB_OHCI_NEW
+
 #ifdef  CONFIG_SYS_PROMPT
 #undef  CONFIG_SYS_PROMPT
 #define CONFIG_SYS_PROMPT               "U-Boot>"

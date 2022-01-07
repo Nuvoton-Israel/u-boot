@@ -138,6 +138,7 @@
 
 	ehci: ehci {
 		status = "okay";
+		phys = <&usbphy2 3>;
 	};
 
 	i2c0: i2c-bus@f0080000 {
@@ -231,4 +232,10 @@
 			>;
 	};
 
+};
+&usbphy1 {
+        status = "okay";
+};
+&usbphy2 {
+        status = "okay";
 };

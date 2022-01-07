@@ -100,6 +100,7 @@ static int npcm_reset_probe(struct udevice *dev)
 
 static const struct udevice_id npcm_reset_ids[] = {
 	{ .compatible = "nuvoton,npcm845-reset" },
+	{ .compatible = "nuvoton,npcm750-reset" },
 	{ }
 };
 

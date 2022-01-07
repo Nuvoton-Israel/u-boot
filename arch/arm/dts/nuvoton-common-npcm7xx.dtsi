@@ -1,6 +1,7 @@
 #include <dt-bindings/clock/npcm750_poleg-clock.h>
 #include <dt-bindings/gpio/gpio.h>
 #include "nuvoton-npcm7xx-pinctrl.dtsi"
+#include <dt-bindings/reset/nuvoton,npcm7xx-reset.h>
 
 / {
 
@@ -13,12 +14,44 @@
 		reg = <0xf0801000 0x70>;
 		u-boot,dm-pre-reloc;
 	};
+	
+	rstc: rstc@f0801000 {
+                compatible = "nuvoton,npcm750-reset";
+                reg = <0xf0801000 0x78>;
+                #reset-cells = <2>;
+        };	
 
-	usbd0: usbd0@f0830100 {
+	gcr: gcr@f0800000 {
+                compatible = "nuvoton,npcm750-gcr", "syscon",
+                        "simple-mfd";
+                reg = <0xf0800000 0x1000>;
+        };
+
+	usbphy {
+                compatible = "simple-bus", "nuvoton,npcm750-usb-phy";
+                #address-cells = <1>;
+                #size-cells = <0>;
+                syscon = <&gcr>;
+		usbphy1: usbphy1 {
+                        compatible = "nuvoton,npcm750-usb-phy";
+                        #phy-cells = <1>;
+                        reg = <1>;
+                        resets = <&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_USBPHY1>;
+                        status = "disabled";
+                };
+		usbphy2: usbphy2 {
+                        compatible = "nuvoton,npcm750-usb-phy";
+                        #phy-cells = <1>;
+                        reg = <2>;
+                        resets =<&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_USBPHY2>;
+                        status = "disabled";
+                };
+	};
+	/*usbd0: usbd0@f0830100 {
 		compatible = "nuvoton,poleg-usbd";
 		reg = <0xF0830100 0x200>;
 		status = "disabled";
-	};
+	};*/
 
 	serial0: serial0@f0001000 {
 		compatible = "nuvoton,npcm750-uart";
@@ -284,10 +317,11 @@
 	};
 
 	ehci: ehci {
-		compatible = "nuvoton,poleg-ehci";
-		reg = <0xF0806100 0x100>;
-		status = "disabled";
-	};
+                compatible = "nuvoton,npcm750-ehci";
+                reg = <0xF0806100 0x100>;
+                resets = <&rstc NPCM7XX_RESET_IPSRST2 NPCM7XX_RESET_USBH1>;
+                status = "disabled";
+        };
 
 	i2c0: i2c-bus@f0080000 {
 		reg = <0xf0080000 0x1000>;
