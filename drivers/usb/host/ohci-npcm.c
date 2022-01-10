@@ -92,6 +92,7 @@ static int npcm_ohci_remove(struct udevice *dev)
 
 static const struct udevice_id npcm_ohci_ids[] = {
 	{ .compatible = "nuvoton,npcm845-ohci" },
+	{ .compatible = "nuvoton,npcm750-ohci" },
 	{ }
 };
 

@@ -323,6 +323,13 @@
                 status = "disabled";
         };
 
+	ohci: usb@f0807000 {
+		compatible = "nuvoton,npcm750-ohci";
+		reg = <0xF0807000 0x1000>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST2 NPCM7XX_RESET_USBH1>;
+		status = "disabled";
+        };
+	
 	i2c0: i2c-bus@f0080000 {
 		reg = <0xf0080000 0x1000>;
 		compatible = "nuvoton,npcm750-i2c";
