@@ -95,6 +95,7 @@
 
 	usbd0: usbd0@f0830100 {
 		status = "okay";
+		phys = <&usbphy1 0>;
 	};
 
 	pspi1: pspi1@f0200000 {

@@ -102,6 +102,7 @@ static const struct udevice_id npcm_ehci_ids[] = {
 	{ .compatible = "nuvoton,npcm845-ehci", .data = USB_INIT_HOST },
 	{ .compatible = "nuvoton,npcm845-udc", .data = USB_INIT_DEVICE },
 	{ .compatible = "nuvoton,npcm750-ehci", .data = USB_INIT_HOST },
+	{ .compatible = "nuvoton,npcm750-udc", .data = USB_INIT_DEVICE },
 	{ }
 };
 
