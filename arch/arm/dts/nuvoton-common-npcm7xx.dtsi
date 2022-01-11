@@ -50,51 +50,61 @@
 	usbd0: usbd0@f0830100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0830100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_UDC0>;
 		status = "disabled";
 	};
 	usbd1: usbd1@f0831100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0831100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST1 NPCM7XX_RESET_UDC1>;
 		status = "disabled";
 	};
 	usbd2: usbd2@f0832100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0832100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST1 NPCM7XX_RESET_UDC2>;
 		status = "disabled";
 	};
 	usbd3: usbd3@f0833100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0833100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST1 NPCM7XX_RESET_UDC3>;
 		status = "disabled";
 	};
 	usbd4: usbd4@f0834100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0834100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST1 NPCM7XX_RESET_UDC4>;
 		status = "disabled";
 	};
 	usbd5: usbd5@f0835100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0835100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST1 NPCM7XX_RESET_UDC5>;
 		status = "disabled";
 	};
 	usbd6: usbd6@f0836100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0836100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST1 NPCM7XX_RESET_UDC6>;
 		status = "disabled";
 	};
 	usbd7: usbd7@f0837100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0837100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_UDC7>;
 		status = "disabled";
 	};
 	usbd8: usbd8@f0838100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0838100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_UDC8>;
 		status = "disabled";
 	};
 	usbd9: usbd9@f0839100 {
 		compatible = "nuvoton,npcm750-udc";
 		reg = <0xF0839100 0x200>;
+		resets = <&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_UDC9>;
 		status = "disabled";
 	};
 
