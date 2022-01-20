@@ -9,8 +9,8 @@ struct npcm_rng_regs {
 	unsigned int rngmode;
 };
 
-#define RNGCS_RNGE              (1 << 0)
-#define RNGCS_DVALID            (1 << 1)
+#define RNGCS_RNGE              BIT(0)
+#define RNGCS_DVALID            BIT(1)
 #define RNGCS_CLKP(range)       ((0x0f & (range)) << 2)
 #define RNGMODE_M1ROSEL_VAL     (0x02) /* Ring Oscillator Select for Method I */
 

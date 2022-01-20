@@ -13,7 +13,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/gcr.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/poleg_rst.h>
+#include <asm/arch/rst.h>
 #include <dm/pinctrl.h>
 #include <dm/device_compat.h>
 

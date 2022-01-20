@@ -9,8 +9,7 @@
 #define CHUNK_SIZE		    16
 
 /* FIU UMA data size */
-enum _spi_uma_data_size
-{
+enum _spi_uma_data_size {
 	FIU_UMA_DATA_SIZE_0	    = 0,
 	FIU_UMA_DATA_SIZE_1	    = 1,
 	FIU_UMA_DATA_SIZE_2	    = 2,

@@ -1,10 +1,4 @@
-/*
- *  Copyright (c) 2019 Nuvoton Technology Corp.
- *
- * Configuration settings for the NUVOTON POLEG board.
- *
- * SPDX-License-Identifier:	GPL-2.0+
- */
+/* SPDX-License-Identifier: GPL-2.0+ */
 
 #ifndef __POLEG_INFO_H_
 #define __POLEG_INFO_H_
@@ -21,12 +15,12 @@
 
 #define POLEG_BB_HEADER_FIELD_ADDR(offset)      ((SPI_FLASH_BASE_ADDR) + (offset))
 #define POLEG_BOOTBLOCK_CODE                    ((SPI_FLASH_BASE_ADDR) + (HEADER_SIZE))
-#define POLEG_BOOTBLOCK_SIZE                    (*(u32*)(POLEG_BB_HEADER_FIELD_ADDR(HEADER_SIZE_OFFSET)))
+#define POLEG_BOOTBLOCK_SIZE                    (*(u32 *)(POLEG_BB_HEADER_FIELD_ADDR(HEADER_SIZE_OFFSET)))
 #define POLEG_BOOTBLOCK_END                     (ALIGN(((POLEG_BOOTBLOCK_CODE) + (POLEG_BOOTBLOCK_SIZE)), 0x1000))
 
 #define POLEG_UBOOT_HEADER_FIELD_ADDR(offset)   ((POLEG_BOOTBLOCK_END) + (offset))
 #define POLEG_UBOOT_CODE                        ((POLEG_BOOTBLOCK_END) + (HEADER_SIZE))
-#define POLEG_UBOOT_SIZE                        (*(u32*)(POLEG_UBOOT_HEADER_FIELD_ADDR(HEADER_SIZE_OFFSET)))
+#define POLEG_UBOOT_SIZE                        (*(u32 *)(POLEG_UBOOT_HEADER_FIELD_ADDR(HEADER_SIZE_OFFSET)))
 #define POLEG_UBOOT_END                         (ALIGN(((POLEG_UBOOT_CODE) + (POLEG_UBOOT_SIZE)), 0x1000))
 
 #endif

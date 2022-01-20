@@ -22,7 +22,7 @@
 
 #include <common.h>
 #include <asm/io.h>
-#include <asm/arch/poleg_rst.h>
+#include <asm/arch/rst.h>
 #include <asm/arch/gcr.h>
 #include <asm/arch/poleg_info.h>
 #include <asm/arch/cpu.h>
@@ -42,24 +42,22 @@ void reset_misc(void)
 enum reset_type npcm7xx_reset_reason(void)
 {
 	struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
-	enum reset_type type = UNKNOWN;
+	enum reset_type type = UNKNOWN_TYPE;
     u32 value = readl(&gcr->ressr);
 
 	if (value == 0)
 		value = ~readl(&gcr->intcr2);
 
-	value &= RESSR_MASK;
-
 	if (value & CORST)
-		type = CORST;
+		type = CORST_TYPE;
 	if (value & WD0RST)
-		type = WD0RST;
+		type = WD0RST_TYPE;
 	if (value & WD1RST)
-		type = WD1RST;
+		type = WD1RST_TYPE;
 	if (value & WD2RST)
-		type = WD2RST;
+		type = WD2RST_TYPE;
 	if (value & PORST)
-		type = PORST;
+		type = PORST_TYPE;
 
 	return type;
 }

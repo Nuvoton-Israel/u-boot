@@ -10,9 +10,9 @@
 #include <asm/arch/gcr.h>
 #include <asm/mach-types.h>
 #include <asm/arch/clock.h>
-#include <asm/arch/poleg_otp.h>
+#include <asm/arch/otp.h>
 #include <asm/arch/poleg_info.h>
-#include <asm/arch/poleg_espi.h>
+#include <asm/arch/espi.h>
 #include <common.h>
 #include <dm.h>
 #include <fdtdec.h>
@@ -127,7 +127,7 @@ static int secure_boot_configuration(void)
 	if (((u32*)(addr + SA_TAG_FLASH_IMAGE_OFFSET))[0] == ((u32*)tag)[0] &&
 		((u32*)(addr + SA_TAG_FLASH_IMAGE_OFFSET))[1] == ((u32*)tag)[1]) {
 
-		u8 fuse_arrays[2 * NPCM750_OTP_ARR_BYTE_SIZE];
+		u8 fuse_arrays[2 * NPCM_OTP_ARR_BYTE_SIZE];
 		u32 fustrap_orig;
 
 		printf("%s(): fuse array image was found on flash in address 0x%x\n", __func__, addr);
@@ -140,7 +140,7 @@ static int secure_boot_configuration(void)
 
 		printf("%s(): program fuse key array from address 0x%x\n", __func__, addr + SA_KEYS_FLASH_IMAGE_OFFSET);
 
-		rc = fuse_prog_image(NPCM750_KEY_SA, (u32)(fuse_arrays + SA_KEYS_FLASH_IMAGE_OFFSET));
+		rc = fuse_prog_image(NPCM_KEY_SA, (u32)(fuse_arrays + SA_KEYS_FLASH_IMAGE_OFFSET));
 		if (rc != 0)
 			return rc;
 
@@ -151,7 +151,7 @@ static int secure_boot_configuration(void)
 
 		printf("%s(): program fuse strap array from address 0x%x\n", __func__, addr + SA_FUSE_FLASH_IMAGE_OFFSET);
 
-		rc = fuse_prog_image(NPCM750_FUSE_SA, (u32)(fuse_arrays + SA_FUSE_FLASH_IMAGE_OFFSET));
+		rc = fuse_prog_image(NPCM_FUSE_SA, (u32)(fuse_arrays + SA_FUSE_FLASH_IMAGE_OFFSET));
 		if (rc != 0)
 			return rc;
 
@@ -187,7 +187,7 @@ static int secure_boot_configuration(void)
 		// programm SECBOOT bit if required
 		if (fustrap_orig & FUSTRAP_O_SECBOOT) {
 			printf("%s(): program secure boot bit to FUSTRAP\n", __func__);
-			rc = fuse_program_data(NPCM750_FUSE_SA, 0, (u8*)&fustrap_orig, sizeof(fustrap_orig));
+			rc = fuse_program_data(NPCM_FUSE_SA, 0, (u8*)&fustrap_orig, sizeof(fustrap_orig));
 		} else {
 			printf("%s(): secure boot bit is not set in the flash image, secure boot will not be enabled\n", __func__);
 		}
@@ -240,9 +240,9 @@ int board_init(void)
 	if (readl(&gcr->mfsel4) & (1 << MFSEL4_ESPISEL)) {
 		espi_ch_supp = fdtdec_get_config_int(gd->fdt_blob, "espi-channel-support", 0);
 		if (espi_ch_supp > 0) {
-			reg_val = readl(NPCM750_ESPI_BA + ESPICFG);
+			reg_val = readl(NPCM_ESPI_BA + ESPICFG);
 			writel(reg_val | ((espi_ch_supp & ESPICFG_CHNSUPP_MASK) << ESPICFG_CHNSUPP_SHFT),
-					NPCM750_ESPI_BA + ESPICFG);
+					NPCM_ESPI_BA + ESPICFG);
 		}
 	}
 

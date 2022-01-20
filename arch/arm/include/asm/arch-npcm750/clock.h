@@ -81,15 +81,6 @@ enum {
 #define CLKDIV4_RGREFDIV	    28
 #define CLKDIV4_RCPREFDIV       12
 
-/* PLL Control Register 2 (PLLCON2) */
-#define PLLCONn_LOKI                31
-#define PLLCONn_LOKS                30
-#define PLLCONn_FBDV                16
-#define PLLCONn_OTDV2               13
-#define PLLCONn_PWDEN               12
-#define PLLCONn_OTDV1               8
-#define PLLCONn_INDV                0
-
 /* CPUCKSEL (CPU/AMBA/MC Clock Source Select Bit) */
 #define CLKSEL_CPUCKSEL_PLL0        0x00   /* 0 0: PLL0 clock*/
 #define CLKSEL_CPUCKSEL_PLL1        0x01   /* 0 1: PLL1 clock */
@@ -153,10 +144,6 @@ enum {
 
 #define EXT_CLOCK_FREQUENCY_KHZ	    25 * 1000 * 1UL
 #define EXT_CLOCK_FREQUENCY_MHZ	    25
-#define _1Hz_           1UL
-#define _1KHz_          (1000 * _1Hz_ )
-#define _1MHz_          (1000 * _1KHz_)
-#define _1GHz_          (1000 * _1MHz_)
 
 struct clk_ctl {
 	unsigned int  clken1;
