@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-2.0
-// Copyright (c) 2020 Fii USA Inc. 
+// Copyright (c) 2020 Fii USA Inc.
 // Maintainer: Brandon Ong <Brandon.Ong@fii-na.com>
 
 / {
-	pinctrl: pinctrl@f0800000 {	
+	pinctrl: pinctrl@f0800000 {
 		/* LED Pins*/
 		gpio7oh_pins: gpio7oh-pins {
                         pins = "GPIO7/IOX2D0/SMB2DSCL";
@@ -16,7 +16,7 @@
                         label = "BMC_FAULT_LED";
                         bias-disable;
                         output-low;
-                };   
+                };
                 gpio169ol_pins: gpio169ol-pins {
                         pins = "GPIO169/nSCIPME";
                         label = "SYS_ERR_LED";
@@ -28,7 +28,7 @@
 		gpio17_pins: gpio17-pins{
                         pins = "GPIO17/PSPI2DI/SMB4DEN";
                         bias-disable;
-                        input-enable;   
+                        input-enable;
                 };
                 gpio18o_pins: gpio18o-pins{
 			pins = "GPIO18/PSPI2D0/SMB4BSDA";
@@ -40,7 +40,7 @@
 			bias-disable;
 			output-low;
                 };
-		
+
 
                 /* Mux Pins */
                 // UART Mux Pins
@@ -49,13 +49,13 @@
                         label = "S0_UART0_BMC_SEL";
                         bias-disable;
                         output-high;
-                };   
+                };
                 gpio161oh_pins: gpio161oh-pins {
                         pins = "GPIO161/nLFRAME/nESPICS";
                         label = "S0_UART1_BMC_SEL";
                         bias-disable;
                         output-high;
-                };   
+                };
 		gpio177oh_pins: gpio177oh-pins {
                         pins = "GPIO177/PSPI1DI/FANIN17";
                         label = "S1_UART1_BMC_SEL";
@@ -64,7 +64,7 @@
                 };
                 gpio198ol_pins: gpio198ol-pins {
                         pins = "GPIO198/SMB0DSDA";
-                        label = "SX_BMC_UART1_SEL";     
+                        label = "SX_BMC_UART1_SEL";
                         bias-disable;
                         output-low;
                 };
@@ -177,10 +177,11 @@
                         bias-disable;
                         output-low;
                 };
-		gpio203ol_pins: gpio203ol-pins {        
+		gpio203ol_pins: gpio203ol-pins {
                         pins = "GPIO203/FANIN16";
                         label = "BMC_PWRBTN_OUT";
                         bias-disable;
+                        persist-enable;
                         output-low;
 		};
 		// graceful shutdown trigger
@@ -605,12 +606,12 @@
                         pins = "GPIO188/SPI3D2/nSPI3CS2";
                         bias-disable;
                         output-high;
-                };  
+                };
                 gpio189_pins: gpio189-pins {
                         pins = "GPIO189/SPI3D3/nSPI3CS3";
                         bias-disable;
                         input-enable;
-                };  		
+                };
                 gpio190i_pins: gpio190i-pins{
                         pins = "GPIO190/nPRD_SMI";
                         label = "S0_GPI2_SPECIAL_BOOT";
