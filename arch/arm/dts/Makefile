@@ -1036,7 +1036,6 @@ dtb-$(CONFIG_TARGET_ARBEL_EVB) += \
 	nuvoton-npcm845-evb.dtb
 
 dtb-$(CONFIG_ARCH_NPCM750) += \
-	        nuvoton-npcm750-evb.dtb \
 		nuvoton-npcm750-buv.dtb
 
 targets += $(dtb-y)

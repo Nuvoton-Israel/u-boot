@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: GPL-2.0
 /dts-v1/;
 
-#include "nuvoton-common-npcm7xx.dtsi"
+#include "nuvoton-npcm750.dtsi"
 #include "nuvoton-npcm750-buv-pincfg.dtsi"
 
 / {
@@ -33,10 +34,9 @@
 		i2c13 = &i2c13;
 		i2c14 = &i2c14;
 		i2c15 = &i2c15;
-		spi0 = &fiu0;
-		spi3 = &fiu3;
-		spi4 = &fiux;
-		spi5 = &pspi1;
+		fiu0 = &fiu0;
+		fiu1 = &fiu3;
+		fiu2 = &fiux;
 		mmc1 = &sdhci1;
 		gpio0 = &gpio0;
 		gpio1 = &gpio1;
@@ -46,197 +46,148 @@
 		gpio5 = &gpio5;
 		gpio6 = &gpio6;
 		gpio7 = &gpio7;
-		usb0 = &usbd0;
+		usb0 = &udc0;
 		eth0 = &emc0;
 		eth1 = &gmac0;
 	};
-	serial0: serial0@f0001000 {
-		status = "okay";
-	};
-	fiu0: fiu0@fb000000 {
-		pinctrl-names = "default";
-		pinctrl-0 = <&spi0cs1_pins>;
-		status = "okay";
-		spi_flash@0 {
-			compatible = "spi-flash";
-			reg = <0>; /* Chip select 0 */
-			memory-map = <0x80000000 0x4000000>;
-		};
-		spi_flash@1 {
-			compatible = "spi-flash";
-			reg = <1>;
-			memory-map = <0x88000000 0x4000000>;
-		};
-	};
 
-	fiu3: fiu3@c0000000 {
-		status = "okay";
-		pinctrl-names = "default";
-		pinctrl-0 = <&spi3_pins
-			&spi3quad_pins>;
-		spi_flash@0 {
-			compatible = "spi-flash";
-			reg = <0>; /* Chip select 0 */
-			memory-map = <0xA0000000 0x8000000>;
-		};
-	};
+};
 
-	fiux: fiux@fb001000 {
-		status = "okay";
-		spi_flash@0 {
-		compatible = "spi-flash";
-			reg = <0>; /* Chip select 0 */
-		};
-	};
+&udc0 {
+	status = "okay";
+	phys = <&usbphy1 0>;
+};
 
-	pspi1: pspi1@f0200000 {
-		status = "okay";
-	};
+&serial0 {
+	status = "okay";
+	clock-frequency = <24000000>;
+};
 
-	usbd0: usbd0@f0830100 {
-		status = "okay";
-		phys = <&usbphy1 0>;
-	};
+&sha {
+	status = "okay";
+};
 
-	pspi1: pspi1@f0200000 {
-		status = "okay";
-	};
+&aes {
+	status = "okay";
+};
 
-	sdhci1: sdhci1@f0842000 {
-		status = "okay";
-	};
+&rng {
+	status = "okay";
+};
 
-	otp: otp@f0189000 {
-		status = "okay";
+&fiu0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi0cs1_pins>;
+	status = "okay";
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
 	};
-
-	rng: rng@f000b000 {
-		status = "okay";
+	spi_flash@1 {
+		compatible = "jedec,spi-nor";
+		reg = <1>;
 	};
+};
 
-	aes: aes@f0858000 {
-		status = "okay";
+&fiu3 {
+	pinctrl-0 = <&spi3_pins>;
+	status = "okay";
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
 	};
+};
 
-	sha: sha@f085a000 {
-		status = "okay";
-	};
+&i2c0 {
+	status = "okay";
+};
 
-	gmac0: gmac0@f0802000 {
-		status = "okay";
-	};
+&i2c1 {
+	status = "okay";
+};
 
-	emc0: emc0@f0825000 {
-		status = "okay";
-		pinctrl-names = "default";
-		pinctrl-0 = <&r1_pins
+&i2c2 {
+	status = "okay";
+};
+
+&i2c3 {
+	status = "okay";
+};
+
+&i2c4 {
+	status = "okay";
+};
+
+&i2c5 {
+	status = "okay";
+};
+
+&i2c6 {
+	status = "okay";
+};
+
+&i2c7 {
+	status = "okay";
+};
+
+&i2c8 {
+	status = "okay";
+};
+
+&i2c9 {
+	status = "okay";
+};
+
+&i2c10 {
+	status = "okay";
+};
+
+&i2c11 {
+	status = "okay";
+};
+
+&i2c12 {
+	status = "okay";
+};
+
+&i2c13 {
+	status = "okay";
+};
+
+&ehci1 {
+	status = "okay";
+	phys = <&usbphy2 3>;
+};
+
+&otp {
+	status = "okay";
+};
+
+&usbphy1 {
+	status = "okay";
+};
+
+&usbphy2 {
+	status = "okay";
+};
+
+&gmac0 {
+	phy-mode = "rgmii-id";
+	snps,eee-force-disable;
+	status = "okay";
+};
+
+&emc0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&r1_pins
 			&r1err_pins>;
-		fixed-link {
+	fixed-link {
 			speed = <100>;
 			full-dulpex;
-		};
 	};
-
-	ehci: ehci {
-		status = "okay";
-		phys = <&usbphy2 3>;
-	};
-
-	i2c0: i2c-bus@f0080000 {
-		status = "okay";
-	};
-
-	i2c1: i2c-bus@f0081000 {
-		status = "okay";
-	};
-
-	i2c2: i2c-bus@f0082000 {
-		status = "okay";
-	};
-
-	i2c3: i2c-bus@f0083000 {
-		status = "okay";
-	};
-
-	i2c4: i2c-bus@f0084000 {
-		status = "okay";
-	};
-
-	i2c5: i2c-bus@f0085000 {
-		status = "okay";
-	};
-
-	i2c6: i2c-bus@f0086000 {
-		status = "okay";
-	};
-
-	i2c7: i2c-bus@f0087000 {
-		status = "okay";
-	};
-
-	i2c8: i2c-bus@f0088000 {
-		status = "okay";
-	};
-
-	i2c9: i2c-bus@f0089000 {
-		status = "okay";
-	};
-
-	i2c10: i2c-bus@f008a000 {
-		status = "okay";
-	};
-
-	i2c11: i2c-bus@f008b000 {
-		status = "okay";
-	};
-
-	i2c12: i2c-bus@f008c000 {
-		status = "okay";
-	};
-
-	i2c13: i2c-bus@f008d000 {
-		status = "okay";
-	};
-
-	i2c14: i2c-bus@f008e000 {
-		status = "okay";
-	};
-
-	i2c15: i2c-bus@f008f000 {
-		status = "okay";
-	};
-
-	pinctrl: pinctrl@f0800000 {
-		pinctrl-names = "default";
-		pinctrl-0 = <
-			&uart1_pins
-			&ddc_pins
-			&wdog1_pins
-			&wdog2_pins
-			/** enable BUV 7 segment display **/
-			&gpio138o_pins
-			&gpio139o_pins
-			&gpio89o_pins
-			&gpio143o_pins
-			&gpio9o_pins
-			&gpio231o_pins
-			&gpio140o_pins
-			&gpio142o_pins
-			&gpio90o_pins
-			&gpio88o_pins
-			&gpio141o_pins
-			&gpio87o_pins
-			&gpio11o_pins
-			&gpio24o_pins
-			&gpio137o_pins
-			&gpio25o_pins
-			>;
-	};
-
 };
-&usbphy1 {
-        status = "okay";
-};
-&usbphy2 {
-        status = "okay";
+
+&sdhci0 {
+	status = "okay";
 };

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: GPL-2.0+
+// Copyright (c) 2021 Nuvoton Technology tomer.maimon@nuvoton.com
+
 / {
 	pinctrl: pinctrl@f0800000 {
 		gpio138o_pins: gpio138o-pins {
@@ -63,6 +66,67 @@
 		gpio25o_pins: gpio25o-pins {
 			pins = "GPIO25/IOXHDI";
 			output-high;
+		};
+		gpio17_pins: gpio17-pins {
+			pins = "GPIO17/PSPI2DI/SMB4DEN";
+			bias-disable;
+			input-enable;
+		};
+		gpio18o_pins: gpio18o-pins {
+			pins = "GPIO18/PSPI2D0/SMB4BSDA";
+			bias-disable;
+			output-high;
+		};
+		gpio19ol_pins: gpio19ol-pins {
+			pins = "GPIO19/PSPI2CK/SMB4BSCL";
+			bias-disable;
+			output-low;
+		};
+		gpio84_pins: gpio84-pins {
+			pins = "GPIO84/R2TXD0";
+			bias-disable;
+			input-enable;
+		};
+		gpio85_pins: gpio85-pins {
+			pins = "GPIO85/R2TXD1";
+			bias-disable;
+			input-enable;
+		};
+		gpio122_pins: gpio122-pins {
+			pins = "GPIO122/SMB2BSDA";
+			bias-disable;
+			input-enable;
+		};
+		gpio124_pins: gpio124-pins {
+			pins = "GPIO124/SMB1CSDA";
+			bias-disable;
+			input-enable;
+		};
+		gpio125_pins: gpio125-pins {
+			pins = "GPIO125/SMB1CSCL";
+			bias-disable;
+			input-enable;
+		};
+		gpio126_pins: gpio126-pins {
+			pins = "GPIO126/SMB1BSDA";
+			bias-disable;
+			input-enable;
+		};
+		gpio4_pins: gpio4-pins {
+			pins = "GPIO4/IOX2DI/SMB1DSDA";
+			slew-rate = <1>;
+		};
+		gpio5_pins: gpio5-pins {
+			pins = "GPIO5/IOX2LD/SMB1DSCL";
+			slew-rate = <1>;
+		};
+		gpio6_pins: gpio6-pins {
+			pins = "GPIO6/IOX2CK/SMB2DSDA";
+			slew-rate = <1>;
+		};
+		gpio7_pins: gpio7o-pins {
+			pins = "GPIO7/IOX2D0/SMB2DSCL";
+			slew-rate = <1>;
 		};
 	};
 };
