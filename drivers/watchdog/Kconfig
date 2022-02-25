@@ -156,6 +156,12 @@ config WDT_MTK
 	  The watchdog timer is stopped when initialized.
 	  It performs full SoC reset.
 
+config WDT_NPCM
+	bool "Nuvoton watchdog timer support"
+	depends on WDT
+	help
+	  Nuvoton npcm7xx/npcm8xx watchdog.
+
 config WDT_OCTEONTX
 	bool "OcteonTX core watchdog support"
 	depends on WDT && (ARCH_OCTEONTX || ARCH_OCTEONTX2)
