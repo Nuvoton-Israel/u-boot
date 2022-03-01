@@ -65,7 +65,7 @@ static int npcm_timer_probe(struct udevice *dev)
 	priv->last_count = 0;
 	uc_priv->clock_rate = NPCM_TIMER_CLOCK_RATE;
 
-	if (IS_ENABLED(CONFIG_ARCH_NPCM750)) {
+	if (IS_ENABLED(CONFIG_ARCH_NPCM7xx)) {
 		ret = clk_get_by_index(dev, 0, &clk);
 		if (ret < 0)
 			return ret;

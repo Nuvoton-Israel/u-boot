@@ -1,19 +1,13 @@
-if ARCH_NPCM750
-
-choice
-	prompt "NPCM board select"
+if ARCH_NPCM7xx
 
 config TARGET_POLEG
     bool "POLEG board"
-
-endchoice
-
 
 config SYS_CPU
         default "armv7"
 
 config SYS_SOC
-	default "npcm750"
+	default "npcm7xx"
 
 config SYS_MEM_TOP_HIDE
 	hex "Reserved TOP memory"

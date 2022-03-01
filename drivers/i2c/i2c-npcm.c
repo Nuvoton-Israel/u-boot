@@ -522,7 +522,7 @@ static int npcm_i2c_probe(struct udevice *dev)
 	}
 	if (IS_ENABLED(CONFIG_ARCH_NPCM8XX))
 		writel(I2CSEGCTL_INIT_VAL, &gcr->i2csegctl);
-	if (IS_ENABLED(CONFIG_ARCH_NPCM750)) {
+	if (IS_ENABLED(CONFIG_ARCH_NPCM7xx)) {
 		if(bus->module_num == 0) {
 			val = readl(&gcr->i2csegsel) & ~(3 << I2CSEGSEL_S0DECFG);
                 	writel(val, &gcr->i2csegsel);

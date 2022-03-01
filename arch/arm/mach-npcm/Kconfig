@@ -25,7 +25,7 @@ config ARCH_NPCM8XX
 	bool "Support Nuvoton NPCM8xx SoC"
 	select ARM64
 
-config ARCH_NPCM750
+config ARCH_NPCM7xx
 	select CPU_V7A
 	select OF_CONTROL
 	select DM
@@ -34,6 +34,6 @@ config ARCH_NPCM750
 endchoice
 
 source "arch/arm/mach-npcm/npcm8xx/Kconfig"
-source "arch/arm/mach-npcm/npcm750/Kconfig"
+source "arch/arm/mach-npcm/npcm7xx/Kconfig"
 
 endif
