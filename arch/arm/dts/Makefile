@@ -1035,7 +1035,7 @@ dtb-$(CONFIG_TARGET_PRESIDIO_ASIC) += ca-presidio-engboard.dtb
 dtb-$(CONFIG_TARGET_ARBEL_EVB) += \
 	nuvoton-npcm845-evb.dtb
 
-dtb-$(CONFIG_ARCH_NPCM750) += \
+dtb-$(CONFIG_ARCH_NPCM7xx) += \
 		nuvoton-npcm750-buv.dtb
 
 targets += $(dtb-y)
