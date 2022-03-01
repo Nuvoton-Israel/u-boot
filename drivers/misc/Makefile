@@ -29,6 +29,7 @@ endif
 endif
 obj-$(CONFIG_ALI152X) += ali512x.o
 obj-$(CONFIG_ALTERA_SYSID) += altera_sysid.o
+obj-$(CONFIG_ARCH_NPCM) += npcm_host_intf.o
 obj-$(CONFIG_ATSHA204A) += atsha204a-i2c.o
 obj-$(CONFIG_CBMEM_CONSOLE) += cbmem_console.o
 obj-$(CONFIG_DS4510)  += ds4510.o
