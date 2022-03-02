@@ -37,7 +37,7 @@
 		fiu0 = &fiu0;
 		fiu1 = &fiu3;
 		fiu2 = &fiux;
-		mmc1 = &sdhci1;
+		mmc0 = &sdhci0;
 		gpio0 = &gpio0;
 		gpio1 = &gpio1;
 		gpio2 = &gpio2;

@@ -227,7 +227,7 @@ int board_init(void)
 		/* set Graphic Reset Delay to fix host stuck */
 		writel((readl(&gcr->intcr3) | (0x7 << INTCR3_GFXRSTDLY) ), &gcr->intcr3);;
 
-		board_sd_clk_init("mmc1");
+		board_sd_clk_init("mmc0");
 	}
 
 	nodeoff = -1;
