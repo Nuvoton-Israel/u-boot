@@ -1350,15 +1350,15 @@ static bool is_gpio_persist(struct udevice *dev, enum reset_type type, u8 bank)
 	dev_dbg(dev, "reboot reason: 0x%x \n", type);
 
 	switch ((int)type) {
-		case (PORST):
+		case (PORST_TYPE):
 			return false;
-		case (CORST):
+		case (CORST_TYPE):
 			return !((readl(base + NPCM7XX_RST_CORSTC) & mask) >> offset);
-		case (WD0RST):
+		case (WD0RST_TYPE):
 			return !((readl(base + NPCM7XX_RST_WD0RCR) & mask) >> offset);
-		case (WD1RST):
+		case (WD1RST_TYPE):
 			return !((readl(base + NPCM7XX_RST_WD1RCR) & mask) >> offset);
-		case (WD2RST):
+		case (WD2RST_TYPE):
 			return !((readl(base + NPCM7XX_RST_WD2RCR) & mask) >> offset);
 		default:
 			return false;
