@@ -34,9 +34,11 @@
 		i2c13 = &i2c13;
 		i2c14 = &i2c14;
 		i2c15 = &i2c15;
-		fiu0 = &fiu0;
-		fiu1 = &fiu3;
-		fiu2 = &fiux;
+		spi0 = &fiu0;
+		spi1 = &fiu3;
+		spi2 = &fiux;
+		spi3 = &spi0;
+		spi4 = &spi1;
 		mmc0 = &sdhci0;
 		gpio0 = &gpio0;
 		gpio1 = &gpio1;
@@ -79,7 +81,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&spi0cs1_pins>;
 	status = "okay";
-	spi-nor@0 {
+	spi_flash@0 {
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 	};

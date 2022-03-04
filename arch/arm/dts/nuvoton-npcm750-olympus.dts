@@ -1,0 +1,316 @@
+/dts-v1/;
+#include "nuvoton-npcm750.dtsi"
+#include "nuvoton-npcm750-olympus-pincfg.dtsi"
+
+/ {
+	model = "Nuvoton RunBMC Olympus";
+	compatible = "npcm750,runbmc", "quanta,olympus";
+
+	chosen {
+		stdout-path = &serial0;
+		tick-timer = &timer0;
+	};
+
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		serial3 = &serial3;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		i2c5 = &i2c5;
+		i2c6 = &i2c6;
+		i2c7 = &i2c7;
+		i2c8 = &i2c8;
+		i2c9 = &i2c9;
+		i2c10 = &i2c10;
+		i2c11 = &i2c11;
+		i2c12 = &i2c12;
+		i2c13 = &i2c13;
+		i2c14 = &i2c14;
+		i2c15 = &i2c15;
+		spi0 = &fiu0;
+		spi1 = &fiu3;
+		spi2 = &fiux;
+		spi3 = &spi0;
+		spi4 = &spi1;
+		mmc0 = &sdhci0;
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
+		gpio5 = &gpio5;
+		gpio6 = &gpio6;
+		gpio7 = &gpio7;
+		eth0 = &emc0;
+		eth1 = &gmac0;
+		usb0 = &udc0;
+	};
+};
+
+&serial0 {
+	status = "okay";
+	clock-frequency = <24000000>;
+};
+
+&fiu0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi0cs1_pins>;
+	status = "okay";
+	spi_flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		memory-map = <0x80000000 0x4000000>;
+	};
+	spi_flash@1 {
+		compatible = "jedec,spi-nor";
+		reg = <1>;
+		memory-map = <0x88000000 0x4000000>;
+	};
+};
+
+&fiu3 {
+	pinctrl-0 = <&spi3_pins>;
+	status = "okay";
+	spi_flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		memory-map = <0xA0000000 0x4000000>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+&i2c3 {
+	status = "okay";
+};
+
+&i2c4 {
+	status = "okay";
+};
+
+&i2c5 {
+	status = "okay";
+};
+
+&i2c6 {
+	status = "okay";
+};
+
+&i2c7 {
+	status = "okay";
+};
+
+&i2c8 {
+	status = "okay";
+};
+
+&i2c9 {
+	status = "okay";
+};
+
+&i2c10 {
+	status = "okay";
+};
+
+&i2c11 {
+	status = "okay";
+};
+
+&i2c12 {
+	status = "okay";
+};
+
+&i2c13 {
+	status = "okay";
+};
+
+&i2c14 {
+	status = "okay";
+};
+
+&i2c15 {
+	status = "okay";
+};
+
+&gmac0 {
+	phy-mode = "rgmii-id";
+	snps,eee-force-disable;
+	status = "okay";
+};
+
+&emc0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&r1_pins
+			&r1err_pins>;
+	fixed-link {
+			speed = <100>;
+			full-dulpex;
+	};
+};
+
+&usbphy1 {
+	status = "okay";
+};
+
+&usbphy2 {
+	status = "okay";
+};
+
+&udc0 {
+	status = "okay";
+	phys = <&usbphy1 0>;
+};
+
+&ehci1 {
+	status = "okay";
+	phys = <&usbphy2 3>;
+};
+
+&sdhci0 {
+	status = "okay";
+};
+
+&sha {
+	status = "okay";
+};
+
+&aes {
+	status = "okay";
+};
+
+&rng {
+	status = "okay";
+};
+
+&otp {
+	status = "okay";
+};
+
+&pinctrl {
+	pinctrl-names = "default";
+		pinctrl-0 = <
+		&uart1_pins
+		&gpio0ol_pins
+		&gpio1ol_pins
+		&gpio2ol_pins
+		&gpio3ol_pins
+		&gpio8o_pins
+		&gpio9ol_pins
+		&gpio12ol_pins
+		&gpio13ol_pins
+		&gpio14ol_pins
+		&gpio15ol_pins
+		&gpio37o_pins
+		&gpio38_pins
+		&gpio39_pins
+		&gpio94ol_pins
+		&gpio108ol_pins
+		&gpio109ol_pins
+		&gpio111ol_pins
+		&gpio112ol_pins
+		&gpio113ol_pins
+		&gpio208_pins
+		&gpio209ol_pins
+		&gpio210ol_pins
+		&gpio211ol_pins
+		&gpio212ol_pins
+		&gpio213ol_pins
+		&gpio214ol_pins
+		&gpio215ol_pins
+		&gpio216ol_pins
+		&gpio217ol_pins
+		/******* RunBMC outside Connector pins *******/
+		&gpio5_pins
+		&gpio6_pins
+		&gpio7_pins
+		&gpio10_pins
+		&gpio11_pins
+		&gpio20_pins
+		&gpio21_pins
+		&gpio22o_pins
+		&gpio23_pins
+		&gpio24_pins
+		&gpio25_pins
+		&gpio30_pins
+		&gpio31_pins
+		&gpio40o_pins
+		&gpio59_pins
+		&gpio76_pins
+		&gpio77_pins
+		&gpio78o_pins
+		&gpio79_pins
+		&gpio82_pins
+		&gpio83_pins
+		&gpio84_pins
+		&gpio85o_pins
+		&gpio86ol_pins
+		&gpio87_pins
+		&gpio88_pins
+		&gpio89_pins
+		&gpio90_pins
+		&gpio93_pins
+		&gpio114o_pins
+		&gpio115_pins
+		&gpio120_pins
+		&gpio121_pins
+		&gpio122_pins
+		&gpio123_pins
+		&gpio124_pins
+		&gpio125_pins
+		&gpio126_pins
+		&gpio127o_pins
+		&gpio136_pins
+		&gpio137_pins
+		&gpio138_pins
+		&gpio139_pins
+		&gpio140_pins
+		&gpio141_pins
+		&gpio142_pins
+		&gpio143_pins
+		&gpio144_pins
+		&gpio146_pins
+		&gpio145_pins
+		&gpio147_pins
+		&gpio153o_pins
+		&gpio155_pins
+		&gpio160o_pins
+		&gpio168_pins
+		&gpio169o_pins
+		&gpio188o_pins
+		&gpio189_pins
+		&gpio192o_pins
+		&gpio196_pins
+		&gpio197_pins
+		&gpio198o_pins
+		&gpio199o_pins
+		&gpio200_pins
+		&gpio202_pins
+		&gpio203o_pins
+		&gpio224_pins
+		&gpio225ol_pins
+		&gpio226ol_pins
+		&gpio227ol_pins
+		&gpio228o_pins
+		&gpio229o_pins
+		&gpio230_pins
+		&gpio231o_pins
+		&ddc_pins
+		&wdog1_pins
+		&wdog2_pins>;
+};
