@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2020 Nuvoton Technology, Inc
+ * Copyright (c) 2022 Nuvoton Technology, Inc
  */
 
+#include <asm/io.h>
 #include <common.h>
 #include <dm.h>
-#include <linux/delay.h>
 #include <errno.h>
+#include <linux/delay.h>
 #include <log.h>
-#include <wdt.h>
-#include <asm/io.h>
 #include <linux/err.h>
+#include <wdt.h>
 
 #define NPCM_WTCLK	(BIT(10) | BIT(11))	/* Clock divider */
 #define NPCM_WTE	BIT(7)			/* Enable */
@@ -30,7 +30,7 @@ static int npcm_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	struct npcm_wdt_priv *priv = dev_get_priv(dev);
 	u32 time_out, val;
 
-	time_out=(u32)(timeout_ms) / 1000;
+	time_out = (u32)(timeout_ms) / 1000;
 	if (time_out < 2)
 		val = 0x800;
 	else if (time_out < 3)
@@ -50,7 +50,7 @@ static int npcm_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	else if (time_out < 688)
 		val = 0xC20;
 	else
-		val = 0xC30; 
+		val = 0xC30;
 
 	val |= NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
 	writel(val, priv->regs);
@@ -63,7 +63,7 @@ static int npcm_wdt_stop(struct udevice *dev)
 	struct npcm_wdt_priv *priv = dev_get_priv(dev);
 
 	writel(0, priv->regs);
-	
+
 	return 0;
 }
 
@@ -73,7 +73,7 @@ static int npcm_wdt_reset(struct udevice *dev)
 
 	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, priv->regs);
 	udelay(1000);
-	
+
 	return 0;
 }
 
@@ -104,7 +104,7 @@ static int npcm_wdt_probe(struct udevice *dev)
 {
 	debug("%s() wdt%u\n", __func__, dev_seq(dev));
 	npcm_wdt_stop(dev);
-	
+
 	return 0;
 }
 
