@@ -20,7 +20,7 @@
 #include <serial.h>
 #include <net.h>
 
-#define MAC_ADDR_SIZE       6
+#define MAC_ADDR_SIZE		6
 #define CONFIG_TX_DESCR_NUM	32
 #define CONFIG_RX_DESCR_NUM	32
 
@@ -296,7 +296,7 @@ static int npcm750_mdio_read(struct mii_dev *bus, int addr, int devad, int regs)
 }
 
 static int npcm750_mdio_write(struct mii_dev *bus, int addr, int devad, int regs,
-			u16 val)
+			      u16 val)
 {
 	struct npcm750_eth_dev *priv = (struct npcm750_eth_dev *)bus->priv;
 	struct emc_regs *reg = priv->emc_regs_p;
@@ -326,6 +326,7 @@ static int npcm750_mdio_init(const char *name, struct npcm750_eth_dev *priv)
 {
 	struct emc_regs *reg = priv->emc_regs_p;
 	struct mii_dev *bus = mdio_alloc();
+
 	if (!bus) {
 		printf("Failed to allocate MDIO bus\n");
 		return -ENOMEM;
@@ -365,7 +366,7 @@ static void npcm750_tx_descs_init(struct npcm750_eth_dev *priv)
 			desc_p->next = (u32)&priv->tdesc[0];
 	}
 	flush_dcache_range((ulong)&desc_table_p[0],
-		(ulong)&desc_table_p[CONFIG_TX_DESCR_NUM]);
+			   (ulong)&desc_table_p[CONFIG_TX_DESCR_NUM]);
 }
 
 static void npcm750_rx_descs_init(struct npcm750_eth_dev *priv)
@@ -375,8 +376,9 @@ static void npcm750_rx_descs_init(struct npcm750_eth_dev *priv)
 	struct npcm750_rxbd *desc_p;
 	u8 *rxbuffs = &priv->rxbuffs[0];
 	u32 idx;
+
 	flush_dcache_range((ulong)priv->rxbuffs[0],
-		(ulong)priv->rxbuffs[CONFIG_RX_DESCR_NUM]);
+			   (ulong)priv->rxbuffs[CONFIG_RX_DESCR_NUM]);
 
 	writel((u32)desc_table_p, &reg->rxdlsa);
 	priv->curr_rxd = desc_table_p;
@@ -391,7 +393,7 @@ static void npcm750_rx_descs_init(struct npcm750_eth_dev *priv)
 			desc_p->next = (u32)&priv->rdesc[0];
 	}
 	flush_dcache_range((ulong)&desc_table_p[0],
-		(ulong)&desc_table_p[CONFIG_RX_DESCR_NUM]);
+			   (ulong)&desc_table_p[CONFIG_RX_DESCR_NUM]);
 }
 
 static void npcm750_set_fifo_threshold(struct npcm750_eth_dev *priv)
@@ -414,7 +416,7 @@ static void npcm750_set_global_maccmd(struct npcm750_eth_dev *priv)
 }
 
 static void npcm750_set_cam(struct npcm750_eth_dev *priv,
-				unsigned int x, unsigned char *pval)
+			    unsigned int x, unsigned char *pval)
 {
 	struct emc_regs *reg = priv->emc_regs_p;
 	unsigned int msw, lsw;
@@ -429,7 +431,7 @@ static void npcm750_set_cam(struct npcm750_eth_dev *priv,
 }
 
 static void npcm750_adjust_link(struct emc_regs *reg,
-			   struct phy_device *phydev)
+				struct phy_device *phydev)
 {
 	u32 val = readl(&reg->mcmdr);
 
@@ -451,8 +453,8 @@ static void npcm750_adjust_link(struct emc_regs *reg,
 	writel(val, &reg->mcmdr);
 
 	debug("Speed: %d, %s duplex%s\n", phydev->speed,
-	       (phydev->duplex) ? "full" : "half",
-	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
+	      (phydev->duplex) ? "full" : "half",
+	      (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
 }
 
 static int npcm750_phy_init(struct npcm750_eth_dev *priv, void *dev)
@@ -495,7 +497,7 @@ static int npcm750_eth_start(struct udevice *dev)
 	npcm750_rx_descs_init(priv);
 	npcm750_tx_descs_init(priv);
 
-	npcm750_set_cam(priv, priv->idx, enetaddr);;
+	npcm750_set_cam(priv, priv->idx, enetaddr);
 	npcm750_set_global_maccmd(priv);
 	npcm750_set_fifo_threshold(priv);
 
@@ -506,7 +508,7 @@ static int npcm750_eth_start(struct udevice *dev)
 		return ret;
 	}
 
-	npcm750_adjust_link(reg , priv->phydev);
+	npcm750_adjust_link(reg, priv->phydev);
 	writel(readl(&reg->mcmdr) | MCMDR_TXON | MCMDR_RXON, &reg->mcmdr);
 
 	return 0;
@@ -521,36 +523,35 @@ static int npcm750_eth_send(struct udevice *dev, void *packet, int length)
 
 	desc_p = priv->curr_txd;
 
-	invalidate_dcache_range((ulong)desc_p, (ulong)(desc_p+1));
+	invalidate_dcache_range((ulong)desc_p, (ulong)(desc_p + 1));
 	/* Check if the descriptor is owned by CPU */
 	if (desc_p->mode & TX_OWEN_DMA) {
 		next_desc_p = (struct npcm750_txbd *)desc_p->next;
 
-        while ((next_desc_p != desc_p) && (next_desc_p->mode & TX_OWEN_DMA)) {
-            next_desc_p = (struct npcm750_txbd *)next_desc_p->next;
-        }
+		while ((next_desc_p != desc_p) && (next_desc_p->mode & TX_OWEN_DMA))
+			next_desc_p = (struct npcm750_txbd *)next_desc_p->next;
 
-        if (next_desc_p == desc_p) {
+		if (next_desc_p == desc_p) {
 			struct emc_regs *reg = priv->emc_regs_p;
+
 			writel(0, &reg->tsdr);
 			serial_printf("TX: overflow and exit\n");
 			return -EPERM;
-        }
+		}
 
 		desc_p = next_desc_p;
 	}
 
 	memcpy((void *)desc_p->buffer, packet, length);
 	flush_dcache_range((ulong)desc_p->buffer,
-		(ulong)desc_p->buffer + roundup(length, ARCH_DMA_MINALIGN));
+			   (ulong)desc_p->buffer + roundup(length, ARCH_DMA_MINALIGN));
 	desc_p->sl = 0;
 	desc_p->sl = length & TX_STAT_TBC;
 	desc_p->mode = TX_OWEN_DMA | PADDINGMODE | CRCMODE;
-	flush_dcache_range((ulong)desc_p, (ulong)(desc_p+1));
+	flush_dcache_range((ulong)desc_p, (ulong)(desc_p + 1));
 
-	if (!(readl(&reg->mcmdr) & MCMDR_TXON)) {
+	if (!(readl(&reg->mcmdr) & MCMDR_TXON))
 		writel(readl(&reg->mcmdr) | MCMDR_TXON, &reg->mcmdr);
-	}
 	priv->curr_txd = (struct npcm750_txbd *)priv->curr_txd->next;
 
 	writel(0, &reg->tsdr);
@@ -565,20 +566,22 @@ static int npcm750_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 	int length = -1;
 
 	desc_p = priv->curr_rxd;
-	invalidate_dcache_range((ulong)desc_p, (ulong)(desc_p+1));
+	invalidate_dcache_range((ulong)desc_p, (ulong)(desc_p + 1));
 
 	if ((desc_p->sl & RX_STAT_OWNER) == RX_OWEN_DMA) {
 		next_desc_p = (struct npcm750_rxbd *)desc_p->next;
-		while ((next_desc_p != desc_p) && ((next_desc_p->sl & RX_STAT_OWNER) == RX_OWEN_CPU)) {
+		while ((next_desc_p != desc_p) &&
+		       ((next_desc_p->sl & RX_STAT_OWNER) == RX_OWEN_CPU)) {
 			next_desc_p = (struct npcm750_rxbd *)next_desc_p->next;
 		}
 
 		if (next_desc_p == desc_p) {
 			struct emc_regs *reg = priv->emc_regs_p;
+
 			writel(0, &reg->rsdr);
 			serial_printf("RX: overflow and exit\n");
 			return -EPERM;
-        }
+		}
 		desc_p = next_desc_p;
 	}
 
@@ -587,7 +590,8 @@ static int npcm750_eth_recv(struct udevice *dev, int flags, uchar **packetp)
 		if (desc_p->sl & RX_STAT_RXGD) {
 			length = desc_p->sl & RX_STAT_RBC;
 			invalidate_dcache_range((ulong)desc_p->buffer,
-				(ulong)(desc_p->buffer + roundup(length, ARCH_DMA_MINALIGN)));
+						(ulong)(desc_p->buffer + roundup(length,
+						ARCH_DMA_MINALIGN)));
 			*packetp = (u8 *)(u32)desc_p->buffer;
 			priv->curr_rxd = desc_p;
 		}
@@ -620,8 +624,8 @@ static void npcm750_eth_stop(struct udevice *dev)
 
 	writel(readl(&reg->mcmdr) & ~MCMDR_TXON, &reg->mcmdr);
 	writel(readl(&reg->mcmdr) & ~MCMDR_RXON, &reg->mcmdr);
-	priv->curr_txd= (struct npcm750_txbd *)readl(&reg->txdlsa);
-	priv->curr_rxd= (struct npcm750_rxbd *)readl(&reg->rxdlsa);
+	priv->curr_txd = (struct npcm750_txbd *)readl(&reg->txdlsa);
+	priv->curr_rxd = (struct npcm750_rxbd *)readl(&reg->rxdlsa);
 	phy_shutdown(priv->phydev);
 }
 
@@ -646,11 +650,14 @@ static int npcm750_eth_probe(struct udevice *dev)
 	u32 iobase = pdata->iobase;
 	int ret;
 
-    struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
+	struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
 
 	memset(priv, 0, sizeof(struct npcm750_eth_dev));
-	priv->idx = fdtdec_get_int(gd->fdt_blob, dev_of_offset(dev),
-					"id", dev->seq_);
+	ret = dev_read_u32(dev, "id", &priv->idx);
+	if (ret) {
+		printf("failed to get id\n");
+		return -EINVAL;
+	}
 	priv->emc_regs_p = (struct emc_regs *)iobase;
 	priv->interface = pdata->phy_interface;
 	priv->max_speed = pdata->max_speed;
