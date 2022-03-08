@@ -3,14 +3,14 @@
  * Copyright (c) 2022 Nuvoton Technology, Inc
  */
 
-#include <asm/io.h>
 #include <common.h>
 #include <dm.h>
 #include <errno.h>
-#include <linux/delay.h>
 #include <log.h>
-#include <linux/err.h>
 #include <wdt.h>
+#include <asm/io.h>
+#include <linux/delay.h>
+#include <linux/err.h>
 
 #define NPCM_WTCLK	(BIT(10) | BIT(11))	/* Clock divider */
 #define NPCM_WTE	BIT(7)			/* Enable */
@@ -22,7 +22,7 @@
 #define NPCM_WTR	BIT(0)			/* Reset counter */
 
 struct npcm_wdt_priv {
-	struct npcm_wdt *regs;
+	void __iomem *regs;
 };
 
 static int npcm_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
