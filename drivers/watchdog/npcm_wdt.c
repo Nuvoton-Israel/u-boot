@@ -2,8 +2,7 @@
 /*
  * Copyright (c) 2022 Nuvoton Technology, Inc
  */
-
-#include <common.h>
+ 
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
