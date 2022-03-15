@@ -2,7 +2,7 @@
 /*
  * Copyright (c) 2022 Nuvoton Technology, Inc
  */
- 
+
 #include <dm.h>
 #include <errno.h>
 #include <log.h>
@@ -41,15 +41,15 @@ static int npcm_wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)
 	else if (time_out < 22)
 		val = 0x820;
 	else if (time_out < 44)
-		val = 0xC00;
+		val = 0xc00;
 	else if (time_out < 87)
 		val = 0x830;
 	else if (time_out < 173)
-		val = 0xC10;
+		val = 0xc10;
 	else if (time_out < 688)
-		val = 0xC20;
+		val = 0xc20;
 	else
-		val = 0xC30;
+		val = 0xc30;
 
 	val |= NPCM_WTRE | NPCM_WTE | NPCM_WTR | NPCM_WTIE;
 	writel(val, priv->regs);
@@ -71,7 +71,6 @@ static int npcm_wdt_reset(struct udevice *dev)
 	struct npcm_wdt_priv *priv = dev_get_priv(dev);
 
 	writel(NPCM_WTR | NPCM_WTRE | NPCM_WTE, priv->regs);
-	udelay(1000);
 
 	return 0;
 }
