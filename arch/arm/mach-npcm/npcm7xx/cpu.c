@@ -21,10 +21,11 @@
  */
 
 #include <common.h>
-#include <asm/io.h>
+#include <cpu_func.h>
+#include <asm/armv7.h>
 #include <asm/arch/cpu.h>
 #include <asm/arch/gcr.h>
-#include <asm/armv7.h>
+#include <asm/io.h>
 
 int print_cpuinfo (void)
 {
@@ -71,4 +72,16 @@ void s_init(void)
 	/* Invalidate L2 cache in lowlevel_init */
 	v7_outer_cache_inval_all();
 }
+#ifndef CONFIG_SYS_DCACHE_OFF
 
+void enable_caches(void)
+{
+	dcache_enable();
+}
+
+void disable_caches(void)
+{
+	dcache_disable();
+}
+
+#endif

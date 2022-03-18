@@ -28,10 +28,18 @@
 static bool is_security_enabled(void)
 {
 	struct npcm_gcr *gcr = (struct npcm_gcr *)(uintptr_t)npcm_get_base_gcr();
+	u32 val = readl(FUSTRAP);
 
-	if ((readl(&gcr->pwron) & (1 << PWRON_SECEN))) {
-		printf("Security is enabled\n");
-		return true;
+	if (IS_ENABLED(CONFIG_ARCH_NPCM7xx)) {
+		if (val & FUSTRAP_O_SECBOOT) {
+			printf("Security is enabled\n");
+			return true;
+		}
+	} else {
+		if ((readl(&gcr->pwron) & (1 << PWRON_SECEN))) {
+			printf("Security is enabled\n");
+			return true;
+		}
 	}
 	printf("Security is NOT enabled\n");
 

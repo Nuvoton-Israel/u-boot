@@ -21,4 +21,4 @@
 #
 
 obj-y	= reset.o
-obj-$(CONFIG_TARGET_POLEG) += bootm_os.o cpu.o cache.o l2_cache_pl310_init.o l2_cache_pl310.o
+obj-$(CONFIG_TARGET_POLEG) +=  cpu.o  l2_cache_pl310_init.o l2_cache_pl310.o

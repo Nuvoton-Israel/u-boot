@@ -10,6 +10,8 @@
 #define POLEG_NPCM730				0x00300395
 #define POLEG_NPCM710				0x00200380
 
+#define PWRON_SECEN                    7         /* STRAP8 */
+
 /* Multiple Function Pin Select Register 1 (MFSEL1) */
 #define MFSEL1_SIRQSE               31
 #define MFSEL1_IOX1SEL              30

@@ -95,5 +95,6 @@ int  npcm_otp_select_key(u8 key_index);
 bool npcm_otp_is_fuse_array_disabled(u32 arr);
 void npcm_otp_nibble_parity_ecc_encode(u8 *datain, u8 *dataout, u32 size);
 void npcm_otp_majority_rule_ecc_encode(u8 *datain, u8 *dataout, u32 size);
+void arch_preboot_os(void);
 
 #endif

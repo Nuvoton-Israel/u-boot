@@ -93,8 +93,7 @@ static const struct wdt_ops npcm_wdt_ops = {
 };
 
 static const struct udevice_id npcm_wdt_ids[] = {
-	{ .compatible = "nuvoton,npcm750-wdt" },
-	{ .compatible = "nuvoton,npcm845-wdt" },
+	{ .compatible = "nuvoton,npcm-wdt" },
 	{ }
 };
 
