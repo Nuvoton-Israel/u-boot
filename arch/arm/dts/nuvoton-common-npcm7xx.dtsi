@@ -182,7 +182,7 @@
 		sdhci0: sdhci0@f0842000 {
 			compatible = "nuvoton,npcm750-sdhci-eMMC";
 			reg = <0xf0842000 0x200>;
-			index = <0x1>;
+			index = <0x0>;
 			bus-width = <0x8>;
 			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk NPCM7XX_CLK_MMC>;
@@ -196,7 +196,7 @@
 		sdhci1: sdhci1@f0840000 {
 			compatible = "nuvoton,npcm750-sdhci-SD";
 			reg = <0xf0840000 0x2000>;
-			index = <0x0>;
+			index = <0x1>;
 			bus-width = <0x4>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&sd1_pins>;

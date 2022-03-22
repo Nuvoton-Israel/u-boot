@@ -6,6 +6,7 @@
 #include <common.h>
 #include <dm.h>
 #include <sdhci.h>
+#include <clk.h>
 
 #define NPCM_SDHC_MIN_FREQ	400000
 
@@ -20,18 +21,36 @@ static int npcm_sdhci_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
 	int ret;
+	struct clk clk;
 
 	host->name = dev->name;
 	host->ioaddr = dev_read_addr_ptr(dev);
 	host->max_clk = dev_read_u32_default(dev, "clock-frequency", 0);
-	host->mmc = &plat->mmc;
-	host->mmc->priv = host;
-	host->mmc->dev = dev;
-	upriv->mmc = host->mmc;
+
+	if (IS_ENABLED(CONFIG_ARCH_NPCM7xx)) {
+		ret = clk_get_by_index(dev, 0, &clk);
+		if (ret < 0)
+			return ret;
+		ret = clk_set_rate(&clk, host->max_clk);
+		if (ret < 0)
+			return ret;
+
+		host->bus_width = dev_read_u32_default(dev, "bus-width", 0);
+		host->index = dev_read_u32_default(dev, "index", 0);
+		if (host->bus_width == 4)
+                host->host_caps |= MMC_MODE_4BIT;
+		if (host->bus_width == 8)
+                host->host_caps |= MMC_MODE_8BIT;
+	}
 
 	ret = sdhci_setup_cfg(&plat->cfg, host, 0, NPCM_SDHC_MIN_FREQ);
 	if (ret)
 		return ret;
+
+	host->mmc = &plat->mmc;
+	host->mmc->priv = host;
+	host->mmc->dev = dev;
+	upriv->mmc = host->mmc;
 
 	return sdhci_probe(dev);
 }
