@@ -114,10 +114,13 @@
 };
 
 &gmac2 {
-	phy-mode = "rmii";
-	snps,reset-active-low;
-	snps,reset-delays-us = <0 10000 1000000>;
-	snps,reset-gpio = <&gpio2 30 GPIO_ACTIVE_LOW>;    /* gpio94 */
+	phy-mode = "NC-SI";
+	max-speed = <100>;
+	use-ncsi;
+	pinctrl-0 = <&r1_pins
+		     &r1en_pins
+		     &r1oen_pins>;
+	status = "disabled";
 };
 
 &gmac3 {

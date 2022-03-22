@@ -97,6 +97,7 @@
 #include <net/pcap.h>
 #endif
 #include <net/udp.h>
+#include <net/ncsi.h>
 #if defined(CONFIG_LED_STATUS)
 #include <miiphy.h>
 #include <status_led.h>
@@ -402,13 +403,23 @@ int net_loop(enum proto_t protocol)
 	enum net_loop_state prev_net_state = net_state;
 
 #if defined(CONFIG_CMD_PING)
-	if (protocol != PING)
+	if (protocol != PING && protocol != NCSI)
 		net_ping_ip.s_addr = 0;
 #endif
 	net_restarted = 0;
 	net_dev_exists = 0;
 	net_try_count = 1;
 	debug_cond(DEBUG_INT_STATE, "--- net_loop Entry\n");
+
+#ifdef CONFIG_PHY_NCSI
+	if (protocol != NCSI && !ncsi_active()) {
+		printf("%s: configuring NCSI first\n", __func__);
+		if (net_loop(NCSI) < 0)
+			return ret;
+		eth_init_state_only();
+		goto restart;
+	}
+#endif
 
 	bootstage_mark_name(BOOTSTAGE_ID_ETH_START, "eth_start");
 	net_init();
@@ -527,6 +538,11 @@ restart:
 			wol_start();
 			break;
 #endif
+#if defined(CONFIG_CMD_NCSI)
+		case NCSI:
+			ncsi_probe_packages();
+			break;
+#endif
 		default:
 			break;
 		}
@@ -637,7 +653,7 @@ restart:
 				env_set_hex("filesize", net_boot_file_size);
 				env_set_hex("fileaddr", image_load_addr);
 			}
-			if (protocol != NETCONS)
+			if (protocol != NETCONS && protocol != NCSI)
 				eth_halt();
 			else
 				eth_halt_state_only();
@@ -1321,6 +1337,11 @@ void net_process_received_packet(uchar *in_packet, int len)
 		wol_receive(ip, len);
 		break;
 #endif
+#ifdef CONFIG_PHY_NCSI
+	case PROT_NCSI:
+		ncsi_receive(et, ip, len);
+		break;
+#endif
 	}
 }
 
@@ -1380,6 +1401,9 @@ common:
 
 #ifdef CONFIG_CMD_RARP
 	case RARP:
+#endif
+#ifdef CONFIG_CMD_NCSI
+	case NCSI:
 #endif
 	case BOOTP:
 	case CDP:

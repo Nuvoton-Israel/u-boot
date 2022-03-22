@@ -28,6 +28,7 @@
 #include <linux/kernel.h>
 #include <asm/io.h>
 #include <power/regulator.h>
+#include <net/ncsi.h>
 #include "designware.h"
 
 #ifdef CONFIG_ARCH_NPCM8XX
@@ -257,7 +258,7 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 #endif
 	u32 conf = readl(&mac_p->conf) | FRAMEBURSTENABLE | DISABLERXOWN;
 
-	if (!phydev->link) {
+	if (!phydev->link && !priv->ncsi_mode) {
 		printf("%s: No link.\n", phydev->dev->name);
 		return 0;
 	}
@@ -339,7 +340,8 @@ static void _dw_eth_halt(struct dw_eth_dev *priv)
 	writel(readl(&mac_p->conf) & ~(RXENABLE | TXENABLE), &mac_p->conf);
 	writel(readl(&dma_p->opmode) & ~(RXSTART | TXSTART), &dma_p->opmode);
 
-	phy_shutdown(priv->phydev);
+	if (!priv->ncsi_mode)
+		phy_shutdown(priv->phydev);
 }
 
 int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
@@ -575,7 +577,8 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 	if (!phydev)
 		return -ENODEV;
 
-	phydev->supported &= PHY_GBIT_FEATURES;
+	if (!priv->ncsi_mode)
+		phydev->supported &= PHY_GBIT_FEATURES;
 	if (priv->max_speed) {
 		ret = phy_set_supported(phydev, priv->max_speed);
 		if (ret)
@@ -762,6 +765,15 @@ int designware_eth_probe(struct udevice *dev)
 	ulong ioaddr;
 	int ret, err;
 	struct reset_ctl_bulk reset_bulk;
+
+#ifdef CONFIG_PHY_NCSI
+	const char *phy_mode;
+
+	phy_mode = dev_read_string(dev, "phy-mode");
+	priv->ncsi_mode = dev_read_bool(dev, "use-ncsi") ||
+		(phy_mode && strcmp(phy_mode, "NC-SI") == 0);
+#endif
+
 #ifdef CONFIG_CLK
 	int i, clock_nb;
 
@@ -837,12 +849,16 @@ int designware_eth_probe(struct udevice *dev)
 	priv->interface = pdata->phy_interface;
 	priv->max_speed = pdata->max_speed;
 
-	ret = dw_mdio_init(dev->name, dev);
-	if (ret) {
-		err = ret;
-		goto mdio_err;
+	if (priv->ncsi_mode) {
+		printf("\n %s - NCSI detected\n", __func__);
+	} else {
+		ret = dw_mdio_init(dev->name, dev);
+		if (ret) {
+			err = ret;
+			goto mdio_err;
+		}
+		priv->bus = miiphy_get_dev_by_name(dev->name);
 	}
-	priv->bus = miiphy_get_dev_by_name(dev->name);
 
 #if defined(CONFIG_BITBANGMII) && CONFIG_IS_ENABLED(DM_GPIO)
 	if (dev_read_bool(dev, "snps,bitbang-mii")) {
@@ -891,9 +907,11 @@ static int designware_eth_remove(struct udevice *dev)
 {
 	struct dw_eth_dev *priv = dev_get_priv(dev);
 
-	free(priv->phydev);
-	mdio_unregister(priv->bus);
-	mdio_free(priv->bus);
+	if (!priv->ncsi_mode) {
+		free(priv->phydev);
+		mdio_unregister(priv->bus);
+		mdio_free(priv->bus);
+	}
 
 #ifdef CONFIG_CLK
 	return clk_release_all(priv->clocks, priv->clock_count);

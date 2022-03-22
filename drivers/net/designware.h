@@ -250,6 +250,7 @@ struct dw_eth_dev {
 
 	struct phy_device *phydev;
 	struct mii_dev *bus;
+	bool ncsi_mode;
 };
 
 #ifdef CONFIG_DM_ETH
