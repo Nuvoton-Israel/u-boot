@@ -94,7 +94,7 @@
 		};
 
 		clk: clock-control@f0801000 {
-			compatible = "nuvoton,npcm750-clock";
+			compatible = "nuvoton,npcm750-clk";
 			#clock-cells = <1>;
 			clock-controller;
 			reg = <0xf0801000 0x70>;
@@ -185,7 +185,7 @@
 			index = <0x0>;
 			bus-width = <0x8>;
 			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&clk NPCM7XX_CLK_MMC>;
+			clocks = <&clk NPCM7XX_CLK_SDHC>;
 			clock-frequency = <50000000>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&mmc_pins
