@@ -52,7 +52,6 @@
 		eth0 = &emc0;
 		eth1 = &gmac0;
 	};
-
 };
 
 &udc0 {
@@ -191,5 +190,9 @@
 };
 
 &sdhci0 {
+	status = "okay";
+};
+
+&pinctrl {
 	status = "okay";
 };
