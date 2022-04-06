@@ -29,8 +29,8 @@
 
 void reset_cpu(ulong ignored)
 {
-	writel(0x83, 0xf000801c);
-    while (1);
+	writel(WTCR_WTR | WTCR_WTRE | WTCR_WTE, WTCR0_REG);
+	while (1);
 }
 
 void reset_misc(void)

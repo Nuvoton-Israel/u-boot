@@ -3,6 +3,11 @@
 #ifndef _NPCM_RST_H_
 #define _NPCM_RST_H_
 
+#define WTCR0_REG       0xF000801C
+#define WTCR_WTR        BIT(0)
+#define WTCR_WTRE       BIT(1)
+#define WTCR_WTE        BIT(7)
+
 enum reset_type {
 	PORST_TYPE    = 0x01,
 	CORST_TYPE    = 0x02,
