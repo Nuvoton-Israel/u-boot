@@ -117,7 +117,7 @@
 					<GIC_SPI 15 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk NPCM7XX_CLK_AHB>;
 			clock-names = "clk_emc";
-			resets = <&rstc NPCM7XX_RESET_IPSRST1 NPCM7XX_RESET_EMAC1>;
+			resets = <&rstc NPCM7XX_RESET_IPSRST1 NPCM7XX_RESET_EMC1>;
 			pinctrl-names = "default";
 			pinctrl-0 = <&r1_pins
 					&r1md_pins>;
@@ -128,7 +128,7 @@
 			compatible = "nuvoton,npcm750-ohci";
 			reg = <0xf0807000 0x1000>;
 			interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
-			resets = <&rstc NPCM7XX_RESET_IPSRST2 NPCM7XX_RESET_USBH1>;
+			resets = <&rstc NPCM7XX_RESET_IPSRST2 NPCM7XX_RESET_USB_HOST>;
 			status = "disabled";
 		};
 
@@ -141,14 +141,14 @@
 				compatible = "nuvoton,npcm750-usb-phy";
 				#phy-cells = <1>;
 				reg = <1>;
-				resets = <&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_USBPHY1>;
+				resets = <&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_USB_PHY_1>;
 				status = "disabled";
 			};
 			usbphy2: usbphy2 {
 				compatible = "nuvoton,npcm750-usb-phy";
 				#phy-cells = <1>;
 				reg = <2>;
-				resets =<&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_USBPHY2>;
+				resets =<&rstc NPCM7XX_RESET_IPSRST3 NPCM7XX_RESET_USB_PHY_2>;
 				status = "disabled";
 			};
 		};
@@ -195,7 +195,7 @@
 
 		//ehci1
 		usb@f0806000 {
-			resets = <&rstc NPCM7XX_RESET_IPSRST2 NPCM7XX_RESET_USBH1>;
+			resets = <&rstc NPCM7XX_RESET_IPSRST2 NPCM7XX_RESET_USB_HOST>;
 		};
 
 		apb {
@@ -210,12 +210,6 @@
 
 			rng@b000 {
 				clocks = <&clk NPCM7XX_CLK_APB1>;
-			};
-
-			gfxi: gfxi@e000 {
-				compatible = "nuvoton,npcm750-gfxi", "syscon",
-						"simple-mfd";
-				reg = <0xe000 0x100>;
 			};
 
 			gpio@f0010000 {

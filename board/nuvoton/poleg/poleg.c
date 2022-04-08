@@ -84,8 +84,8 @@ int board_init(void)
 	poleg_espi_init();
 	poleg_uart_init();
 
-	gd->bd->bi_arch_number = CONFIG_MACH_TYPE;
-	gd->bd->bi_boot_params = (PHYS_SDRAM_1 + 0x100UL);
+	gd->bd->bi_arch_number = MACH_TYPE_NPCMX50;
+	gd->bd->bi_boot_params = (CONFIG_SYS_SDRAM_BASE + 0x100UL);
 
 	return 0;
 }
