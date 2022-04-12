@@ -5,6 +5,11 @@
 	#size-cells = <1>;
 	interrupt-parent = <&gic>;
 
+	wdt-reboot {
+                compatible = "wdt-reboot";
+                wdt = <&watchdog0>;
+        };
+
 	ahb {
 		udc0:udc@f0830100 {
 			compatible = "nuvoton,npcm750-udc";
