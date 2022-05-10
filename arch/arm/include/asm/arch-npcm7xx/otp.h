@@ -88,6 +88,7 @@ struct npcm_otp_regs {
 
 #define MIN_PROGRAM_PULSES               4
 #define MAX_PROGRAM_PULSES               20
+#define NPCM_OTP_ARR_BYTE_SIZE        1024
 
 int fuse_prog_image(u32 bank, uintptr_t address);
 int  fuse_program_data(u32 bank, u32 word, u8 *data, u32 size);
