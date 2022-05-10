@@ -84,9 +84,6 @@ int board_init(void)
 	poleg_espi_init();
 	poleg_uart_init();
 
-	gd->bd->bi_arch_number = MACH_TYPE_NPCMX50;
-	gd->bd->bi_boot_params = (CONFIG_SYS_SDRAM_BASE + 0x100UL);
-
 	return 0;
 }
 
@@ -99,20 +96,20 @@ int dram_init(void)
 	switch(RAMsize)
 	{
 		case 0:
-				gd->ram_size = 0x08000000; /* 128 MB. */
-				break;
+			gd->ram_size = 0x08000000; /* 128 MB. */
+			break;
 		case 1:
-				gd->ram_size = 0x10000000; /* 256 MB. */
-				break;
+			gd->ram_size = 0x10000000; /* 256 MB. */
+			break;
 		case 2:
-				gd->ram_size = 0x20000000; /* 512 MB. */
-				break;
+			gd->ram_size = 0x20000000; /* 512 MB. */
+			break;
 		case 3:
-				gd->ram_size = 0x40000000; /* 1024 MB. */
-				break;
+			gd->ram_size = 0x40000000; /* 1024 MB. */
+			break;
 		case 4:
-				gd->ram_size = 0x80000000; /* 2048 MB. */
-				break;
+			gd->ram_size = 0x80000000; /* 2048 MB. */
+			break;
 
 		default:
 			break;
