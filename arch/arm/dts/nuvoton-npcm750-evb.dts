@@ -1,16 +1,19 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2018 Nuvoton Technology tomer.maimon@nuvoton.com
+// Copyright 2018 Google, Inc.
+
 /dts-v1/;
-#include "nuvoton-common-npcm7xx.dtsi"
+#include "nuvoton-npcm750.dtsi"
+#include "dt-bindings/gpio/gpio.h"
+#include "nuvoton-npcm750-pincfg-evb.dtsi"
 
 / {
-	model = "Nuvoton npcm750 Development Board";
-	compatible = "nuvoton,poleg", "nuvoton,npcm750";
-
-	chosen {
-		stdout-path = &serial0;
-		tick-timer = &timer0;
-	};
+	model = "Nuvoton npcm750 Development Board (Device Tree)";
+	compatible = "nuvoton,npcm750-evb", "nuvoton,npcm750";
 
 	aliases {
+		eth0 = &emc0;
+                eth1 = &gmac0;
 		serial0 = &serial0;
 		serial1 = &serial1;
 		serial2 = &serial2;
@@ -32,166 +35,365 @@
 		i2c14 = &i2c14;
 		i2c15 = &i2c15;
 		spi0 = &fiu0;
-		spi3 = &fiu3;
-		spi4 = &pspi1;
-		mmc0 = &sdhci0;
-		mmc1 = &sdhci1;
-		gpio0 = &gpio0;
-		gpio1 = &gpio1;
-		gpio2 = &gpio2;
-		gpio3 = &gpio3;
-		gpio4 = &gpio4;
-		gpio5 = &gpio5;
-		gpio6 = &gpio6;
-		gpio7 = &gpio7;
-		usb0 = &usbd0;
-		eth0 = &emc0;
-		eth1 = &emc1;
-		eth2 = &gmac0;
-		eth3 = &gmac1;
+		spi1 = &fiu3;
+		spi2 = &fiux;
+                spi3 = &spi0;
+                spi4 = &spi1;
 	};
 
-	fiu0: fiu0@fb000000 {
-		pinctrl-names = "default";
-		pinctrl-0 = <&spi0cs1_pins>;
-		status = "okay";
-		spi_flash@0 {
-			compatible = "spi-flash";
-			reg = <0>; /* Chip select 0 */
-			memory-map = <0x80000000 0x4000000>;
-			spi-max-frequency = <50000000>;
+	chosen {
+		stdout-path = &serial0;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x0 0x20000000>;
+	};
+};
+
+&udc0 {
+        status = "okay";
+        phys = <&usbphy1 0>;
+};
+
+&gmac0 {
+	phy-mode = "rgmii-id";
+	snps,eee-force-disable;
+	status = "okay";
+};
+
+&ehci1 {
+	status = "okay";
+	phys = <&usbphy2 3>;
+};
+
+&fiu0 {
+	status = "okay";
+	pinctrl-names = "default";
+        pinctrl-0 = <&spi0cs1_pins>;
+        status = "okay";
+        spi_flash@0 {
+                compatible = "jedec,spi-nor";
+                reg = <0>;
+                spi-max-frequency = <50000000>;
+        };
+        spi_flash@1 {
+                compatible = "jedec,spi-nor";
+                reg = <1>;
+                spi-max-frequency = <50000000>;
+        };
+};
+
+&fiu3 {
+	pinctrl-0 = <&spi3_pins>, <&spi3quad_pins>;
+	status = "okay";
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-rx-bus-width = <2>;
+		reg = <0>;
+		spi-max-frequency = <5000000>;
+		partitions@A0000000 {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+			system1@0 {
+				label = "spi3-system1";
+				reg = <0x0 0x0>;
+			};
 		};
-		spi_flash@1 {
-			compatible = "spi-flash";
-			reg = <1>;
-			memory-map = <0x88000000 0x2000000>;
-			spi-max-frequency = <50000000>;
+	};
+};
+
+&fiux {
+	spix-mode;
+};
+
+&rng {
+	status = "okay";
+};
+
+&sha {
+        status = "okay";
+};
+
+&aes {
+        status = "okay";
+};
+
+&serial0 {
+	status = "okay";
+	clock-frequency = <24000000>;
+};
+
+&serial1 {
+	status = "okay";
+};
+
+&serial2 {
+	status = "okay";
+};
+
+&serial3 {
+	status = "okay";
+};
+
+&adc {
+	status = "okay";
+};
+
+&lpc_kcs {
+	kcs1: kcs1@0 {
+		status = "okay";
+	};
+
+	kcs2: kcs2@0 {
+		status = "okay";
+	};
+
+	kcs3: kcs3@0 {
+		status = "okay";
+	};
+};
+
+/* lm75 on SVB */
+&i2c0 {
+	clock-frequency = <100000>;
+	status = "okay";
+	lm75@48 {
+		compatible = "lm75";
+		reg = <0x48>;
+		status = "okay";
+	};
+};
+
+/* lm75 on EB */
+&i2c1 {
+	clock-frequency = <100000>;
+	status = "okay";
+	lm75@48 {
+		compatible = "lm75";
+		reg = <0x48>;
+		status = "okay";
+	};
+};
+
+/* tmp100 on EB */
+&i2c2 {
+	clock-frequency = <100000>;
+	status = "okay";
+	tmp100@48 {
+		compatible = "tmp100";
+		reg = <0x48>;
+		status = "okay";
+	};
+};
+
+&i2c3 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+&i2c5 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+/* tmp100 on SVB */
+&i2c6 {
+	clock-frequency = <100000>;
+	status = "okay";
+	tmp100@48 {
+		compatible = "tmp100";
+		reg = <0x48>;
+		status = "okay";
+	};
+};
+
+&i2c7 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+&i2c8 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+&i2c9 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+&i2c10 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+&i2c11 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+&i2c14 {
+	clock-frequency = <100000>;
+	status = "okay";
+};
+
+&pwm_fan {
+	status = "okay";
+	fan@0 {
+		reg = <0x00>;
+		fan-tach-ch = /bits/ 8 <0x00 0x01>;
+		cooling-levels = <127 255>;
+	};
+	fan@1 {
+		reg = <0x01>;
+		fan-tach-ch = /bits/ 8 <0x02 0x03>;
+		cooling-levels = /bits/ 8 <127 255>;
+	};
+	fan@2 {
+		reg = <0x02>;
+		fan-tach-ch = /bits/ 8 <0x04 0x05>;
+		cooling-levels = /bits/ 8 <127 255>;
+	};
+	fan@3 {
+		reg = <0x03>;
+		fan-tach-ch = /bits/ 8 <0x06 0x07>;
+		cooling-levels = /bits/ 8 <127 255>;
+	};
+	fan@4 {
+		reg = <0x04>;
+		fan-tach-ch = /bits/ 8 <0x08 0x09>;
+		cooling-levels = /bits/ 8 <127 255>;
+	};
+	fan@5 {
+		reg = <0x05>;
+		fan-tach-ch = /bits/ 8 <0x0A 0x0B>;
+		cooling-levels = /bits/ 8 <127 255>;
+	};
+	fan@6 {
+		reg = <0x06>;
+		fan-tach-ch = /bits/ 8 <0x0C 0x0D>;
+		cooling-levels = /bits/ 8 <127 255>;
+	};
+	fan@7 {
+		reg = <0x07>;
+		fan-tach-ch = /bits/ 8 <0x0E 0x0F>;
+		cooling-levels = /bits/ 8 <127 255>;
+	};
+};
+
+&spi0 {
+	cs-gpios = <&gpio6 11 GPIO_ACTIVE_LOW>;
+	status = "okay";
+	Flash@0 {
+		compatible = "winbond,w25q128",
+		"jedec,spi-nor";
+		reg = <0x0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <5000000>;
+		partition@0 {
+			label = "spi0_spare1";
+			reg = <0x0000000 0x800000>;
+		};
+		partition@1 {
+			label = "spi0_spare2";
+			reg = <0x800000 0x0>;
 		};
 	};
+};
 
-	fiu3: fiu3@c0000000 {
-		status = "okay";
-		spi_flash@0 {
-			compatible = "spi-flash";
-			reg = <0>; /* Chip select 0 */
-			memory-map = <0xA0000000 0x2000000>;
-			spi-max-frequency = <20000000>;
+&spi1 {
+	cs-gpios = <&gpio0 20 GPIO_ACTIVE_LOW>;
+	status = "okay";
+	Flash@0 {
+		compatible = "winbond,w25q128fw",
+		"jedec,spi-nor";
+		reg = <0x0>;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		spi-max-frequency = <5000000>;
+		partition@0 {
+			label = "spi1_spare1";
+			reg = <0x0000000 0x800000>;
+		};
+		partition@1 {
+			label = "spi1_spare2";
+			reg = <0x800000 0x0>;
 		};
 	};
+};
 
-	pspi1: pspi1@f0200000 {
-		status = "okay";
-	};
+&pinctrl {
+	pinctrl-names = "default";
+	pinctrl-0 = <	&iox1_pins
+			&pin8_input
+			&pin9_output_high
+			&pin10_input
+			&pin11_output_high
+			&pin16_input
+			&pin24_output_high
+			&pin25_output_low
+			&pin32_output_high
+			&jtag2_pins
+			&pin61_output_high
+			&pin62_output_high
+			&pin63_output_high
+			&lpc_pins
+			&pin160_input
+			&pin162_input
+			&pin168_input
+			&pin169_input
+			&pin170_input
+			&pin187_output_high
+			&pin190_input
+			&pin191_output_high
+			&pin192_output_high
+			&pin197_output_low
+			&ddc_pins
+			&pin218_input
+			&pin219_output_low
+			&pin220_output_low
+			&pin221_output_high
+			&pin222_input
+			&pin223_output_low
+			&spix_pins
+			&pin228_output_low
+			&pin231_output_high
+			&pin255_input>;
+};
 
-	usbd0: usbd0@f0830100 {
-		status = "okay";
-	};
+&ehci1 {
+        status = "okay";
+        phys = <&usbphy2 3>;
+};
 
-	pspi1: pspi1@f0200000 {
-		status = "okay";
-	};
+&otp {
+        status = "okay";
+};
 
-	sdhci1: sdhci1@f0842000 {
-		status = "okay";
-	};
+&usbphy1 {
+        status = "okay";
+};
 
-	otp: otp@f0189000 {
-		status = "okay";
-	};
+&usbphy2 {
+        status = "okay";
+};
 
-	rng: rng@f000b000 {
-		status = "okay";
-	};
+&emc0 {
+        status = "okay";
+        pinctrl-names = "default";
+        pinctrl-0 = <&r1_pins
+                        &r1err_pins>;
+        fixed-link {
+                        speed = <100>;
+                        full-dulpex;
+        };
+};
 
-	aes: aes@f0858000 {
-		status = "okay";
-	};
-
-	sha: sha@f085a000 {
-		status = "okay";
-	};
-
-	gmac0: gmac0@f0802000 {
-		status = "okay";
-	};
-
-	gmac1: gmac1@f0804000 {
-		status = "okay";
-	};
-
-	emc0: emc0@f0825000 {
-		status = "okay";
-	};
-
-	emc1: emc1@f0826000 {
-		status = "okay";
-	};
-
-	ehci: ehci {
-		status = "okay";
-	};
-
-	i2c0: i2c-bus@f0080000 {
-		status = "okay";
-	};
-
-	i2c1: i2c-bus@f0081000 {
-		status = "okay";
-	};
-
-	i2c2: i2c-bus@f0082000 {
-		status = "okay";
-	};
-
-	i2c3: i2c-bus@f0083000 {
-		status = "okay";
-	};
-
-	i2c4: i2c-bus@f0084000 {
-		status = "okay";
-	};
-
-	i2c5: i2c-bus@f0085000 {
-		status = "okay";
-	};
-
-	i2c6: i2c-bus@f0086000 {
-		status = "okay";
-	};
-
-	i2c7: i2c-bus@f0087000 {
-		status = "okay";
-	};
-
-	i2c8: i2c-bus@f0088000 {
-		status = "okay";
-	};
-
-	i2c9: i2c-bus@f0089000 {
-		status = "okay";
-	};
-
-	i2c10: i2c-bus@f008a000 {
-		status = "okay";
-	};
-
-	i2c11: i2c-bus@f008b000 {
-		status = "okay";
-	};
-
-	i2c12: i2c-bus@f008c000 {
-		status = "okay";
-	};
-
-	i2c13: i2c-bus@f008d000 {
-		status = "okay";
-	};
-
-	i2c14: i2c-bus@f008e000 {
-		status = "okay";
-	};
-
-	i2c15: i2c-bus@f008f000 {
-		status = "okay";
-	};
+&sdhci0 {
+        status = "okay";
 };
