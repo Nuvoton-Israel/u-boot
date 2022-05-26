@@ -126,6 +126,11 @@ config SPI_FLASH_GIGADEVICE
 	help
 	  Add support for various GigaDevice SPI flash chips (GD25xxx)
 
+config SPI_FLASH_GOOGLE
+	bool "Google SPI flash support"
+	help
+	  Add support for various Google SPI flash devices (Hoth)
+
 config SPI_FLASH_ISSI
 	bool "ISSI SPI flash support"
 	help

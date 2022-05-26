@@ -63,6 +63,11 @@
  * old entries may be missing 4K flag.
  */
 const struct flash_info spi_nor_ids[] = {
+#ifdef CONFIG_SPI_FLASH_GOOGLE		/* GOOGLE */
+	{INFO("hoth-512",	0x260217, 0x0, 64 * 1024,   512, SECT_4K) },
+	{INFO("hoth-1024",	0x26021a, 0x0, 64 * 1024,  1024, SECT_4K) },
+	{INFO("hoth2-1024",	0x26221a, 0x0, 64 * 1024,  1024, SECT_4K) },
+#endif
 #ifdef CONFIG_SPI_FLASH_ATMEL		/* ATMEL */
 	/* Atmel -- some are (confusingly) marketed as "DataFlash" */
 	{ INFO("at26df321",	0x1f4700, 0, 64 * 1024, 64, SECT_4K) },
