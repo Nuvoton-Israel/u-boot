@@ -163,6 +163,7 @@
 			reg = <0xf0842000 0x200>;
 			index = <0x0>;
 			bus-width = <0x8>;
+			cap-mmc-highspeed;
 			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk NPCM7XX_CLK_SDHC>;
 			clock-frequency = <50000000>;
@@ -177,6 +178,7 @@
 			reg = <0xf0840000 0x2000>;
 			index = <0x1>;
 			bus-width = <0x4>;
+			cap-mmc-highspeed;
 			pinctrl-names = "default";
 			pinctrl-0 = <&sd1_pins>;
 			status = "disabled";

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2021 Nuvoton Technology Corp.
+ * Copyright (c) 2022 Nuvoton Technology Corp.
  */
 
 #include <common.h>
@@ -45,12 +45,9 @@ static int npcm_sdhci_probe(struct udevice *dev)
 	}
 
 	host->index = dev_read_u32_default(dev, "index", 0);
-	host->bus_width = dev_read_u32_default(dev, "bus-width", 4);
-	host->host_caps |= MMC_MODE_1BIT;
-	if (host->bus_width == 8)
-		host->host_caps |= MMC_MODE_4BIT | MMC_MODE_8BIT;
-	else if (host->bus_width == 4)
-		host->host_caps |= MMC_MODE_4BIT;
+	ret = mmc_of_parse(dev, &plat->cfg);
+	if (ret)
+		return ret;
 
 	host->mmc = &plat->mmc;
 	host->mmc->priv = host;
@@ -77,7 +74,7 @@ static const struct udevice_id npcm_mmc_ids[] = {
 	{ }
 };
 
-U_BOOT_DRIVER(npcm_sdc_drv) = {
+U_BOOT_DRIVER(npcm_sdhci_drv) = {
 	.name           = "npcm_sdhci",
 	.id             = UCLASS_MMC,
 	.of_match       = npcm_mmc_ids,
