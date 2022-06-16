@@ -161,7 +161,7 @@ static int npcm_i2c_send_start(struct npcm_i2c_bus *bus)
 	int err = I2C_ERR_TIMEOUT;
 
 	/* Generate START condition */
-	writeb(readb(&reg->ctl1) | SMBCTL1_START, &reg->ctl1);
+	setbits_8(&reg->ctl1, SMBCTL1_START);
 
 	start_time = get_timer(0);
 	while (get_timer(start_time) < NPCM_I2C_TIMEOUT_MS) {
@@ -183,7 +183,7 @@ static int npcm_i2c_send_stop(struct npcm_i2c_bus *bus, bool wait)
 	ulong start_time;
 	int err = I2C_ERR_TIMEOUT;
 
-	writeb(readb(&reg->ctl1) | SMBCTL1_STOP, &reg->ctl1);
+	setbits_8(&reg->ctl1, SMBCTL1_STOP);
 
 	/* Clear NEGACK, STASTR and BER bits  */
 	writeb(SMBST_STASTR | SMBST_NEGACK | SMBST_BER, &reg->st);
@@ -212,26 +212,26 @@ static void npcm_i2c_reset(struct npcm_i2c_bus *bus)
 {
 	struct npcm_i2c_regs *reg = bus->reg;
 
-	printf("%s: module %d\n", __func__, bus->num);
+	debug("%s: module %d\n", __func__, bus->num);
 	/* disable & enable SMB moudle */
-	writeb(readb(&reg->ctl2) & ~SMBCTL2_ENABLE, &reg->ctl2);
-	writeb(readb(&reg->ctl2) | SMBCTL2_ENABLE, &reg->ctl2);
+	clrbits_8(&reg->ctl2, SMBCTL2_ENABLE);
+	setbits_8(&reg->ctl2, SMBCTL2_ENABLE);
 
 	/* clear BB and status */
 	writeb(SMBCST_BB, &reg->cst);
 	writeb(0xff, &reg->st);
 
 	/* select bank 1 */
-	writeb(readb(&reg->ctl3) | SMBCTL3_BNK_SEL, &reg->ctl3);
+	setbits_8(&reg->ctl3, SMBCTL3_BNK_SEL);
 	/* Clear all fifo bits */
 	writeb(SMBFIF_CTS_CLR_FIFO, &reg->bank1.fif_cts);
 
 	/* select bank 0 */
-	writeb(readb(&reg->ctl3) & ~SMBCTL3_BNK_SEL, &reg->ctl3);
+	clrbits_8(&reg->ctl3, SMBCTL3_BNK_SEL);
 	/* clear EOB bit */
 	writeb(SMBCST3_EO_BUSY, &reg->bank0.cst3);
 	/* single byte mode */
-	writeb(readb(&reg->bank0.fif_ctl) & ~SMBFIF_CTL_FIFO_EN, &reg->bank0.fif_ctl);
+	clrbits_8(&reg->bank0.fif_ctl, SMBFIF_CTL_FIFO_EN);
 
 	/* set POLL mode */
 	writeb(0, &reg->ctl1);
@@ -290,7 +290,7 @@ static int npcm_i2c_send_address(struct npcm_i2c_bus *bus, u8 addr,
 
 	/* Stall After Start Enable */
 	if (stall)
-		writeb(readb(&reg->ctl1) | SMBCTL1_STASTRE, &reg->ctl1);
+		setbits_8(&reg->ctl1, SMBCTL1_STASTRE);
 
 	writeb(addr, &reg->sda);
 	if (stall) {
@@ -300,8 +300,7 @@ static int npcm_i2c_send_address(struct npcm_i2c_bus *bus, u8 addr,
 				break;
 
 			if (readb(&reg->st) & SMBST_BER) {
-				writeb(readb(&reg->ctl1) & ~SMBCTL1_STASTRE,
-				       &reg->ctl1);
+				clrbits_8(&reg->ctl1, SMBCTL1_STASTRE);
 				return I2C_ERR_BER;
 			}
 		}
@@ -329,12 +328,12 @@ static int npcm_i2c_read_bytes(struct npcm_i2c_bus *bus, u8 *data, int len)
 
 	if (len == 1) {
 		/* bus should be stalled before receiving last byte */
-		writeb(readb(&reg->ctl1) | SMBCTL1_ACK, &reg->ctl1);
+		setbits_8(&reg->ctl1, SMBCTL1_ACK);
 
 		/* clear STASTRE if it is set */
 		if (readb(&reg->ctl1) & SMBCTL1_STASTRE) {
 			writeb(SMBST_STASTR, &reg->st);
-			writeb(readb(&reg->ctl1) & ~SMBCTL1_STASTRE, &reg->ctl1);
+			clrbits_8(&reg->ctl1, SMBCTL1_STASTRE);
 		}
 		npcm_i2c_check_sda(bus);
 		npcm_i2c_send_stop(bus, false);
@@ -362,7 +361,7 @@ static int npcm_i2c_read_bytes(struct npcm_i2c_bus *bus, u8 *data, int len)
 				break;
 			if (i == (len - 2)) {
 				/* set NACK before last byte */
-				writeb(readb(&reg->ctl1) | SMBCTL1_ACK, &reg->ctl1);
+				setbits_8(&reg->ctl1, SMBCTL1_ACK);
 			}
 			if (i == (len - 1)) {
 				/* last byte, send STOP condition */
@@ -394,7 +393,7 @@ static int npcm_i2c_send_bytes(struct npcm_i2c_bus *bus, u8 *data, int len)
 
 	/* clear STASTRE if it is set */
 	if (readb(&reg->ctl1) & SMBCTL1_STASTRE)
-		writeb(readb(&reg->ctl1) & ~SMBCTL1_STASTRE, &reg->ctl1);
+		clrbits_8(&reg->ctl1, SMBCTL1_STASTRE);
 
 	for (i = 0; i < len; i++) {
 		err = npcm_i2c_check_sda(bus);
@@ -466,7 +465,7 @@ static int npcm_i2c_write(struct npcm_i2c_bus *bus, u32 addr, u8 *data,
 
 	/* clear STASTRE if it is set */
 	if (stall)
-		writeb(readb(&reg->ctl1) & ~SMBCTL1_STASTRE, &reg->ctl1);
+		clrbits_8(&reg->ctl1, SMBCTL1_STASTRE);
 
 	if (err)
 		debug("%s: err %d\n", __func__, err);
@@ -593,13 +592,13 @@ static int npcm_i2c_probe(struct udevice *dev)
 	writel(i2csegctl_val, &gcr->i2csegctl);
 
 	/* enable SMB module */
-	writeb(readb(&reg->ctl2) | SMBCTL2_ENABLE, &reg->ctl2);
+	setbits_8(&reg->ctl2, SMBCTL2_ENABLE);
 
 	/* select register bank 0 */
-	writeb(readb(&reg->ctl3) & ~SMBCTL3_BNK_SEL, &reg->ctl3);
+	clrbits_8(&reg->ctl3, SMBCTL3_BNK_SEL);
 
 	/* single byte mode */
-	writeb(readb(&reg->bank0.fif_ctl) & ~SMBFIF_CTL_FIFO_EN, &reg->bank0.fif_ctl);
+	clrbits_8(&reg->bank0.fif_ctl, SMBFIF_CTL_FIFO_EN);
 
 	/* set POLL mode */
 	writeb(0, &reg->ctl1);
