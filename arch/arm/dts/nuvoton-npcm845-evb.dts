@@ -91,6 +91,14 @@
 		regulator-max-microvolt = <3300000>;
 		regulator-always-on;
 	};
+
+	vsbv5: vsbv5 {
+		compatible = "regulator-npcm845";
+		regulator-name = "v5";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
 };
 
 &serial0 {
@@ -126,6 +134,8 @@
 &fiu3 {
 	pinctrl-0 = <&spi3_pins>, <&spi3quad_pins>;
 	status = "okay";
+	vqspi-supply = <&vsbv5>;
+	vqspi-microvolt = <3300000>;
 	spi-nor@0 {
 		compatible = "jedec,spi-nor";
 		reg = <0>;

@@ -377,13 +377,22 @@ static int npcm_fiu_exec_op(struct spi_slave *slave,
 static int npcm_fiu_spi_probe(struct udevice *bus)
 {
 	struct npcm_fiu_priv *priv = dev_get_priv(bus);
-	int ret;
+	struct udevice *vqspi_supply;
+	int vqspi_uv, ret;
 
 	priv->regs = (struct npcm_fiu_regs *)dev_read_addr_ptr(bus);
 
 	ret = clk_get_by_index(bus, 0, &priv->clk);
 	if (ret < 0)
 		return ret;
+
+	if (IS_ENABLED(CONFIG_DM_REGULATOR)) {
+		device_get_supply_regulator(bus, "vqspi-supply", &vqspi_supply);
+		vqspi_uv = dev_read_u32_default(bus, "vqspi-microvolt", 0);
+		/* Set IO voltage */
+		if (vqspi_supply && vqspi_uv)
+			regulator_set_value(vqspi_supply, vqspi_uv);
+	}
 
 	return 0;
 }
