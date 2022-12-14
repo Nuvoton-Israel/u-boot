@@ -105,4 +105,6 @@
 		"usb_run=usb start; fatload usb 0 10000000 image-bmc; bootm 10200000\0"   \
 		"\0"
 
+#define CONFIG_PRAM                     128 /* Reserve 128 KB for ramoops */
+
 #endif
