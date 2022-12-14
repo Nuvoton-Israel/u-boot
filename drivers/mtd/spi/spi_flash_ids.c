@@ -43,6 +43,11 @@
 		.flags = (_flags),
 
 const struct spi_flash_info spi_flash_ids[] = {
+#ifdef CONFIG_SPI_FLASH_GOOGLE		/* GOOGLE */
+	{"hoth-512",	   INFO(0x260217, 0x0, 64 * 1024,   512, SECT_4K) },
+	{"hoth-1024",	   INFO(0x26021a, 0x0, 64 * 1024,  1024, SECT_4K) },
+	{"hoth2-1024",	   INFO(0x26221a, 0x0, 64 * 1024,  1024, SECT_4K) },
+#endif
 #ifdef CONFIG_SPI_FLASH_ATMEL		/* ATMEL */
 	{"at45db011d",	   INFO(0x1f2200, 0x0, 64 * 1024,     4, SECT_4K) },
 	{"at45db021d",	   INFO(0x1f2300, 0x0, 64 * 1024,     8, SECT_4K) },
