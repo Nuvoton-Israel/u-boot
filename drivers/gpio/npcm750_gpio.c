@@ -62,10 +62,11 @@ static int npcm_gpio_direction_input(struct udevice *dev, unsigned offset)
 static int npcm_gpio_direction_output(struct udevice *dev, unsigned offset,
 					  int value)
 {
+	npcm_gpio_offset_write(dev, offset, NPCM_GPIO_REG_DOUT, value);
+
 	npcm_gpio_offset_write(dev, offset, NPCM_GPIO_REG_IEM, 0);
 	npcm_gpio_offset_write(dev, offset, NPCM_GPIO_REG_OES, 1);
 
-	npcm_gpio_offset_write(dev, offset, NPCM_GPIO_REG_DOUT, value);
 	return 0;
 }
 
