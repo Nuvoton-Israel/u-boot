@@ -163,7 +163,9 @@
 #define  INTCR_KCSRST_MODE          0
 
 /* Integration Control Register (INTCR2) */
-#define  INTCR2_WDC                   21
+#define  INTCR2_WDC		21
+#define  INTCR2_PORST		BIT(31)
+#define  INTCR2_CORST		BIT(30)
 
 /* Integration Control Register (INTCR3) */
 #define  INTCR3_USBLPBK2              31          /* USB loop-backed HOST 1/2 */

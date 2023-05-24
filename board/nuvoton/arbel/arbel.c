@@ -106,6 +106,17 @@ static void arbel_clk_init(void)
 
 int board_init(void)
 {
+	struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
+
+	u32 val;
+
+        val = readl(&gcr->intcr2);
+	if((val & INTCR2_CORST) && (val & INTCR2_PORST))
+	{
+		val &= ~INTCR2_CORST;
+		writel(val, &gcr->intcr2);
+	}
+
 	arbel_clk_init();
 	arbel_eth_init();
 
