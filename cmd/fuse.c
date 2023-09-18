@@ -76,7 +76,7 @@ static int do_fuse(struct cmd_tbl *cmdtp, int flag, int argc,
 				goto err;
 
 			if (IS_ENABLED(CONFIG_NPCM_OTP))
-				printf(" %.2x", val);
+				printf(" %.2x", (u8)val);
 			else
 				printf(" %.8x", val);
 		}
