@@ -15,6 +15,15 @@
 #define CFG_SYS_BAUDRATE_TABLE	\
 	{ 9600, 14400, 19200, 38400, 57600, 115200, 230400, 380400, 460800, 921600 }
 
+#define SPI_FLASH_REGION_SIZE		0x08000000	/* 128MB */
+#define SPI1_FLASH_REGION_SIZE		0x01000000	/* 16MB */
+#define SPI0_BASE_ADDR			0x80000000
+#define SPI0_END_ADDR			0x8FFFFFFF
+#define SPI1_BASE_ADDR			0x90000000
+#define SPI1_END_ADDR			0x93FFFFFF
+#define SPI3_BASE_ADDR			0xA0000000
+#define SPI3_END_ADDR			0xBFFFFFFF
+
 /* Default environemnt variables */
 #define CFG_EXTRA_ENV_SETTINGS   "uimage_flash_addr=80400000\0"   \
 		"stdin=serial\0"   \
