@@ -6,6 +6,10 @@ config SYS_CPU
 config SYS_SOC
 	default "npcm8xx"
 
+config SYS_NPCM_DCACHE_OFF
+	bool "Do not enable dcache"
+	default n
+
 config TARGET_ARBEL_EVB
 	bool "Arbel Evaluation Board"
 	help
