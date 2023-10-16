@@ -434,13 +434,10 @@ int fuse_prog_image(u32 bank, uintptr_t address)
 
 int fuse_read(u32 bank, u32 word, u32 *val)
 {
-	int rc = npcm_otp_check_inputs(bank, word);
+	if (npcm_otp_check_inputs(bank, word) != 0)
+		return -1;
 
-	if (rc != 0)
-		return rc;
-
-	*val = 0;
-	npcm_otp_read_byte((u32)bank, word, (u8 *)val);
+	npcm_otp_read_byte(bank, word, (u8 *)val);
 
 	return 0;
 }

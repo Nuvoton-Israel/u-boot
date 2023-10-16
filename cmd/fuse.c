@@ -66,14 +66,22 @@ static int do_fuse(struct cmd_tbl *cmdtp, int flag, int argc,
 
 		printf("Reading bank %u:\n", bank);
 		for (i = 0; i < cnt; i++, word++) {
-			if (!(i % 4))
-				printf("\nWord 0x%.8x:", word);
+			if (IS_ENABLED(CONFIG_NPCM_OTP)) {
+				if (!(i % 16))
+					printf("\nByte 0x%.4x:", word);
+			} else {
+				if (!(i % 4))
+					printf("\nWord 0x%.8x:", word);
+			}
 
 			ret = fuse_read(bank, word, &val);
 			if (ret)
 				goto err;
 
-			printf(" %.8x", val);
+			if (IS_ENABLED(CONFIG_NPCM_OTP))
+				printf(" %.2x", (u8)val);
+			else
+				printf(" %.8x", val);
 		}
 		putc('\n');
 	} else if (!strcmp(op, "readm")) {
@@ -142,7 +150,11 @@ static int do_fuse(struct cmd_tbl *cmdtp, int flag, int argc,
 			if (strtou32(argv[i], 16, &val))
 				return CMD_RET_USAGE;
 
-			printf("Programming bank %u word 0x%.8x to 0x%.8x...\n",
+			if (IS_ENABLED(CONFIG_NPCM_OTP))
+				printf("Programming bank %u byte 0x%.4x to 0x%.2x...\n",
+					bank, word, val);
+			else
+				printf("Programming bank %u word 0x%.8x to 0x%.8x...\n",
 					bank, word, val);
 			if (!confirmed && !confirm_prog())
 				return CMD_RET_FAILURE;
