@@ -911,6 +911,7 @@ int usb_child_pre_probe(struct udevice *dev);
 
 struct ehci_ctrl;
 
+void usb_setup_gadget_controller_idx(unsigned int controller_idx);
 /**
  * usb_setup_ehci_gadget() - Set up a USB device as a gadget
  *

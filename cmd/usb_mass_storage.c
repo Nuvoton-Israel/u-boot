@@ -175,6 +175,7 @@ static int do_usb_mass_storage(struct cmd_tbl *cmdtp, int flag,
 		goto cleanup_board;
 	}
 
+	usb_setup_gadget_controller_idx(controller_index);
 	rc = g_dnl_register("usb_dnl_ums");
 	if (rc) {
 		pr_err("g_dnl_register failed\n");
