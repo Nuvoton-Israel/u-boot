@@ -12,6 +12,7 @@
 #include <asm/arch/cpu.h>
 #include <asm/arch/gcr.h>
 #include <asm/arch/otp.h>
+#include <asm/arch/poleg_info.h>
 #include <cpu_func.h>
 
 #define NPCM_GCR_INTCR2_SELFTEST_PASSED		BIT(11)
@@ -82,7 +83,7 @@ static int secure_boot_configuration(void)
 	 * fuse images should be a part of the flash image, right after the uboot
 	 * TODO: set addr
 	 */
-	//addr = POLEG_UBOOT_END;
+	addr = POLEG_UBOOT_END;
 
 	/*
 	 * if found, program the image to the fuse arrays, set the secure boot
