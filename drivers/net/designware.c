@@ -326,6 +326,8 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 				mdelay(1);
 			};
 			printf("SGMII PHY Wait for link up done \n");
+			/* Pass all Multicast Frames */
+			setbits_le32(&mac_p->framefilt, BIT(4));
 		}
 #endif
 
