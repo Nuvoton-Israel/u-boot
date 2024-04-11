@@ -5,7 +5,7 @@
 #include "nuvoton-npcm750-buv-pincfg.dtsi"
 
 / {
-	model = "Nuvoton npcm750 Development Board";
+	model = "Nuvoton npcm750 BUV Development Board";
 	compatible = "npcm750,runbmc";
 
 	chosen {
@@ -62,6 +62,9 @@
 &serial0 {
 	status = "okay";
 	clock-frequency = <24000000>;
+};
+&watchdog0 {
+	status = "okay";
 };
 
 &sha {
