@@ -397,7 +397,7 @@ static int do_mem_cp(struct cmd_tbl *cmdtp, int flag, int argc,
 		int chunk_sz;
 		struct udevice *new;
 
-		if (((dest + count * size) - flash_base) >= region_size ) {
+		if (((dest + count * size) - flash_base) > region_size ) {
 			printf("Copying to multiple chips is not supported!\n");
 			return 1;
 		}
