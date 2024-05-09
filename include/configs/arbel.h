@@ -24,7 +24,7 @@
 #define SPI3_END_ADDR			0xBFFFFFFF
 
 /* Default environemnt variables */
-#define CFG_EXTRA_ENV_SETTINGS   "uimage_flash_addr=80400000\0"   \
+#define CFG_EXTRA_ENV_SETTINGS   "uimage_flash_addr=80800000\0"   \
 		"stdin=serial\0"   \
 		"stdout=serial\0"   \
 		"stderr=serial\0"    \
@@ -45,6 +45,7 @@
 		"tftptimeout=1000\0" \
 		"tftptimeoutcountmax=50\0" \
 		"bootpretryperiod=60000\0" \
+		"openbmcinit=copy-base-filesystem-to-ram\0" \
 		"\0"
 
 #endif
