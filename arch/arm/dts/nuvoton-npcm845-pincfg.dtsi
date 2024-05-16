@@ -21,7 +21,7 @@
 		gpio2o_pins: gpio2o-pins {
 			pins = "GPIO2/IOX1_CK/SMB6B_SDA/SMB17_SDA";
 			bias-disable;
-			output_high;
+			output-high;
 		};
 		gpio3_pins: gpio3-pins {
 			pins = "GPIO3/IOX1_DO/SMB6B_SCL/SMB17_SCL";
