@@ -1374,7 +1374,10 @@ dtb-$(CONFIG_ARCH_NPCM7xx) += \
 	nuvoton-npcm730-mori.dtb \
 	nuvoton-npcm750-buv.dtb \
 	nuvoton-npcm750-olympus.dtb
-dtb-$(CONFIG_ARCH_NPCM8XX) += nuvoton-npcm845-evb.dtb
+dtb-$(CONFIG_ARCH_NPCM8XX) += \
+	nuvoton-npcm845-evb.dtb \
+	nuvoton-npcm845-yosemite4.dtb
+
 dtb-$(CONFIG_XEN) += xenguest-arm64.dtb
 
 dtb-$(CONFIG_ARCH_OCTEONTX) += octeontx.dtb
