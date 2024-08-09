@@ -45,6 +45,7 @@
 		"tftptimeout=1000\0" \
 		"tftptimeoutcountmax=50\0" \
 		"bootpretryperiod=60000\0" \
+		"stopwdt=wdt dev watchdog@901c; wdt stop\0" \
 		"\0"
 
 #endif
