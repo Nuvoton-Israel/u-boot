@@ -127,6 +127,12 @@
 #define  INTCR_MFTFEN               1
 #define  INTCR_KCSRST_MODE          0
 
+/* Integration Control Register 2 (INTCR2) */
+#define INTCR2_WDC                  21
+#define INTCR2_CHOSEN_IMAGE         20
+#define INTCR2_SELFTEST_PASSED      11
+#define INTCR2_SELFTEST_REQUEST     10
+
 /* Integration Control Register 3 (INTCR3) */
 #define  INTCR3_PCIRREL             30
 #define  INTCR3_GFXRSTDLY           26
@@ -143,6 +149,10 @@
 #define  INTCR3_HSRDIS              2
 #define  INTCR3_BIOSEN              1
 #define  INTCR3_HHRDIS              0
+
+/* Function Lock Register 1 (FLOCKR1) */
+#define FLOCKR1_UPDATE_APPROVE_LOCK 29
+#define FLOCKR1_UPDATE_APPROVE      28
 
 /* Serial Ports (SPSWC) */
 #define SPSWC_RTSS  7

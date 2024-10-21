@@ -21,6 +21,7 @@
 #include <asm/arch/otp.h>
 #include <asm/arch/poleg_info.h>
 #include "../common/common.h"
+#include "nist_boot.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -79,8 +80,33 @@ static void poleg_uart_init(void)
 	}
 }
 
+bool is_security_enabled(void)
+{
+	struct npcm_gcr *gcr = (struct npcm_gcr *)(uintptr_t)npcm_get_base_gcr();
+	u32 val = readl(FUSTRAP);
+
+	if (IS_ENABLED(CONFIG_ARCH_NPCM7xx)) {
+		if (val & FUSTRAP_O_SECBOOT) {
+			printf("Security is enabled\n");
+			return true;
+		}
+	} else {
+		if ((readl(&gcr->pwron) & (1 << PWRON_SECEN))) {
+			printf("Security is enabled\n");
+			return true;
+		}
+	}
+	printf("Security is NOT enabled\n");
+
+	return false;
+}
+
 int board_init(void)
 {
+#ifdef CONFIG_NPCM_NIST_BOOT
+	if (is_security_enabled())
+		nist_boot();
+#endif
 	poleg_gfx_init();
 	poleg_espi_init();
 	poleg_uart_init();
