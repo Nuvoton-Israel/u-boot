@@ -7,6 +7,7 @@
 #include <event.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
+#include <asm/arch/gfx.h>
 #include <asm/arch/gcr.h>
 #include "../common/uart.h"
 
@@ -123,3 +124,17 @@ static int last_stage_init(void)
 }
 EVENT_SPY_SIMPLE(EVT_LAST_STAGE_INIT, last_stage_init);
 
+
+/**
+ * spi_get_env_cs : return spi chipselect based on normal boot or recovery boot
+ */
+int spi_get_env_cs(void)
+{
+	if((readl(INTCR2) & INTCR2_WDC) == INTCR2_WDC)
+	{
+		printf("Detected Recovery mode. Using CS %d for env\n", CONFIG_ENV_SPI_CS_RECOVERY);
+		return CONFIG_ENV_SPI_CS_RECOVERY;
+	}
+	printf("Detected Normal mode. Using CS %d for env\n", CONFIG_ENV_SPI_CS);
+	return CONFIG_ENV_SPI_CS;
+}

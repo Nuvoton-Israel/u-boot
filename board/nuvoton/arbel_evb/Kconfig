@@ -15,5 +15,13 @@ config SYS_MEM_TOP_HIDE
 	help
 	  Reserve memory for ECC/GFX/OPTEE/TIP/CP.
 
+config ENV_SPI_CS
+	hex "SPI Chip select for Normal boot ENV"
+	default 0x00
+
+config ENV_SPI_CS_RECOVERY
+	hex "SPI Chip select for Recovery boot ENV"
+	default 0x01
+
 source "board/nuvoton/common/Kconfig"
 endif
