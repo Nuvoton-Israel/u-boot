@@ -5,6 +5,8 @@
 
 #include <common.h>
 #include <dm.h>
+#include <regmap.h>
+#include <syscon.h>
 #include <asm/gpio.h>
 #include <linux/err.h>
 #include <linux/io.h>
@@ -142,9 +144,8 @@ static int npcm_sgpio_direction_input(struct udevice *dev, unsigned int offset)
 {
 	struct npcm_sgpio_priv *priv = dev_get_priv(dev);
 
-	if (offset < priv->nout_sgpio)
-	{
-		printf("Error: Offset %d is a output pin\n",offset);
+	if (offset < priv->nout_sgpio) {
+		printf("Error: Offset %d is a output pin\n", offset);
 		return -EINVAL;
 	}
 
@@ -152,17 +153,15 @@ static int npcm_sgpio_direction_input(struct udevice *dev, unsigned int offset)
 }
 
 static int npcm_sgpio_direction_output(struct udevice *dev, unsigned int offset,
-				      int value)
+				       int value)
 {
-
 	struct npcm_sgpio_priv *priv = dev_get_priv(dev);
 	const struct  npcm_sgpio_bank *bank = offset_to_bank(offset);
 	void __iomem *addr;
 	u8 reg = 0;
 
-	if (offset >= priv->nout_sgpio)
-	{
-		printf("Error: Offset %d is a input pin\n",offset);
+	if (offset >= priv->nout_sgpio) {
+		printf("Error: Offset %d is a input pin\n", offset);
 		return -EINVAL;
 	}
 
@@ -201,21 +200,22 @@ static int npcm_sgpio_get_value(struct udevice *dev, unsigned int offset)
 }
 
 static int npcm_sgpio_set_value(struct udevice *dev, unsigned int offset,
-			       int value)
+				int value)
 {
 	struct npcm_sgpio_priv *priv = dev_get_priv(dev);
-	u8 check= priv->persist[GPIO_BANK(offset)];
+	u8 check = priv->persist[GPIO_BANK(offset)];
 
-	if ( !!(check & BIT(GPIO_BIT(offset))) ==0)
+	if (!!(check & BIT(GPIO_BIT(offset))) == 0)
 		return npcm_sgpio_direction_output(dev, offset, value);
-
+	else
+		return -EINVAL;
 }
 
 static int npcm_sgpio_get_function(struct udevice *dev, unsigned int offset)
 {
 	struct npcm_sgpio_priv *priv = dev_get_priv(dev);
 
-	if(offset < priv->nout_sgpio)
+	if (offset < priv->nout_sgpio)
 		return GPIOF_OUTPUT;
 
 	return GPIOF_INPUT;
@@ -239,7 +239,7 @@ static void npcm_sgpio_setup_enable(struct npcm_sgpio_priv *gpio, bool enable)
 static void npcm_sgpio_set_port(struct udevice *dev)
 {
 	struct npcm_sgpio_priv *priv = dev_get_priv(dev);
-	u8 in_port, out_port, set_port;
+	u8 in_port, out_port;
 
 	in_port = GPIO_BANK(priv->nin_sgpio);
 	if (GPIO_BIT(priv->nin_sgpio) > 0)
@@ -251,7 +251,6 @@ static void npcm_sgpio_set_port(struct udevice *dev)
 
 	priv->in_port = in_port;
 	priv->out_port = out_port;
-
 }
 
 static int npcm_sgpio_init_port(struct udevice *dev)
@@ -261,9 +260,8 @@ static int npcm_sgpio_init_port(struct udevice *dev)
 
 	npcm_sgpio_setup_enable(priv, false);
 
-
 	set_port = (priv->out_port & NPCM_IOXCFG2_PORT) << 4 | (priv->in_port & NPCM_IOXCFG2_PORT);
-	set_clk=0x07;
+	set_clk = 0x07;
 
 	iowrite8(set_port, priv->base + NPCM_IOXCFG2);
 	iowrite8(set_clk, priv->base + NPCM_IOXCFG1);
@@ -272,17 +270,18 @@ static int npcm_sgpio_init_port(struct udevice *dev)
 
 	return reg == set_port ? 0 : -EINVAL;
 }
-static int npcm_sgpio_reset_persist(struct udevice *dev, uint enable)
+
+static void npcm_sgpio_reset_persist(struct udevice *dev, uint enable)
 {
 	struct npcm_sgpio_priv *priv = dev_get_priv(dev);
 	u8 num;
 
-	if (priv->siox_num==1)
+	if (priv->siox_num == 1)
 		num = NPCM_SIOX2;
 	else
 		num = NPCM_SIOX1;
 
-	if(enable) {
+	if (enable) {
 		regmap_update_bits(priv->rst_regmap, WD0RCR, BIT(num), 0);
 		regmap_update_bits(priv->rst_regmap, WD1RCR, BIT(num), 0);
 		regmap_update_bits(priv->rst_regmap, WD2RCR, BIT(num), 0);
@@ -292,14 +291,13 @@ static int npcm_sgpio_reset_persist(struct udevice *dev, uint enable)
 		regmap_update_bits(priv->rst_regmap, SWRSTC3, BIT(num), 0);
 		regmap_update_bits(priv->rst_regmap, TIPRSTC, BIT(num), 0);
 	}
-
 }
+
 static bool is_gpio_persist(struct udevice *dev)
 {
 	struct npcm_sgpio_priv *priv = dev_get_priv(dev);
 	u32 val;
 	int status;
-	char *name =ofnode_get_name(dev_ofnode(dev));
 
 	status = npcm_get_reset_status();
 
@@ -322,11 +320,10 @@ static bool is_gpio_persist(struct udevice *dev)
 	else if (status & TIPRST)
 		regmap_read(priv->rst_regmap, TIPRSTC, &val);
 
-	if (priv->siox_num ==1)
+	if (priv->siox_num == 1)
 		return (val && BIT(NPCM_SIOX2));
 	else
 		return (val && BIT(NPCM_SIOX1));
-
 }
 
 static const struct dm_gpio_ops npcm_sgpio_ops = {
@@ -357,9 +354,9 @@ static int npcm_sgpio_probe(struct udevice *dev)
 		return -EINVAL;
 
 	if (!strcmp(ofnode_get_name(dev_ofnode(dev)), "sgpio2@102000"))
-		priv->siox_num=1;
+		priv->siox_num = 1;
 	else if (!strcmp(ofnode_get_name(dev_ofnode(dev)), "sgpio1@101000"))
-		priv->siox_num=0;
+		priv->siox_num = 0;
 	else
 		return -EINVAL;
 
@@ -369,27 +366,25 @@ static int npcm_sgpio_probe(struct udevice *dev)
 
 	if (is_gpio_persist(dev)) {
 		ofnode_for_each_subnode(node, dev_ofnode(dev)) {
-			if(ofnode_read_bool(node, "persist-enable")) {
-				rc = ofnode_read_u32_array(node, "gpios", val,2);
-				if (rc ==0) {
+			if (ofnode_read_bool(node, "persist-enable")) {
+				rc = ofnode_read_u32_array(node, "gpios", val, 2);
+				if (rc == 0)
 					priv->persist[GPIO_BANK(val[0])] = priv->persist[GPIO_BANK(val[0])] | BIT(GPIO_BIT(val[0]));
-				}
 			}
 		}
-		for(i=0; i< priv->nout_sgpio; i++)
+		for (i = 0; i < priv->nout_sgpio; i++)
 			npcm_sgpio_set_value(dev, i, 0);
-	}
-	else {
+	} else {
 		rc = npcm_sgpio_init_port(dev);
 		if (rc < 0)
 			return rc;
 
 		ofnode_for_each_subnode(node, dev_ofnode(dev)) {
-			if(ofnode_read_bool(node, "persist-enable"))
-				npcm_sgpio_reset_persist(dev,1);
+			if (ofnode_read_bool(node, "persist-enable"))
+				npcm_sgpio_reset_persist(dev, 1);
 		}
 
-		for(i=0; i< priv->nout_sgpio; i++)
+		for (i = 0; i < priv->nout_sgpio; i++)
 			npcm_sgpio_set_value(dev, i, 0);
 
 		npcm_sgpio_setup_enable(priv, true);
