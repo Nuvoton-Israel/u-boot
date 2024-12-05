@@ -34,6 +34,15 @@
 #include <power/regulator.h>
 #include "designware.h"
 
+#ifdef CONFIG_ARCH_NPCM8XX
+#include <asm/io.h>
+
+#define SR_MII_CTRL_SS6_BIT6  6
+#define SR_MII_CTRL_ANEN_BIT12  12
+#define SR_MII_CTRL_SS13_BIT13  13
+#define SR_MII_STS_LINKUP_BIT2  2
+#endif
+
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
 {
 	struct dw_eth_dev *priv = dev_get_priv((struct udevice *)bus->priv);
@@ -327,6 +336,9 @@ static int _dw_write_hwaddr(struct dw_eth_dev *priv, u8 *mac_id)
 static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 			  struct phy_device *phydev)
 {
+#ifdef CONFIG_ARCH_NPCM8XX
+	unsigned int start;
+#endif
 	u32 conf = readl(&mac_p->conf) | FRAMEBURSTENABLE | DISABLERXOWN;
 
 	if (!phydev->link) {
@@ -352,9 +364,51 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 	       (phydev->port == PORT_FIBRE) ? ", fiber mode" : "");
 
 #ifdef CONFIG_ARCH_NPCM8XX
-	/* Pass all Multicast Frames */
-	setbits_le32(&mac_p->framefilt, BIT(4));
+	if( phydev->interface == PHY_INTERFACE_MODE_SGMII){
+		writew(0x1F00, 0xF07801FE);           /* Get access to 0x3E... (SR_MII_STS) */
+		/* Clear SGMII PHY default auto neg. */
+		writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_ANEN_BIT12), 0xF0780000);
 
+		switch (phydev->speed) {
+		    case SPEED_1000:
+			/* Set SGMII PHY 10/100/1000   SS6=1  */
+			writew(readw(0xF0780000) | (1 << SR_MII_CTRL_SS6_BIT6), 0xF0780000);
+			/* Set SGMII PHY 10/100/1000   SS13=0 */
+			writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_SS13_BIT13), 0xF0780000);
+			break;
+		    case SPEED_100:
+			/* Set SGMII PHY 10/100/1000   SS6=0  */
+			writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_SS6_BIT6), 0xF0780000);
+			/* Set SGMII PHY 10/100/1000   SS13=1 */
+			writew(readw(0xF0780000) | (1 << SR_MII_CTRL_SS13_BIT13), 0xF0780000);
+			break;
+		    case SPEED_10:
+			/* Set SGMII PHY 10/100/1000   SS6=0  */
+			writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_SS6_BIT6), 0xF0780000);
+			/* Set SGMII PHY 10/100/1000   SS13=0 */
+			writew(readw(0xF0780000) & ~(1 << SR_MII_CTRL_SS13_BIT13), 0xF0780000);
+			break;
+		    default:
+			break;
+		}
+
+		start = get_timer(0);
+		printf("SGMII PHY Wait for link up \n");
+		/* SGMII PHY Wait for link up */
+		while (!(readw(0xF0780002) & (1 << SR_MII_STS_LINKUP_BIT2)))
+		{
+			if (get_timer(start) >= 3*CONFIG_SYS_HZ)
+			{
+				printf("PHY link up timeout\n");
+				return -ETIMEDOUT;
+			}
+
+			mdelay(1);
+		};
+		/* Pass all Multicast Frames */
+		setbits_le32(&mac_p->framefilt, BIT(4));
+		printf("SGMII PHY Wait for link up done \n");
+	}
 #endif
 	return 0;
 }
@@ -730,6 +784,9 @@ int designware_eth_probe(struct udevice *dev)
 
 #if defined(CONFIG_DM_REGULATOR)
 	struct udevice *phy_supply;
+#ifdef CONFIG_ARCH_NPCM8XX
+	int phy_uv;
+#endif
 
 	ret = device_get_supply_regulator(dev, "phy-supply",
 					  &phy_supply);
@@ -741,14 +798,28 @@ int designware_eth_probe(struct udevice *dev)
 			puts("Error enabling phy supply\n");
 			return ret;
 		}
+#ifdef CONFIG_ARCH_NPCM8XX
+		phy_uv = dev_read_u32_default(dev, "phy-supply-microvolt", 0);
+		if (phy_uv) {
+			ret = regulator_set_value(phy_supply, phy_uv);
+			if (ret) {
+				puts("Error setting phy voltage\n");
+				return ret;
+			}
+		}
+#endif
 	}
 #endif
 
 	ret = reset_get_bulk(dev, &reset_bulk);
 	if (ret)
 		dev_warn(dev, "Can't get reset: %d\n", ret);
-	else
+	else {
+#ifdef CONFIG_ARCH_NPCM8XX
+		reset_assert_bulk(&reset_bulk);
+#endif
 		reset_deassert_bulk(&reset_bulk);
+	}
 
 	/*
 	 * If we are on PCI bus, either directly attached to a PCI root port,
@@ -784,6 +855,27 @@ int designware_eth_probe(struct udevice *dev)
 	priv->bus = miiphy_get_dev_by_name(dev->name);
 	priv->dev = dev;
 
+#if defined(CONFIG_BITBANGMII) && CONFIG_IS_ENABLED(DM_GPIO)
+	if (dev_read_bool(dev, "snps,bitbang-mii")) {
+		debug("\n%s: use bitbang mii..\n", dev->name);
+		ret = gpio_request_by_name(dev, "snps,mdc-gpio", 0,
+				&priv->mdc_gpio, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		if (ret) {
+			printf("no mdc-gpio\n");
+			return ret;
+		}
+		ret = gpio_request_by_name(dev, "snps,mdio-gpio", 0,
+				&priv->mdio_gpio, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+		if (ret) {
+			printf("no mdio-gpio\n");
+			return ret;
+		}
+		bb_miiphy_buses[0].priv = priv;
+		sprintf(bb_miiphy_buses[0].name, dev->name);
+		priv->bus->read = bb_miiphy_read;
+		priv->bus->write = bb_miiphy_write;
+	}
+#endif
 	ret = dw_phy_init(priv, dev);
 	debug("%s, ret=%d\n", __func__, ret);
 	if (!ret)
@@ -894,3 +986,81 @@ static struct pci_device_id supported[] = {
 };
 
 U_BOOT_PCI_DEVICE(eth_designware, supported);
+
+#if CONFIG_IS_ENABLED(BITBANGMII) && CONFIG_IS_ENABLED(DM_GPIO)
+static int npcm_eth_bb_mdio_active(struct bb_miiphy_bus *bus)
+{
+	struct dw_eth_dev *priv = bus->priv;
+	struct gpio_desc *desc = &priv->mdio_gpio;
+
+	desc->flags = 0;
+	dm_gpio_set_dir_flags(&priv->mdio_gpio, GPIOD_IS_OUT | GPIOD_IS_OUT_ACTIVE);
+
+	return 0;
+}
+
+static int npcm_eth_bb_mdio_tristate(struct bb_miiphy_bus *bus)
+{
+	struct dw_eth_dev *priv = bus->priv;
+	struct gpio_desc *desc = &priv->mdio_gpio;
+
+	desc->flags = 0;
+	dm_gpio_set_dir_flags(&priv->mdio_gpio, GPIOD_IS_IN);
+
+	return 0;
+}
+
+static int npcm_eth_bb_set_mdio(struct bb_miiphy_bus *bus, int v)
+{
+	struct dw_eth_dev *priv = bus->priv;
+
+	if (v)
+		dm_gpio_set_value(&priv->mdio_gpio, 1);
+	else
+		dm_gpio_set_value(&priv->mdio_gpio, 0);
+
+	return 0;
+}
+
+static int npcm_eth_bb_get_mdio(struct bb_miiphy_bus *bus, int *v)
+{
+	struct dw_eth_dev *priv = bus->priv;
+
+	*v = dm_gpio_get_value(&priv->mdio_gpio);
+
+	return 0;
+}
+
+static int npcm_eth_bb_set_mdc(struct bb_miiphy_bus *bus, int v)
+{
+	struct dw_eth_dev *priv = bus->priv;
+
+	if (v)
+		dm_gpio_set_value(&priv->mdc_gpio, 1);
+	else
+		dm_gpio_set_value(&priv->mdc_gpio, 0);
+
+	return 0;
+}
+
+static int npcm_eth_bb_delay(struct bb_miiphy_bus *bus)
+{
+	udelay(1);
+
+	return 0;
+}
+
+struct bb_miiphy_bus bb_miiphy_buses[] = {
+	{
+		.name		= "bb_miiphy",
+		.mdio_active	= npcm_eth_bb_mdio_active,
+		.mdio_tristate	= npcm_eth_bb_mdio_tristate,
+		.set_mdio	= npcm_eth_bb_set_mdio,
+		.get_mdio	= npcm_eth_bb_get_mdio,
+		.set_mdc	= npcm_eth_bb_set_mdc,
+		.delay		= npcm_eth_bb_delay,
+	}
+};
+
+int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
+#endif

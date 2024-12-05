@@ -234,6 +234,8 @@ struct dw_eth_dev {
 	struct eth_dma_regs *dma_regs_p;
 #if CONFIG_IS_ENABLED(DM_GPIO)
 	struct gpio_desc reset_gpio;
+	struct gpio_desc mdc_gpio;
+	struct gpio_desc mdio_gpio;
 #endif
 #ifdef CONFIG_CLK
 	struct clk *clocks;	/* clock list */
