@@ -2228,6 +2228,11 @@ config CMD_EXCEPTION
 	help
 	  Enable the 'exception' command which allows to raise an exception.
 
+config CMD_GFX
+	bool "Enable GFX test"
+	help
+	  Enable test commands for GFX.
+
 config CMD_LED
 	bool "led"
 	depends on LED
