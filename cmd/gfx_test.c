@@ -1292,7 +1292,7 @@ void dumpGFX_InfoRegs (u32 *hRes, u32 *vRes, u32 *colorDepth, u32 *pll_freq)
 	u8 OutputDivider1;
 	u8 OutputDivider2;
 
-	FeedbackDivider=(((readl(GPLLST) & (0x1<<6))<<9) |  ((readl(GPLLINDI) & (0x1<<7))<<8) | ((u8) readl(GPLLFBDI)));
+	FeedbackDivider=(((readl(GPLLST) & (0x3<<6))<<9) |  ((readl(GPLLINDI) & (0x1<<7))<<8) | ((u8) readl(GPLLFBDI)));
 	InputDivider=(u8)(readl(GPLLINDI) & 0x1f);
 	OutputDivider1=(u8)(readl(GPLLST) & 0x7);
 	OutputDivider2=(u8)((readl(GPLLST) & (0x7<<3))>>3);
