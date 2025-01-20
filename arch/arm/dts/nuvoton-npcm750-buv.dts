@@ -1,0 +1,204 @@
+// SPDX-License-Identifier: GPL-2.0
+/dts-v1/;
+
+#include "nuvoton-npcm750.dtsi"
+#include "nuvoton-npcm750-buv-pincfg.dtsi"
+
+/ {
+	model = "Nuvoton npcm750 BUV Development Board";
+	compatible = "npcm750,runbmc";
+
+	chosen {
+		stdout-path = &serial0;
+		tick-timer = &timer0;
+	};
+
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+		serial2 = &serial2;
+		serial3 = &serial3;
+		i2c0 = &i2c0;
+		i2c1 = &i2c1;
+		i2c2 = &i2c2;
+		i2c3 = &i2c3;
+		i2c4 = &i2c4;
+		i2c5 = &i2c5;
+		i2c6 = &i2c6;
+		i2c7 = &i2c7;
+		i2c8 = &i2c8;
+		i2c9 = &i2c9;
+		i2c10 = &i2c10;
+		i2c11 = &i2c11;
+		i2c12 = &i2c12;
+		i2c13 = &i2c13;
+		i2c14 = &i2c14;
+		i2c15 = &i2c15;
+		spi0 = &fiu0;
+		spi1 = &fiu3;
+		spi2 = &fiux;
+		spi3 = &spi0;
+		spi4 = &spi1;
+		mmc0 = &sdhci0;
+		gpio0 = &gpio0;
+		gpio1 = &gpio1;
+		gpio2 = &gpio2;
+		gpio3 = &gpio3;
+		gpio4 = &gpio4;
+		gpio5 = &gpio5;
+		gpio6 = &gpio6;
+		gpio7 = &gpio7;
+		usb0 = &udc0;
+		eth0 = &emc0;
+		eth1 = &gmac0;
+	};
+};
+
+&udc0 {
+	status = "okay";
+	phys = <&usbphy1 0>;
+};
+
+&serial0 {
+	status = "okay";
+	clock-frequency = <24000000>;
+};
+&watchdog0 {
+	status = "okay";
+};
+
+&sha {
+	status = "okay";
+};
+
+&aes {
+	status = "okay";
+};
+
+&rng {
+	status = "okay";
+};
+
+&fiu0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&spi0cs1_pins>;
+	status = "okay";
+	spi_flash@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <50000000>;
+	};
+	spi_flash@1 {
+		compatible = "jedec,spi-nor";
+		reg = <1>;
+		spi-max-frequency = <50000000>;
+	};
+};
+
+&fiu3 {
+	pinctrl-0 = <&spi3_pins>;
+	status = "okay";
+	spi-nor@0 {
+		compatible = "jedec,spi-nor";
+		reg = <0>;
+		spi-max-frequency = <20000000>;
+	};
+};
+
+&i2c0 {
+	status = "okay";
+};
+
+&i2c1 {
+	status = "okay";
+};
+
+&i2c2 {
+	status = "okay";
+};
+
+&i2c3 {
+	status = "okay";
+};
+
+&i2c4 {
+	status = "okay";
+};
+
+&i2c5 {
+	status = "okay";
+};
+
+&i2c6 {
+	status = "okay";
+};
+
+&i2c7 {
+	status = "okay";
+};
+
+&i2c8 {
+	status = "okay";
+};
+
+&i2c9 {
+	status = "okay";
+};
+
+&i2c10 {
+	status = "okay";
+};
+
+&i2c11 {
+	status = "okay";
+};
+
+&i2c12 {
+	status = "okay";
+};
+
+&i2c13 {
+	status = "okay";
+};
+
+&ehci1 {
+	status = "okay";
+	phys = <&usbphy2 3>;
+};
+
+&otp {
+	status = "okay";
+};
+
+&usbphy1 {
+	status = "okay";
+};
+
+&usbphy2 {
+	status = "okay";
+};
+
+&gmac0 {
+	phy-mode = "rgmii-id";
+	snps,eee-force-disable;
+	status = "okay";
+};
+
+&emc0 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&r1_pins
+			&r1err_pins>;
+	fixed-link {
+			speed = <100>;
+			full-dulpex;
+	};
+};
+
+&sdhci0 {
+	status = "okay";
+};
+
+&pinctrl {
+	status = "okay";
+};
