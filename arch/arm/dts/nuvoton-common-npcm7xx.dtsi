@@ -121,7 +121,7 @@
 
 		gmac0: eth@f0802000 {
 			device_type = "network";
-			compatible = "nuvoton,npcm-dwmac";
+			compatible = "nuvoton,npcm-dwmac", "st,stm32-dwmac";
 			reg = <0xf0802000 0x2000>;
 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
 			interrupt-names = "macirq";
