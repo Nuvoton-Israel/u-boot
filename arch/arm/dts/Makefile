@@ -1207,7 +1207,12 @@ dtb-$(CONFIG_ARCH_MEDIATEK) += \
 	mt8516-pumpkin.dtb \
 	mt8518-ap1-emmc.dtb
 
-dtb-$(CONFIG_ARCH_NPCM7xx) += nuvoton-npcm750-evb.dtb
+dtb-$(CONFIG_ARCH_NPCM7xx) += \
+	nuvoton-npcm750-evb.dtb \
+	nuvoton-npcm730.dtb \
+	nuvoton-npcm730-gsz.dtb \
+	nuvoton-npcm750-buv.dtb \
+	nuvoton-npcm750-olympus.dtb
 dtb-$(CONFIG_ARCH_NPCM8XX) += nuvoton-npcm845-evb.dtb
 dtb-$(CONFIG_XEN) += xenguest-arm64.dtb
 
