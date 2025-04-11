@@ -1510,5 +1510,9 @@
 			groups = "fm0";
 			function = "fm0";
 		};
+		vcdhs_pins: vcdhs-pins {
+			groups = "vcdhs";
+			function = "vcdhs";
+		};
 	};
 };
