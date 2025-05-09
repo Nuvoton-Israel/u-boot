@@ -97,7 +97,8 @@ int dram_init_banksize(void)
 
 static int last_stage_init(void)
 {
-	board_set_console();
+	if (IS_ENABLED(CONFIG_SYS_SKIP_UART_INIT))
+		board_set_console();
 
 	return 0;
 }
