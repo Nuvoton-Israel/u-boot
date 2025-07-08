@@ -46,6 +46,17 @@
 #define ESPI_TEN_ENABLE		0x55
 #define ESPI_TEN_DISABLE	0
 
+/* KCS/BPC interrupt control */
+#define NPCM_KCS_BA     	0xf0007000
+#define BPCFEN          	0x46
+#define FRIE			BIT(3)
+#define HRIE			BIT(4)
+#define KCS1CTL			0x18
+#define KCS2CTL			0x2a
+#define KCS3CTL			0x3c
+#define IBFIE			BIT(0)
+#define OBEIE			BIT(1)
+
 static int npcm_host_intf_bind(struct udevice *dev)
 {
 	struct regmap *syscon;
@@ -104,6 +115,12 @@ static int npcm_host_intf_bind(struct udevice *dev)
 
 	/* Release host wait */
 	setbits_8(SMC_CTL_REG_ADDR, SMC_CTL_HOSTWAIT);
+
+        /* Disable KCS/BPC interrupts */
+        clrbits_8(NPCM_KCS_BA + BPCFEN, FRIE | HRIE);
+        clrbits_8(NPCM_KCS_BA + KCS1CTL, IBFIE | OBEIE);
+        clrbits_8(NPCM_KCS_BA + KCS2CTL, IBFIE | OBEIE);
+        clrbits_8(NPCM_KCS_BA + KCS3CTL, IBFIE | OBEIE);
 
 	return 0;
 }
