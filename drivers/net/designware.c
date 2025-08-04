@@ -329,7 +329,7 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 			  struct phy_device *phydev)
 {
 #ifdef CONFIG_ARCH_NPCM8XX
-	unsigned int start;
+	ulong start;
 #endif
 	u32 conf = readl(&mac_p->conf) | FRAMEBURSTENABLE | DISABLERXOWN;
 
@@ -422,7 +422,7 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 {
 	struct eth_mac_regs *mac_p = priv->mac_regs_p;
 	struct eth_dma_regs *dma_p = priv->dma_regs_p;
-	unsigned int start;
+	ulong start;
 	int ret;
 
 	writel(readl(&dma_p->busmode) | DMAMAC_SRST, &dma_p->busmode);
