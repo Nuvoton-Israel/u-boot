@@ -1,0 +1,130 @@
+// SPDX-License-Identifier: GPL-2.0
+// Copyright (c) 2020 Quanta Computer Inc.
+
+/dts-v1/;
+#include "nuvoton-npcm730.dts"
+#include "nuvoton-npcm7xx-pinctrl.dtsi"
+#include "nuvoton-npcm730-gbs-pincfg.dtsi"
+
+/ {
+	model = "Quanta npcm730 BMC Board (Device Tree v00.03)";
+	compatible = "nuvoton,poleg", "quanta,gbs";
+};
+
+&pinctrl {
+	pinctrl-names = "default";
+	pinctrl-0 = <
+		/* GPO pins*/
+		&gpio6o_pins
+		&gpio7o_pins
+		&gpio9ol_pins
+		&gpio12ol_pins
+		&gpio15o_pins
+		&gpio16o_pins
+		&gpio18ol_pins
+		&gpio19ol_pins
+		&gpio25ol_pins
+		&gpio60ol_pins
+		&gpio74ol_pins
+		&gpio76o_pins
+		&gpio77ol_pins
+		&gpio78ol_pins
+		&gpio84o_pins
+		&gpio85o_pins
+		&gpio86o_pins
+		&gpio87ol_pins
+		&gpio89ol_pins
+		&gpio90ol_pins
+		&gpio91o_pins
+		&gpio94ol_pins
+		&gpio110ol_pins
+		&gpio111ol_pins
+		&gpio112ol_pins
+		&gpio127od_pins
+		&gpio145ol_pins
+		&gpio148o_pins
+		&gpio149o_pins
+		&gpio150o_pins
+		&gpio151o_pins
+		&gpio153o_pins
+		&gpio154o_pins
+		&gpio157o_pins
+		&gpio158o_pins
+		&gpio160o_pins
+		&gpio169ol_pins
+		&gpio175o_pins
+		&gpio176o_pins
+		&gpio188o_pins
+		&gpio189o_pins
+		&gpio191o_pins
+		&gpio192ol_pins
+		&gpio197o_pins
+		&gpio212o_pins
+		&gpio213o_pins
+		&gpio215ol_pins
+		&gpio216ol_pins
+		&gpio217ol_pins
+		&gpio218ol_pins
+		&gpio219ol_pins
+		/* GPI pins*/
+		&gpio4_pins
+		&gpio5_pins
+		&gpio8_pins
+		&gpio10_pins
+		&gpio11_pins
+		&gpio13_pins
+		&gpio14_pins
+		&gpio17_pins
+		&gpio24_pins
+		&gpio32_pins
+		&gpio37_pins
+		&gpio38_pins
+		&gpio39_pins
+		&gpio40_pins
+		&gpio57_pins
+		&gpio58_pins
+		&gpio59_pins
+		&gpio69_pins
+		&gpio70_pins
+		&gpio71_pins
+		&gpio72_pins
+		&gpio73_pins
+		&gpio88_pins
+		&gpio92_pins
+		&gpio93_pins
+		&gpio120_pins
+		&gpio121_pins
+		&gpio122_pins
+		&gpio123_pins
+		&gpio124_pins
+		&gpio125_pins
+		&gpio126_pins
+		&gpio136_pins
+		&gpio137_pins
+		&gpio138_pins
+		&gpio139_pins
+		&gpio140_pins
+		&gpio141_pins
+		&gpio142_pins
+		&gpio143_pins
+		&gpio146_pins
+		&gpio170_pins
+		&gpio177_pins
+		&gpio194_pins
+		&gpio195_pins
+		&gpio196_pins
+		&gpio199_pins
+		&gpio202_pins
+		&gpio203_pins
+		&gpio208_pins
+		&gpio209_pins
+		&gpio210_pins
+		&gpio211_pins
+		&gpio214_pins
+		/* group pins */
+		&iox1_pins
+		&jtag2_pins
+		&serirq_pins
+		&lpc_pins
+		&clkreq_pins>;
+};
