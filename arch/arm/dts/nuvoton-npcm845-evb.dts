@@ -52,6 +52,7 @@
 		usb0 = &udc0;
 		usb1 = &ehci1;
 		usb2 = &udc8;
+		pcie = &pcie;
 	};
 
 	chosen {
@@ -121,6 +122,13 @@
 		reg = <1>;
 		spi-max-frequency = <25000000>;
 	};
+};
+
+&pcie {
+	pci-ep-rst = <&gpio3 24 1>; /* gpio120 */
+	/* used for e1000e PCI -> AXI window opening */
+	dma-ranges = <0x02000000 0 0x00000000 0x0 0x00000000 0 0x40000000>;
+	status = "okay";
 };
 
 &fiu1 {
