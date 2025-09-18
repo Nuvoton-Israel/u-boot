@@ -78,6 +78,7 @@ endif
 endif
 obj-$(CONFIG_CMD_ELF) += elf.o
 obj-$(CONFIG_CMD_EROFS) += erofs.o
+obj-$(CONFIG_CMD_ESPI) += espi.o
 obj-$(CONFIG_HUSH_PARSER) += exit.o
 obj-$(CONFIG_CMD_EXT4) += ext4.o
 obj-$(CONFIG_CMD_EXT2) += ext2.o
