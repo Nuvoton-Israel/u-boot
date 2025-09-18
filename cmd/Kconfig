@@ -2228,6 +2228,11 @@ config CMD_EXCEPTION
 	help
 	  Enable the 'exception' command which allows to raise an exception.
 
+config CMD_ESPI
+	bool "Enable eSPI master emulator"
+	help
+	  Enable test commands for eSPI Master Emulator.
+
 config CMD_GFX
 	bool "Enable GFX test"
 	help
