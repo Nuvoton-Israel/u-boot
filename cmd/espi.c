@@ -61,6 +61,8 @@
 #define CYCLE_FLASH_READ	0x00
 #define CYCLE_FLASH_WRITE	0x01
 #define CYCLE_FLASH_ERASE	0x02
+#define CYCLE_FLASH_RPMC_OP1	0x03
+#define CYCLE_FLASH_RPMC_OP2	0x04
 
 // Peripheral Channel Commands
 #define CMD_PUT_PC			0x00
@@ -275,6 +277,14 @@ struct put_flash_np {
 	u8 addr_23_16;
 	u8 addr_15_8;
 	u8 addr_7_0;
+	u8 data[FLASH_R_LENGTH + 1]; // FLASH_R_LENGTH bytes data + 1 byte crc
+} __attribute__((__packed__));
+
+struct put_flash_np_rpmc {
+	u8 cmd;
+	u8 cycle_type;
+	u8 tag_len_11_8;
+	u8 len_7_0;
 	u8 data[FLASH_R_LENGTH + 1]; // FLASH_R_LENGTH bytes data + 1 byte crc
 } __attribute__((__packed__));
 
@@ -510,7 +520,7 @@ static void espi_tar(void)
 static u16 espi_get_status(void)
 {
 	struct get_status_req req = {0};
-	struct  get_status_resp resp = {0};
+	struct get_status_resp resp = {0};
 
 	req.cmd = CMD_GET_GET_STATUS;
 	req.crc = crc8(0, (u8 *)&req, sizeof(req) - 1);
@@ -536,7 +546,7 @@ static u16 espi_get_status(void)
 static int espi_get_flash_c(int len, u32 dest)
 {
 	struct get_flash_c_req req = {0};
-	struct  get_flash_c_resp resp = {0};
+	struct get_flash_c_resp resp = {0};
 	u8 *addr = (u8 *)(uintptr_t)dest;
 	u16 status;
 
@@ -561,7 +571,7 @@ static int espi_get_flash_c(int len, u32 dest)
 	if (resp.cycle_type == 0xf) {
 		memcpy(addr, resp.data, len);
 	} else if (resp.cycle_type != 6){
-		printf("flash cycle type error (type=%d)\n", resp.cycle_type);
+		printf("flash cycle type error (type=0x%x)\n", resp.cycle_type);
 		return STATUS_ERR;
 	}
 
@@ -617,28 +627,40 @@ static int espi_put_flash_c(u8 type, int tag_len_L, int len_H)
 	return STATUS_OK;
 }
 
+static int wait_for_flash_np_free(void)
+{
+	u16 status;
+	int count = 1000000;
+
+	do {
+		status = espi_get_status();
+		if (status & BIT(9)) {
+			debug("FLASH_NP_FREE  count %d\n", count);
+			return 0;
+		}
+
+		if (count-- == 0) {
+			printf("\nwait_for_flash_np_free timeout\n");
+			return -ETIMEDOUT;
+		}
+		//udelay(100);
+		udelay(1);
+	} while (1);
+
+	return -ETIMEDOUT;
+}
+
 static int espi_put_flash_np(u8 type, u32 addr, int len, u32 data_addr, u8 tag)
 {
 	struct put_flash_np req;
 	struct espi_common_resp resp;
 	u8 /*tag = 0,*/ crc;
 	u16 status;
-	int loop = 1000000;
 	int req_len;
 	u8 *data = (u8 *)(uintptr_t)data_addr;
 
-	do {
-		status = espi_get_status();
-		if (status & BIT(9)) {
-			break;
-		}
-
-		if (loop-- == 0) {
-			printf("wait for FLASH_NP_FREE timeout\n");
-			return -ETIMEDOUT;
-		}
-		udelay(1);
-	} while (1);
+	if (wait_for_flash_np_free())
+		return STATUS_ERR;
 
 	req.cmd = CMD_PUT_FLASH_NP;
 	req.cycle_type = type;
@@ -682,6 +704,63 @@ static int espi_put_flash_np(u8 type, u32 addr, int len, u32 data_addr, u8 tag)
 
 	if (status) {
 		printf("\n  espi_put_flash_np response error: code=0x%02x, status=0x%04x\n", resp.code, status);
+		return STATUS_ERR;
+	}
+
+	return STATUS_OK;
+}
+
+static int espi_put_flash_np_rpmc(u8 type, int len, u32 data_addr, u8 tag)
+{
+	struct put_flash_np_rpmc req;
+	struct espi_common_resp resp;
+	u8 /*tag = 0,*/ crc;
+	u16 status;
+	int req_len;
+	u8 *data = (u8 *)(uintptr_t)data_addr;
+
+	if (wait_for_flash_np_free())
+		return STATUS_ERR;
+
+	req.cmd = CMD_PUT_FLASH_NP;
+	req.cycle_type = type;
+	req.tag_len_11_8 = (tag << 4) | ((len & 0xf00) >> 8);
+	req.len_7_0 =  len & 0xff;
+	if ((type & ~0x60) == CYCLE_FLASH_RPMC_OP1) {
+		memcpy(req.data, data, len);
+		crc = crc8(0, (u8 *)&req, sizeof(req) + len - FLASH_R_LENGTH - 1);
+		req.data[len] = crc;
+		req_len = sizeof(req) + len - FLASH_R_LENGTH;
+	}
+	else if ((type & ~0x60) == CYCLE_FLASH_RPMC_OP2) {
+		crc = crc8(0, (u8 *)&req, sizeof(req) - FLASH_R_LENGTH - 1);
+		req.data[0] = crc;
+		req_len = sizeof(req) - FLASH_R_LENGTH;
+	}
+
+	if (debug) {
+		printf("req.cmd 0x%x\n", req.cmd);
+		printf("req.cycle_type 0x%x\n", req.cycle_type);
+		printf("req.tag_len_11_8 0x%x\n", req.tag_len_11_8);
+		printf("req.len_7_0 0x%x\n", req.len_7_0);
+		printf("req.crc 0x%x\n", crc);
+	}
+
+	//CS_low, CLK_low, IO0
+	espi_port_update(eSPI_IO0, eSPI_nCS | eSPI_CLK);
+
+	espi_send((u8 *)&req, req_len);
+	espi_tar();
+	status = espi_read_response((u8 *)&resp, sizeof(resp));
+	espi_port_set(eSPI_nCS);
+
+	if (debug) {
+		printf("resp.code 0x%x\n", resp.code);
+		printf("resp.status 0x%x\n", resp.status);
+	}
+
+	if (status) {
+		printf("\n espi_put_flash_np_rpmc response error: code=0x%02x, status=0x%04x\n", resp.code, status);
 		return STATUS_ERR;
 	}
 
@@ -907,28 +986,10 @@ static int espi_flash_write(u32 addr, int count, u32 data_addr, u8 tag)
 
 static int espi_flash_erase(u32 addr, u8 tag)
 {
-	u16 status;
-	int loop = 1000000;
-
-	static ulong time_start;
-
-	time_start = get_timer(0);
-
 	printf("Erase address: 0x%x\n", addr);
 
-	time_start = get_timer(time_start);
-	do {
-		status = espi_get_status();
-		if (status & BIT(9)) {
-			break;
-		}
-
-		if (loop-- == 0) {
-			printf("\%s:wait for FLASH_NP_FREE timeout\n", __func__);
-			return -ETIMEDOUT;
-		}
-		udelay(1);
-	} while (1);
+	if (wait_for_flash_np_free())
+		return STATUS_ERR;
 
 	if (espi_put_flash_np(CYCLE_FLASH_ERASE, addr, 0, 0, tag))
 		return STATUS_ERR;
@@ -940,6 +1001,50 @@ static int espi_flash_erase(u32 addr, u8 tag)
 		return STATUS_ERR;
 
 	if (espi_get_flash_c(0, 0))
+		return STATUS_ERR;
+
+	printf("\ndone\n");
+
+	return STATUS_OK;
+}
+
+static int espi_flash_rpmc_op1(u8 flash_dev, int count, u32 data_addr, u8 tag)
+{
+	printf("Get mem address 0x%x to flash device 0x%x\n", data_addr, flash_dev);
+	printf("Saving..\n");
+
+	if (espi_put_flash_np_rpmc((CYCLE_FLASH_RPMC_OP1 | (flash_dev << 5)), count, data_addr, tag))
+		return STATUS_ERR;
+
+	if (wait_alert())
+		return STATUS_ERR;
+
+	if (wait_for_flash_c_avail())
+		return STATUS_ERR;
+
+	if (espi_get_flash_c(0, 0))
+		return STATUS_ERR;
+
+	printf("\ndone\n");
+
+	return STATUS_OK;
+}
+
+static int espi_flash_rpmc_op2(u8 flash_dev, int count, u32 dest, u8 tag)
+{
+	printf("Read flash device 0x%x to 0x%x\n", flash_dev, dest);
+	printf("Reading..\n");
+
+	if (espi_put_flash_np_rpmc((CYCLE_FLASH_RPMC_OP2 | (flash_dev << 5)), count, 0, tag))
+		return STATUS_ERR;
+
+	if (wait_alert())
+		return STATUS_ERR;
+
+	if (wait_for_flash_c_avail())
+		return STATUS_ERR;
+
+	if (espi_get_flash_c(count, dest))
 		return STATUS_ERR;
 
 	printf("\ndone\n");
@@ -1288,7 +1393,7 @@ static int espi_put_memrd32(u32 addr, int count, u8 *in)
 	u16 status;
 
 	req.cmd = CMD_PUT_MEMRD32_SHORT_1B | ((count - 1) & 0x3);
-	req.addr[0]= (addr & 0xFF000000) >> 24;
+	req.addr[0] = (addr & 0xFF000000) >> 24;
 	req.addr[1] = (addr & 0x00FF0000) >> 16;
 	req.addr[2] = (addr & 0x0000FF00) >> 8;
 	req.addr[3] = addr & 0xff;
@@ -1566,19 +1671,6 @@ static int do_espi_auto_test(void)
 		mdelay(1);
 	}
 
-	/* bit 11: Target attached flash sharing */
-	espi_set_configuration(0x40, 0x00031925, resp);
-	/* wait flash channel ready */
-	count = 10;
-	while (count-- > 0) {
-		espi_get_configuration(0x40, resp);
-		if (config_resp->data & BIT(1)) {
-			printf("flash channel ready\n");
-			break;
-		}
-		mdelay(1);
-	}
-
 	espi_set_configuration(0x30, 0x111, resp);
 	/* wait oob channel ready */
 	count = 10;
@@ -1586,6 +1678,19 @@ static int do_espi_auto_test(void)
 		espi_get_configuration(0x30, resp);
 		if (config_resp->data & BIT(1)) {
 			printf("oob channel ready\n");
+			break;
+		}
+		mdelay(1);
+	}
+
+	/* bit 11: Target attached flash sharing */
+	espi_set_configuration(0x40, 0x00031925, resp);
+	/* wait flash channel ready */
+	count = 10;
+	while (count-- > 0) {
+		espi_get_configuration(0x40, resp);
+		if (config_resp->data & BIT(1)) {
+			printf("flash channel TAF ready\n");
 			break;
 		}
 		mdelay(1);
@@ -1613,6 +1718,8 @@ static int do_espi_auto_test(void)
 	espi_iowr8(SIO_DATA, 1);
         if (espi_put_iord(SIO_DATA, 1, (u8 *)&resp_iord))
 		test_result = false;
+	if ((u8)(resp_iord.data & 0xFF) != 0x01)
+		test_result = false;
 
 	printf("configure SHM(WIN_BASE1=0x10000000)\n");
 	espi_iowr8(SIO_IDX, 0x7);
@@ -1630,6 +1737,8 @@ static int do_espi_auto_test(void)
 	espi_iowr8(SIO_IDX, 0x30);
 	espi_iowr8(SIO_DATA, 0x1);
 	if (espi_put_iord(SIO_DATA, 1, (u8 *)&resp_iord))
+		test_result = false;
+	if ((u8)(resp_iord.data & 0xFF) != 0x01)
 		test_result = false;
 
 	printf("peripheral: put_iord_short + put_iowr_short: %s\n", test_result ? "Pass" : "Fail");
@@ -1649,7 +1758,7 @@ static int do_espi_auto_test(void)
 			test_result = true;
 			break;
 		}
-		mdelay(10);
+		mdelay(1);
 	}
 	espi_put_memrd32(0x10000004, 4, resp);
 
@@ -1669,7 +1778,7 @@ static int do_espi_auto_test(void)
 			espi_get_vwire(resp);
 			if (resp[2] == 0x0 && resp[3] == 0x81)
 				break;
-			mdelay(10);
+			mdelay(1);
 		}
 
 		if (count == 0)
@@ -1678,9 +1787,9 @@ static int do_espi_auto_test(void)
 		count = 10;
 		while (count-- > 0) {
 			espi_put_iord(KCS_STATUS_REG, 1, (u8 *)&resp_iord);
-			if (resp_iord.data & 0x01 == 0x1)
+			if ((u8)(resp_iord.data & 0x01) == 0x1)
 				break;
-			mdelay(10);
+			mdelay(1);
 		}
 
 		if (count == 0)
@@ -1692,7 +1801,7 @@ static int do_espi_auto_test(void)
 			espi_get_vwire(resp);
 			if (resp[2] == 0x0 && resp[3] == 0x01)
 				break;
-			mdelay(10);
+			mdelay(1);
 		}
 
 		if (count == 0)
@@ -1714,7 +1823,7 @@ static int do_espi_auto_test(void)
 		espi_get_vwire(resp);
 		if (resp[2] == 0x6 && ((resp[3] & 0x88) == 0x88))
 			break;
-		mdelay(10);
+		mdelay(1);
 	}
 
 	if (count == 0)
@@ -1727,7 +1836,7 @@ static int do_espi_auto_test(void)
 		espi_get_vwire(resp);
 		if (resp[2] == 0x6 && ((resp[3] & 0x88) == 0x80))
 			break;
-		mdelay(10);
+		mdelay(1);
 	}
 
 	if (count == 0)
@@ -1756,27 +1865,46 @@ static int do_espi_auto_test(void)
 
 	espi_flash_read(0x10000, 0x40, 0x10000000, 0x0);
 	crc1 = crc8(0, (const unsigned char *)(uintptr_t)0x10000000, 0x40);
-	printf("crc1: 0x%x\n", crc1);
+	printf("bf erase crc: 0x%x\n", crc1);
 	espi_flash_erase(0x10000, 0x0);
 	espi_flash_read(0x10000, 0x40, 0x10000000, 0x0);
 	crc2 = crc8(0, (const unsigned char *)(uintptr_t)0x10000000, 0x40);
-	printf("crc2: 0x%x\n", crc2);
+	printf("af erase crc: 0x%x\n", crc2);
 	if (crc1 == crc2)
 		test_result = false;
+
 	espi_flash_write(0x10000, 0x40, 0x10010000, 0x0);
 	crc1 = crc8(0, (const unsigned char *)(uintptr_t)0x10010000, 0x40);
-	printf("crc1: 0x%x\n", crc1);
+	printf("bf write crc: 0x%x\n", crc1);
 	espi_flash_read(0x10000, 0x40, 0x10000000, 0x0);
 	crc2 = crc8(0, (const unsigned char *)(uintptr_t)0x10000000, 0x40);
-	printf("crc2: 0x%x\n", crc2);
+	printf("af write crc: 0x%x\n", crc2);
 	if (crc1 != crc2)
 		test_result = false;
 
+	// should consider the test for tag overwrite
 	if (!espi_flash_read(0x0, 0x40, 0x10000000, 0x1))
 		test_result = false;
 	if (!espi_flash_erase(0x0, 0x1))
 		test_result = false;
 	if (!espi_flash_write(0x0, 0x40, 0x10010000, 0x1))
+		test_result = false;
+
+	if (espi_flash_rpmc_op1(0x0, 0x40, 0x10000000, 0x0))
+		test_result = false;
+	if (espi_flash_rpmc_op1(0x1, 0x40, 0x10000000, 0x0))
+		test_result = false;
+	if (espi_flash_rpmc_op1(0x2, 0x40, 0x10000000, 0x0))
+		test_result = false;
+	if (espi_flash_rpmc_op1(0x3, 0x40, 0x10000000, 0x0))
+		test_result = false;
+	if (espi_flash_rpmc_op2(0x0, 0x40, 0x10000000, 0x0))
+		test_result = false;
+	if (espi_flash_rpmc_op2(0x1, 0x40, 0x10000000, 0x0))
+		test_result = false;
+	if (espi_flash_rpmc_op2(0x2, 0x40, 0x10000000, 0x0))
+		test_result = false;
+	if (espi_flash_rpmc_op2(0x3, 0x40, 0x10000000, 0x0))
 		test_result = false;
 
 	printf("flash: TAFS: %s\n", test_result ? "Pass" : "Fail");
@@ -1794,7 +1922,7 @@ static int do_espi_auto_test(void)
 	while (count-- > 0) {
 		espi_get_configuration(0x40, resp);
 		if (config_resp->data & BIT(1)) {
-			printf("flash channel ready\n");
+			printf("flash channel CAF ready\n");
 			break;
 		}
 		mdelay(1);
@@ -2165,7 +2293,7 @@ static int do_espi_command(struct cmd_tbl *cmdtp, int flag, int argc, char * con
 		do_kcs_test();
 		return 0;
 	}
-	if (strcmp(argv[1], "espiautotest") == 0) {
+	if (strcmp(argv[1], "autotest") == 0) {
 		espi_init();
 		do_espi_auto_test();
 		return 0;
@@ -2243,6 +2371,24 @@ static int do_espi_command(struct cmd_tbl *cmdtp, int flag, int argc, char * con
 		addr = hextoul(argv[2], NULL);
 		tag = hextoul(argv[3], NULL);
 		espi_flash_erase(addr, tag);
+	} else if (!strcmp(argv[1], "flash_rpmc_op1")) {
+		if (argc < 6)
+			return CMD_RET_USAGE;
+
+		addr = hextoul(argv[2], NULL);
+		count = hextoul(argv[3], NULL);
+		space = hextoul(argv[4], NULL);
+		tag = hextoul(argv[5], NULL);
+		espi_flash_rpmc_op1(addr, count, space, tag);
+	} else if (!strcmp(argv[1], "flash_rpmc_op2")) {
+		if (argc < 6)
+			return CMD_RET_USAGE;
+
+		addr = hextoul(argv[2], NULL);
+		count = hextoul(argv[3], NULL);
+		space = hextoul(argv[4], NULL);
+		tag = hextoul(argv[5], NULL);
+		espi_flash_rpmc_op2(addr, count, space, tag);
 	} else if (!strcmp(argv[1], "caf_flash")) {
 		if (argc < 4)
 			return CMD_RET_USAGE;
@@ -2500,7 +2646,7 @@ U_BOOT_CMD(
 	" init - init espi gpios and assert nRST\n"
 	" start - start espi master auto config\n"
 	" kcstest - do the kcs transfer\n"
-	" espiautotest - do the espi auto test\n"
+	" autotest - do the espi auto test\n"
 	" getconfig - get_configuration\n"
 	"  	<argument1> - address\n"
 	" setconfig - set_configuration.\n"
@@ -2530,6 +2676,16 @@ U_BOOT_CMD(
 	" flash_erase - erase flash 4KB.\n"
 	"  	<argument1> - flash offset\n"
 	"	<argument2> - tag\n"
+	" flash_rpmc_op1 - flash rpmc op1. \n"
+	"	<argument1> - flash device\n"
+	"	<argument2> - data len (bytes)\n"
+	"	<argument3> - memory address to write\n"
+	"	<argument4> - tag\n"
+	" flash_rpmc_op2 - flash rpmc op2. \n"
+	"	<argument1> - flash device\n"
+	"	<argument2> - data len (bytes)\n"
+	"	<argument3> - memory address to receive\n"
+	"	<argument4> - tag\n"
 	" caf_flash - read/write/erase.\n"
 	"	<argument1> - cycle type\n"
 	"	<argument2> - data len (bytes)\n"
