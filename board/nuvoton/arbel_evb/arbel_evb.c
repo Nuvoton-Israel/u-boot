@@ -7,6 +7,7 @@
 #include <dm.h>
 #include <asm/io.h>
 #include <linux/bitfield.h>
+#include <power/regulator.h>
 #include <asm/arch/gfx.h>
 #include <asm/arch/gcr.h>
 #include "../common/common.h"
@@ -30,6 +31,10 @@ DECLARE_GLOBAL_DATA_PTR;
 int board_init(void)
 {
 	u32 val;
+
+#ifdef CONFIG_DM_REGULATOR
+	regulators_enable_boot_on(false);
+#endif
 
 	/* Select GFX_PLL as PIXCK source */
 	val = readl(NPCM_CLK_BA + CLKSEL);
