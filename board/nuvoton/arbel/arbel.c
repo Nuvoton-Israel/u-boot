@@ -15,6 +15,7 @@
 #include <asm/mach-types.h>
 #include <linux/bitfield.h>
 #include <linux/delay.h>
+#include <power/regulator.h>
 
 #ifdef CONFIG_EXT_TPM2_SPI
 #include <mapmem.h>
@@ -108,6 +109,9 @@ static void arbel_clk_init(void)
 int board_init(void)
 {
 
+#ifdef CONFIG_DM_REGULATOR
+	regulators_enable_boot_on(false);
+#endif
 	arbel_clk_init();
 	arbel_eth_init();
 
