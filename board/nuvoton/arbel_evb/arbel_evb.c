@@ -6,6 +6,7 @@
 #include <dm.h>
 #include <event.h>
 #include <asm/io.h>
+#include <power/regulator.h>
 #include <asm/arch/gcr.h>
 #include "../common/uart.h"
 
@@ -24,6 +25,8 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int board_init(void)
 {
+	regulators_enable_boot_on(false);
+
 	return 0;
 }
 
