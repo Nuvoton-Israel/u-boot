@@ -1480,7 +1480,7 @@ static int espi_iowr8(u16 addr, u8 data)
 
 	return espi_put_iowr(addr, &data, 1, resp);
 }
-#if 0
+
 static int espi_iowr16(u16 addr, u16 data)
 {
 	u8 resp[MAX_RESP_LEN];
@@ -1523,7 +1523,6 @@ static int espi_iord32(u16 addr, u32 *data)
 
 	return ret;
 }
-#endif
 
 static int do_espi_auto_test(void)
 {
@@ -2471,6 +2470,8 @@ static int do_espi_uart_command(struct cmd_tbl *cmdtp, int flag, int argc, char 
 	if (strcmp(argv[1], "manual") == 0) {
 		ulong addr;
 		ulong len;
+		u8 lsr;
+		int count;
 
 		addr = hextoul(argv[2], NULL);
 		len = hextoul(argv[3], NULL);
@@ -2480,7 +2481,18 @@ static int do_espi_uart_command(struct cmd_tbl *cmdtp, int flag, int argc, char 
 		for ( i = 0; i < len; i++) {
 			sprintf(&data, "%c", nuvoton[i]);
 			espi_put_iowr(0x3f8, &data, 1, resp);
-			udelay(100);
+			count = 1000;
+			while (count--) {
+				espi_iord8(0x3fd, (u8 *)&lsr);
+				/* Check THRE bit */
+				if (lsr & BIT(5))
+					break;
+			}
+			if (count == 0) {
+				printf("uart write timeout\n");
+				break;
+			}
+
 			if (ctrlc())
 				break;
 		}
