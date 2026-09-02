@@ -22,3 +22,4 @@
 #
 
 obj-y	:= poleg.o
+obj-$(CONFIG_NPCM_NIST_BOOT) += nist_boot.o

@@ -33,6 +33,11 @@
 #include <bootm.h>
 #include <image.h>
 
+#ifdef CONFIG_NPCM_NIST_BOOT
+#include <asm/arch/cpu.h>
+#include <asm/arch/gcr.h>
+#endif
+
 #ifndef CONFIG_SYS_BOOTM_LEN
 /* use 8MByte as default max gunzip size */
 #define CONFIG_SYS_BOOTM_LEN	0x800000
@@ -922,8 +927,18 @@ static const void *boot_get_kernel(struct cmd_tbl *cmdtp, int flag, int argc,
 				IH_ARCH_DEFAULT, IH_TYPE_KERNEL,
 				BOOTSTAGE_ID_FIT_KERNEL_START,
 				FIT_LOAD_IGNORED, os_data, os_len);
-		if (os_noffset < 0)
+		if (os_noffset < 0) {
+#ifdef CONFIG_NPCM_NIST_BOOT
+			struct npcm_gcr *gcr = (struct npcm_gcr *)npcm_get_base_gcr();
+
+			printf("> 8 Core reset\n");
+			writel((readl(&gcr->intcr2) | (0x1 << INTCR2_WDC)), &gcr->intcr2);
+			printf("> set WDC 1, INTCR2= 0x%08x\n", readl(&gcr->intcr2));
+			reset_cpu(0);
+#else
 			return NULL;
+#endif
+		}
 
 		images->fit_hdr_os = map_sysmem(img_addr, 0);
 		images->fit_uname_os = fit_uname_kernel;
