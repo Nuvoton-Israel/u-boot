@@ -79,6 +79,7 @@
 		regulator-name = "vr2";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <3300000>;
+		regulator-init-microvolt = <1800000>;
 		regulator-always-on;
 	};
 
@@ -376,5 +377,7 @@
 		&r1_pins
 		&r1en_pins
 		&r1oen_pins
+		&vcdhs_pins
+		&smb11ddcs_pins
 	>;
 };
