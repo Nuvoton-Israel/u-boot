@@ -8,6 +8,7 @@
 //#include <asm/arch/cpu.h>
 #include <asm/arch/gfx.h>
 #include <linux/delay.h>
+#include <env.h>
 
 typedef enum CommandType
 {
