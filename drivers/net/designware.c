@@ -749,8 +749,6 @@ static int _dw_free_pkt(struct dw_eth_dev *priv)
 	/* Invalidate the descriptor buffer data */
 	invalidate_dcache_range(data_start, data_end);
 
-	/* Invalidate the descriptor buffer data */
-	invalidate_dcache_range(data_start, data_end);
 	/*
 	 * Make the current descriptor valid again and go to
 	 * the next one
