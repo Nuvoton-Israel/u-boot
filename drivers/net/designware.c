@@ -793,6 +793,10 @@ static int dw_phy_init(struct dw_eth_dev *priv, void *dev)
 		return -ENODEV;
 #endif
 
+	if (IS_ENABLED(CONFIG_ARCH_NPCM8XX) &&
+	    phydev->interface == PHY_INTERFACE_MODE_SGMII)
+		phy_reset(phydev);
+
 	phydev->supported &= PHY_GBIT_FEATURES;
 	if (priv->max_speed) {
 		ret = phy_set_supported(phydev, priv->max_speed);
