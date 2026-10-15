@@ -55,6 +55,7 @@ struct npcm_otp_regs {
 
 #define FDATA_MASK              (0xff)
 
+#define FUSTRAP_O_ALTIMGLOC     BIT(18)
 #define FUSTRAP_O_SECBOOT       BIT(23)
 
 #define FCFG_FDIS               BIT(31)

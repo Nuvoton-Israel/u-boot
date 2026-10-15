@@ -27,5 +27,8 @@ config TARGET_POLEG_RUNBMC
 
 endchoice
 
+config NPCM_NIST_BOOT
+	bool "NPCM NIST Boot"
+
 source "board/nuvoton/common/Kconfig"
 endif
