@@ -48,8 +48,11 @@ int print_cpuinfo(void)
 	case ARBEL_A2:
 		printf("A2 @ ");
 		break;
+	case ARBEL_A3:
+		printf("A3 @ ");
+		break;
 	default:
-		printf("Unknown\n");
+		printf("Unknown ID(0x%08x)\n", val);
 		break;
 	}
 
