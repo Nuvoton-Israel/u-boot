@@ -26,10 +26,14 @@
  */
 
 #define LOG_CATEGORY UCLASS_ETH
+//#define DEBUG
 
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
+#include <display_options.h>
+#include <env.h>
+#include <dm/device_compat.h>
 #include <errno.h>
 #include <eth_phy.h>
 #include <log.h>
@@ -63,6 +67,25 @@ static struct xgmac_desc *xgmac_get_desc(struct xgmac_priv *xgmac,
 {
 	return (rx ? xgmac->rx_descs : xgmac->tx_descs) +
 	       (num * xgmac->desc_size);
+}
+
+static void xgmac_trace_rx_ring(struct xgmac_priv *xgmac)
+{
+	struct xgmac_desc *desc;
+	unsigned int i;
+
+	printf("\nXGMAC RX wait: idx=%d status=%08x control=%08x rxctrl=%08x tail=%08x\n",
+	       xgmac->rx_desc_idx, readl(&xgmac->dma_regs->ch0_status),
+	       readl(&xgmac->dma_regs->ch0_control),
+	       readl(&xgmac->dma_regs->ch0_rx_control),
+	       readl(&xgmac->dma_regs->ch0_rxdesc_tail_pointer));
+	for (i = 0; i < XGMAC_DESCRIPTORS_RX; i++) {
+		desc = xgmac_get_desc(xgmac, i, true);
+		xgmac->config->ops->xgmac_inval_desc(desc);
+		printf("  RX[%u] %08x %08x %08x %08x\n", i,
+		       desc->des0, desc->des1, desc->des2, desc->des3);
+	}
+	xgmac->trace_last_dump = get_timer(0);
 }
 
 void xgmac_inval_desc_generic(void *desc)
@@ -175,6 +198,10 @@ static int xgmac_mdio_read(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	debug("%s(dev=%p, addr=0x%x, reg=%d):\n", __func__, xgmac->dev, mdio_addr,
 	      mdio_reg);
+#if defined(CONFIG_TARGET_TAVOR_VELOCE)
+	debug("skip mdio read\n");
+	return 0;
+#endif
 
 	ret = xgmac_mdio_wait_idle(xgmac);
 	if (ret) {
@@ -233,6 +260,11 @@ static int xgmac_mdio_write(struct mii_dev *bus, int mdio_addr, int mdio_devad,
 
 	debug("%s(dev=%p, addr=0x%x, reg=%d, val=0x%x):\n", __func__, xgmac->dev,
 	      mdio_addr, mdio_reg, mdio_val);
+
+#if defined(CONFIG_TARGET_TAVOR_VELOCE)
+	debug("skip mdio write\n");
+	return 0;
+#endif
 
 	ret = xgmac_mdio_wait_idle(xgmac);
 	if (ret) {
@@ -304,41 +336,37 @@ static int xgmac_set_half_duplex(struct udevice *dev)
 	return 0;
 }
 
-static int xgmac_set_gmii_speed(struct udevice *dev)
+static int xgmac_set_speed(struct udevice *dev, int speed)
 {
 	struct xgmac_priv *xgmac = dev_get_priv(dev);
-	u32 val;
+	u32 ss;
 
-	debug("%s(dev=%p):\n", __func__, dev);
+	switch (speed) {
+	case SPEED_10:
+		ss = XGMAC_MAC_CONF_SS_2_10M_MII;
+		break;
+	case SPEED_100:
+		ss = XGMAC_MAC_CONF_SS_100M_MII;
+		break;
+	case SPEED_1000:
+		ss = XGMAC_MAC_CONF_SS_1G_GMII;
+		break;
+	case SPEED_2500:
+		ss = XGMAC_MAC_CONF_SS_2_5G_XGMII;
+		break;
+	case SPEED_5000:
+		ss = XGMAC_MAC_CONF_SS_5G_XGMII;
+		break;
+	case SPEED_10000:
+		ss = XGMAC_MAC_CONF_SS_10G_XGMII;
+		break;
+	default:
+		return -EINVAL;
+	}
 
-	val = XGMAC_MAC_CONF_SS_1G_GMII << XGMAC_MAC_CONF_SS_SHIFT;
-	writel(val, &xgmac->mac_regs->tx_configuration);
-
-	return 0;
-}
-
-static int xgmac_set_mii_speed_100(struct udevice *dev)
-{
-	struct xgmac_priv *xgmac = dev_get_priv(dev);
-	u32 val;
-
-	debug("%s(dev=%p):\n", __func__, dev);
-
-	val = XGMAC_MAC_CONF_SS_100M_MII << XGMAC_MAC_CONF_SS_SHIFT;
-	writel(val, &xgmac->mac_regs->tx_configuration);
-
-	return 0;
-}
-
-static int xgmac_set_mii_speed_10(struct udevice *dev)
-{
-	struct xgmac_priv *xgmac = dev_get_priv(dev);
-	u32 val;
-
-	debug("%s(dev=%p):\n", __func__, dev);
-
-	val = XGMAC_MAC_CONF_SS_2_10M_MII << XGMAC_MAC_CONF_SS_SHIFT;
-	writel(val, &xgmac->mac_regs->tx_configuration);
+	clrsetbits_le32(&xgmac->mac_regs->tx_configuration,
+			GENMASK(31, XGMAC_MAC_CONF_SS_SHIFT),
+			ss << XGMAC_MAC_CONF_SS_SHIFT);
 
 	return 0;
 }
@@ -351,6 +379,12 @@ static int xgmac_adjust_link(struct udevice *dev)
 
 	debug("%s(dev=%p):\n", __func__, dev);
 
+	if (xgmac->phy->speed > SPEED_1000 && !xgmac->phy->duplex) {
+		pr_err("half duplex is unsupported at %d Mbps\n",
+		       xgmac->phy->speed);
+		return -EINVAL;
+	}
+
 	if (xgmac->phy->duplex)
 		ret = xgmac_set_full_duplex(dev);
 	else
@@ -362,16 +396,16 @@ static int xgmac_adjust_link(struct udevice *dev)
 
 	switch (xgmac->phy->speed) {
 	case SPEED_1000:
-		en_calibration = true;
-		ret = xgmac_set_gmii_speed(dev);
-		break;
 	case SPEED_100:
+	case SPEED_2500:
+	case SPEED_5000:
+	case SPEED_10000:
 		en_calibration = true;
-		ret = xgmac_set_mii_speed_100(dev);
+		ret = xgmac_set_speed(dev, xgmac->phy->speed);
 		break;
 	case SPEED_10:
 		en_calibration = false;
-		ret = xgmac_set_mii_speed_10(dev);
+		ret = xgmac_set_speed(dev, xgmac->phy->speed);
 		break;
 	default:
 		pr_err("%s invalid speed %d\n", dev->name, xgmac->phy->speed);
@@ -472,6 +506,9 @@ static int xgmac_get_phy_addr(struct xgmac_priv *priv, struct udevice *dev)
 	return reg;
 }
 
+extern uint8_t g_gmac_loopback;
+
+
 static int xgmac_start(struct udevice *dev)
 {
 	struct xgmac_priv *xgmac = dev_get_priv(dev);
@@ -488,6 +525,11 @@ static int xgmac_start(struct udevice *dev)
 
 	xgmac->tx_desc_idx = 0;
 	xgmac->rx_desc_idx = 0;
+	xgmac->trace_enabled = env_get_yesno("nettrace") == 1;
+	xgmac->dma_error = false;
+	xgmac->trace_rx_count = 0;
+	xgmac->trace_tx_count = 0;
+	xgmac->trace_last_dump = get_timer(0);
 
 	ret = xgmac->config->ops->xgmac_start_resets(dev);
 	if (ret < 0) {
@@ -497,20 +539,47 @@ static int xgmac_start(struct udevice *dev)
 
 	xgmac->reg_access_ok = true;
 
+	ret = wait_for_bit_le32(&xgmac->dma_regs->mode,
+				XGMAC_DMA_MODE_SWR, false,
+				xgmac->config->swr_wait, false);
+	if (ret) {
+		pr_err("XGMAC_DMA_MODE_SWR stuck: %d\n", ret);
+		goto err_stop_resets;
+	}
+
+	ret = xgmac->config->ops->xgmac_calibrate_pads(dev);
+	if (ret < 0) {
+		pr_err("xgmac_calibrate_pads() failed: %d\n", ret);
+		goto err_stop_resets;
+	}
+
+#if 0
 	/*
 	 * if PHY was already connected and configured,
 	 * don't need to reconnect/reconfigure again
 	 */
 	if (!xgmac->phy) {
-		addr = xgmac_get_phy_addr(xgmac, dev);
-		xgmac->phy = phy_connect(xgmac->mii, addr, dev,
-					 xgmac->config->interface(dev));
+#ifdef CONFIG_PHY_FIXED
+		ofnode fixed_link = ofnode_find_subnode(dev_ofnode(dev),
+							"fixed-link");
+
+		if (ofnode_valid(fixed_link))
+			xgmac->phy = fixed_phy_create(dev_ofnode(dev));
+#endif
+		if (!xgmac->phy) {
+			addr = xgmac_get_phy_addr(xgmac, dev);
+			xgmac->phy = phy_connect(xgmac->mii, addr, dev,
+						 xgmac->config->interface(dev));
+		}
 		if (!xgmac->phy) {
 			pr_err("%s phy_connect() failed\n", dev->name);
+			ret = -ENODEV;
 			goto err_stop_resets;
 		}
 
-		if (xgmac->max_speed) {
+		if (xgmac->max_speed &&
+		    !ofnode_valid(ofnode_find_subnode(dev_ofnode(dev),
+						      "fixed-link"))) {
 			ret = phy_set_supported(xgmac->phy, xgmac->max_speed);
 			if (ret) {
 				pr_err("%s phy_set_supported() failed: %d\n",
@@ -519,25 +588,28 @@ static int xgmac_start(struct udevice *dev)
 				goto err_shutdown_phy;
 			}
 		}
-
-		xgmac->phy->node = xgmac->phy_of_node;
+		if (!ofnode_valid(ofnode_find_subnode(dev_ofnode(dev),
+						      "fixed-link")))
+			xgmac->phy->node = xgmac->phy_of_node;
 		ret = phy_config(xgmac->phy);
 		if (ret < 0) {
 			pr_err("%s phy_config() failed: %d\n", dev->name, ret);
 			goto err_shutdown_phy;
 		}
 	}
-
 	ret = phy_startup(xgmac->phy);
 	if (ret < 0) {
 		pr_err("%s phy_startup() failed: %d\n", dev->name, ret);
 		goto err_shutdown_phy;
 	}
-
 	if (!xgmac->phy->link) {
 		pr_err("%s No link\n", dev->name);
 		goto err_shutdown_phy;
 	}
+#else
+	xgmac->phy->duplex = DUPLEX_FULL;
+	xgmac->phy->speed = SPEED_1000;
+#endif
 
 	ret = xgmac_adjust_link(dev);
 	if (ret < 0) {
@@ -646,6 +718,13 @@ static int xgmac_start(struct udevice *dev)
 		     XGMAC_MAC_CONF_ACS |
 		     XGMAC_MAC_CONF_CST);
 
+	if (g_gmac_loopback == 1)
+	{
+		printf("enabling mac loopback\n");
+		setbits_le32(&xgmac->mac_regs->rx_configuration,
+			     BIT(10));
+	}
+
 	ret = xgmac_write_hwaddr(dev);
 	if (ret < 0) {
 		pr_err("%s xgmac_write_hwaddr() failed: %d\n", dev->name, ret);
@@ -708,6 +787,16 @@ static int xgmac_start(struct udevice *dev)
 	       XGMAC_DMA_SYSBUS_MODE_BLEN32;
 
 	writel(val, &xgmac->dma_regs->sysbus_mode);
+
+	val = env_get_yesno("xgmac_rx_no_sequential") == 1 ?
+	      0 : XGMAC_DMA_RX_EDMA_CONTROL_REDM;
+	clrsetbits_le32(&xgmac->dma_regs->rx_edma_control,
+		       XGMAC_DMA_RX_EDMA_CONTROL_REDM, val);
+
+	val = env_get_yesno("xgmac_tx_no_sequential") == 1 ?
+	      0 : XGMAC_DMA_TX_EDMA_CONTROL_TEDM;
+	clrsetbits_le32(&xgmac->dma_regs->tx_edma_control,
+		       XGMAC_DMA_TX_EDMA_CONTROL_TEDM, val);
 
 	/* Set up descriptors */
 
@@ -773,6 +862,11 @@ static int xgmac_start(struct udevice *dev)
 	writel(last_rx_desc, &xgmac->dma_regs->ch0_rxdesc_tail_pointer);
 
 	xgmac->started = true;
+
+	if (xgmac->trace_enabled)
+		printf("XGMAC trace: TX=%p RX=%p buffers=%p stride=%u group=%u\n",
+		       xgmac->tx_descs, xgmac->rx_descs, xgmac->rx_dma_buf,
+		       xgmac->desc_size, xgmac->desc_per_cacheline);
 
 	debug("%s: OK\n", __func__);
 	return 0;
@@ -890,10 +984,17 @@ static int xgmac_send(struct udevice *dev, void *packet, int length)
 
 	while (get_timer(start_time) < XGMAC_TIMEOUT_100MS) {
 		xgmac->config->ops->xgmac_inval_desc(tx_desc);
-		if (!(readl(&tx_desc->des3) & XGMAC_DESC3_OWN))
+		if (!(readl(&tx_desc->des3) & XGMAC_DESC3_OWN)) {
+			if (xgmac->trace_enabled && xgmac->trace_tx_count++ < 16) {
+				printf("XGMAC TX: len=%d status=%08x\n",
+				       length, tx_desc->des3);
+				print_buffer(0, packet, 1, min(length, 64), 16);
+			}
 			return 0;
+		}
 	}
-	debug("%s: TX timeout\n", __func__);
+	dev_err(dev, "TX timeout: descriptor=%08x DMA status=%08x\n",
+		readl(&tx_desc->des3), readl(&xgmac->dma_regs->ch0_status));
 
 	return -ETIMEDOUT;
 }
@@ -902,13 +1003,28 @@ static int xgmac_recv(struct udevice *dev, int flags, uchar **packetp)
 {
 	struct xgmac_priv *xgmac = dev_get_priv(dev);
 	struct xgmac_desc *rx_desc;
+	u32 status;
 	int length;
 
 	debug("%s(dev=%p, flags=0x%x):\n", __func__, dev, flags);
 
+	status = readl(&xgmac->dma_regs->ch0_status);
+	if (status & XGMAC_DMA_CH0_STATUS_FBE) {
+		if (!xgmac->dma_error)
+			dev_err(dev, "DMA bus error: status=%08x RX buffer=%08x%08x\n",
+				status,
+				readl(&xgmac->dma_regs->ch0_current_rx_buffer_high),
+				readl(&xgmac->dma_regs->ch0_current_rx_buffer_low));
+		xgmac->dma_error = true;
+		return -EIO;
+	}
+
 	rx_desc = xgmac_get_desc(xgmac, xgmac->rx_desc_idx, true);
 	xgmac->config->ops->xgmac_inval_desc(rx_desc);
 	if (rx_desc->des3 & XGMAC_DESC3_OWN) {
+		if (xgmac->trace_enabled &&
+		    get_timer(xgmac->trace_last_dump) >= 5000)
+			xgmac_trace_rx_ring(xgmac);
 		debug("%s: RX packet not available\n", __func__);
 		return -EAGAIN;
 	}
@@ -919,6 +1035,12 @@ static int xgmac_recv(struct udevice *dev, int flags, uchar **packetp)
 	debug("%s: *packetp=%p, length=%d\n", __func__, *packetp, length);
 
 	xgmac->config->ops->xgmac_inval_buffer(*packetp, length);
+
+	if (xgmac->trace_enabled && xgmac->trace_rx_count++ < 16) {
+		printf("XGMAC RX: idx=%d len=%d status=%08x\n",
+		       xgmac->rx_desc_idx, length, rx_desc->des3);
+		print_buffer(0, *packetp, 1, min(length, 64), 16);
+	}
 
 	return length;
 }
@@ -1199,10 +1321,18 @@ static const struct eth_ops xgmac_ops = {
 };
 
 static const struct udevice_id xgmac_ids[] = {
+#if defined(CONFIG_DWC_ETH_XGMAC_SOCFPGA)
 	{
 		.compatible = "intel,socfpga-dwxgmac",
 		.data = (ulong)&xgmac_socfpga_config
 	},
+#endif
+#if defined(CONFIG_DWC_ETH_XGMAC_NUVOTON_NPCM9XX)
+	{
+		.compatible = "nuvoton,dwxgmac",
+		.data = (ulong)&xgmac_npcm9xx_config
+	},
+#endif
 	{ }
 };
 

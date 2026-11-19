@@ -37,6 +37,7 @@
 #include <spi_flash.h>
 #include <asm/cache.h>
 
+
 /* Create a compile-time value */
 #if MEM_SUPPORT_64BIT_DATA
 #define HELP_Q ", .q"

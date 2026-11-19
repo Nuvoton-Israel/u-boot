@@ -7,6 +7,8 @@
  *
  * Based loosely off of Linux's PHY Lib
  */
+#define DEBUG
+
 #include <console.h>
 #include <dm.h>
 #include <env.h>
@@ -233,7 +235,7 @@ int genphy_update_link(struct phy_device *phydev)
 
 	/*
 	 * If we already saw the link up, and it hasn't gone down, then
-	 * we don't need to wait for autoneg again
+	 * we don't need to wait for autoneg againprin
 	 */
 	if (phydev->link && mii_reg & BMSR_LSTATUS)
 		return 0;

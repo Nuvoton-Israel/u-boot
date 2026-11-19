@@ -13,7 +13,10 @@
 #include <linux/usb/otg.h>
 #include <linux/usb/phy.h>
 
+struct udevice;
+
 struct dwc3_device {
+	struct udevice *parent_dev;
 	unsigned long base;
 	enum usb_dr_mode dr_mode;
 	enum usb_phy_interface hsphy_mode;

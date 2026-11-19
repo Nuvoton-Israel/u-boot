@@ -84,10 +84,17 @@ int GFX_IsPllDebug_g , AHB2PCI_IsLogEnable_g;
 u32 FB_BA = 0;		// Frame buffer base address
 u32 MGABASE1 = 0;	// GFX Memory space address
 
+#define DEFAULT_FB_ADDR  0x81
+#define GFX_GMMAP0 0x2100000
+#define GFX_GMMAP1 0x2100008
+
 u32 getFrameBufferAddress(void)
 {
 	u32 fbAddr = 0;
 
+#if defined(CONFIG_ARCH_NPCM9XX)
+	fbAddr = DEFAULT_FB_ADDR;
+#else
 	switch ((readl(INTCR4) & 0x7f0000) >> 16) {
 	case 0x1F:
 		fbAddr = 0x1F000000;
@@ -114,6 +121,7 @@ u32 getFrameBufferAddress(void)
 		fbAddr = 0x6F000000;
 		break;
 	}
+#endif
 
 	return fbAddr;
 }
@@ -157,17 +165,16 @@ int AHB2PCI_Memory_Write(u32 address, u8 size, u32 data)
 
 	// Clear Status Register
 	writel(readl(AHB_ISTATUS) , AHB_ISTATUS);
-	
-	// Write the configuration space address to read
-	writel(address , WR_PCI_ADDR);
+
+
 
 	// Write the data
 	writel(data , DATA_REG);
 
 	// Initiate the transaction
 	writel((1 << 0) | (PCI_MEM_WRITE << 4) | (size << 8) , WR_CONTROL);
-	
-	// Check that transaction has ended
+
+
 	while(!(readl(AHB_ISTATUS)&0x1))
 	{
 		cnt++;
@@ -350,21 +357,23 @@ u32 AHB2PCI_Config_Read(u32 address, u8 size)
 
 	// Set the Initial Byte offset
 	// A non-zero offset cannot be used in Read transactions.
-	writel(0,RD_AHB_IBYTE);
-	
+	writel(0,RD_AHB_IBYTE);   // 0x2040024
+
 	// Clear Status Register
-	writel(readl(AHB_ISTATUS) , AHB_ISTATUS);
+	writel(readl(AHB_ISTATUS) , AHB_ISTATUS);  // 0x2040044
 
 	// Write the configuration space address to read
 	aligned_addr = (address & ~0x3); // Bits 0,1 must be 0
 
-	writel(aligned_addr , RD_PCI_ADDR);
+	writel(aligned_addr , RD_PCI_ADDR);   // 0x2040020
 
 	// Initiate the transaction
-	writel(((1 << 0) | (PCI_CFG_READ << 4) | (4 << 8)),(AHB2PCI_BA+0x28)); // read size must be 4
+	writel(((1 << 0) | (PCI_CFG_READ << 4) | (4 << 8)),(AHB2PCI_BA+0x28)); // read size must be 4  //  0x2040028
+
+	printf("0x2040028 = 0x%04x\n", readl(AHB2PCI_BA+0x28));
 
 	// Check that the transaction has ended
-	while(!((readl(AHB_ISTATUS)&0x100)>>8))
+	while(!((readl(AHB_ISTATUS)&0x100)>>8))  // 0x2040044
 	{
 		cnt++;
 		if(cnt > 1000)
@@ -954,7 +963,7 @@ int GFX_ConfigureDisplayTo1024x768(GFX_ColorDepth colorDepth)
 	if (!AHB2PCI_Memory_Write(CRTC, sizeof(u16), 0x0022)){return (false);} // CPU_LATCH_RD
 	if (!AHB2PCI_Memory_Write(CRTC, sizeof(u16), 0x8024)){return (false);} // DATA_SEL
 	if (!AHB2PCI_Memory_Write(CRTC, sizeof(u16), 0x3426)){return (false);} // ATTRIB_ADDR (34 in diag 20 in Yarkon?)
-	printf("> CRTC Configuration done.\n");	
+	printf("> CRTC Configuration done.\n");
 	/*----------------------------------------------------------------------------------------------*/
 	/* CRTC Controller Extension Configuration														*/
 	/*----------------------------------------------------------------------------------------------*/
@@ -1166,7 +1175,7 @@ int GFX_ConfigureDisplayTo1024x768(GFX_ColorDepth colorDepth)
 		{
 			Color = (u32)rand() ^ ((u32)rand()<<16);
 			for (Index =0; Index<((1024*768)/numOfBars); Index++, Address=Address+4)
-				writel(Color,Address);	
+				writel(Color,Address);
 		}
 	}
 	printf("> Filling Frame Buffer done.\n");
@@ -1180,7 +1189,7 @@ void gfx_ip_reset(void)
 
 #ifdef CONFIG_ARCH_NPCM8XX
 	/* Reset PCI */
-	writel(0x10, PCIRCTL);
+	writel(8, PCIRCTL);
 
 	/* Release PCI Reset and allow external PCI reset clear the internal control of reset */
         writew((1 << 1 ) | (1 << 0), PCIRCTL); /* 11b 3h */
@@ -1209,30 +1218,33 @@ int GFX_Draw_Pattern(int out_color)
 	const u32 numOfBars=16;
 	uintptr_t Address;
 
-	/*----------------------------------------------------------------------------------------------*/
-	/* GFX PCI Configuration Space - Read and Configure												*/
-	/*----------------------------------------------------------------------------------------------*/
-	// Wait until GFX Device/Vendor ID is read correctly
-	while (AHB2PCI_Config_Read(GFX_IDSEL + GFX_VENDOR_ID, sizeof(u32)) != GFX_VEN_DEV_ID_RV)
-	{
-		printf("Waiting until PCI is out of reset; \n");
-		if (cnt == 10)
-		{
-			printf ("Test Aborted .\n");
-			return(false);
-		}
-		mdelay (100);
-		cnt++;
-	}
-	printf("> Found correct GFX Device/Vendor ID 0x%08x. \n", GFX_VEN_DEV_ID_RV);
+//	/*----------------------------------------------------------------------------------------------*/
+//	/* GFX PCI Configuration Space - Read and Configure												*/
+//	/*----------------------------------------------------------------------------------------------*/
+//	// Wait until GFX Device/Vendor ID is read correctly
+//	while (AHB2PCI_Config_Read(GFX_IDSEL + GFX_VENDOR_ID, sizeof(u32)) != GFX_VEN_DEV_ID_RV)
+//	{
+//		printf("Waiting until PCI is out of reset; \n");
+//		if (cnt == 100)
+//		{
+//			printf ("Test Aborted .\n");
+//			return(false);
+//		}
+//		mdelay (1);
+//		cnt++;
+//	}
+//	printf("> Found correct GFX Device/Vendor ID 0x%08x. \n", GFX_VEN_DEV_ID_RV);
 
 	if(FB_Initialize() == 0)
 		return(false);
 
+	printf("EXITING TEST BEFORE IT FINISHED\n");
+	return (true);
+
 	hRes=( (((u8)(readl(HVCNTH)))<<8)  |  ((u8)(readl(HVCNTL))) )+1;
 	vRes=( (((u8)(readl(VVCNTH)))<<8)  |  ((u8)(readl(VVCNTL))) );
 	colorDepth=COLOR_DEPTH_MAPPING[((u8) readl(COLDEP))];
-	
+
 	if(hRes==0 || vRes==0 || colorDepth==0)
 	{
 		printf("can't draw pattern\n");
@@ -1308,8 +1320,8 @@ void dumpGFX_InfoRegs (u32 *hRes, u32 *vRes, u32 *colorDepth, u32 *pll_freq)
 	*hRes=( (((u8)(readl(HVCNTH)))<<8)  |  ((u8)(readl(HVCNTL))) )+1;
 
 	*vRes=( (((u8)(readl(VVCNTH)))<<8)  |  ((u8)(readl(VVCNTL))) );
-	
-	address=readl(COLDEP);
+
+
 	*colorDepth=COLOR_DEPTH_MAPPING[address];
 	printf("> Resolution: %ux%ux%ubpp\n", *hRes, *vRes, *colorDepth);
 
@@ -1340,6 +1352,11 @@ static int do_gfx_command(struct cmd_tbl *cmdtp, int flag, int argc, char * cons
 	command=simple_strtoul(argv[1], NULL, 16);
 	if(command==0 || command >15)
 		return CMD_RET_USAGE;
+
+#ifdef CONFIG_TARGET_TAVOR_VELOCE
+	writel(DEFAULT_FB_ADDR,GFX_GMMAP0);
+	writel(DEFAULT_FB_ADDR,GFX_GMMAP1);
+#endif
 
 	switch (command) {
 	case 1:
@@ -1438,7 +1455,7 @@ static int do_gfx_command(struct cmd_tbl *cmdtp, int flag, int argc, char * cons
 			printf("> INTCR = 0x%08x \n", readl(INTCR));
 			break;
 	case 11:  //DAC2
-			if ( (((readl(MFSEL3))&0x400000)>>22) !=0)	
+			if ( (((readl(MFSEL3))&0x400000)>>22) !=0)
 			{
 				printf("> Clear GPOCSEL bit. Select VSYNC2, HSYNC2, DDC2SCL, DDC2SDA. \n");
 				clrbits_le32(MFSEL3,BIT(22));

@@ -183,9 +183,13 @@ static int do_mmcinfo(struct cmd_tbl *cmdtp, int flag, int argc,
 		}
 	}
 
+	puts("init_mmc_device\n");
 	mmc = init_mmc_device(curr_device, false);
 	if (!mmc)
+	{
+		puts("init_mmc_device failed\n");
 		return CMD_RET_FAILURE;
+	}
 
 	print_mmcinfo(mmc);
 	return CMD_RET_SUCCESS;

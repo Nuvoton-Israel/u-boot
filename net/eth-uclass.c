@@ -408,6 +408,11 @@ int eth_is_active(struct udevice *dev)
 	return priv->state == ETH_STATE_ACTIVE;
 }
 
+int eth_send_udev(struct udevice *dev, void *packet, int length)
+{
+	return eth_get_ops(dev)->send(dev, packet, min(length, ETH_TX_MAX_LEN));
+}
+
 int eth_send(void *packet, int length)
 {
 	struct udevice *current;
@@ -420,14 +425,14 @@ int eth_send(void *packet, int length)
 	if (!eth_is_active(current))
 		return -EINVAL;
 
-	ret = eth_get_ops(current)->send(current, packet, length);
+	ret = eth_send_udev(current, packet, length);
 	if (ret < 0) {
 		/* We cannot completely return the error at present */
 		debug("%s: send() returned error %d\n", __func__, ret);
 	}
 #if defined(CONFIG_CMD_PCAP)
 	if (ret >= 0)
-		pcap_post(packet, length, true);
+		pcap_post(packet, min(length, ETH_TX_MAX_LEN), true);
 #endif
 	return ret;
 }

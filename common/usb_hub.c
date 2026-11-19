@@ -20,6 +20,7 @@
  * HUB "Driver"
  * Probes device for being a hub and configurate it
  */
+#define DEBUG
 
 #include <command.h>
 #include <dm.h>
@@ -47,7 +48,7 @@
 #define HUB_SHORT_RESET_TIME	20
 #define HUB_LONG_RESET_TIME	200
 
-#define HUB_DEBOUNCE_TIMEOUT	CONFIG_USB_HUB_DEBOUNCE_TIMEOUT
+#define HUB_DEBOUNCE_TIMEOUT	5 //CONFIG_USB_HUB_DEBOUNCE_TIMEOUT
 
 #define PORT_OVERCURRENT_MAX_SCAN_COUNT		3
 
@@ -208,14 +209,14 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	 * Do a minimum delay of the larger value of 100ms or pgood_delay
 	 * so that the power can stablize before the devices are queried
 	 */
-	hub->query_delay = get_timer(0) + max(100, (int)pgood_delay);
+	hub->query_delay = get_timer(0) + 1;//max(100, (int)pgood_delay);
 
 	/*
 	 * Record the power-on timeout here. The max. delay (timeout)
 	 * will be done based on this value in the USB port loop in
 	 * usb_hub_configure() later.
 	 */
-	hub->connect_timeout = hub->query_delay + HUB_DEBOUNCE_TIMEOUT;
+	hub->connect_timeout = 2;//hub->query_delay + HUB_DEBOUNCE_TIMEOUT;
 	debug("devnum=%d poweron: query_delay=%d connect_timeout=%d\n",
 	      dev->devnum, max(100, (int)pgood_delay),
 	      max(100, (int)pgood_delay) + HUB_DEBOUNCE_TIMEOUT);
@@ -275,7 +276,7 @@ static int usb_hub_port_reset(struct usb_device *dev, int port,
 	int err, tries;
 	ALLOC_CACHE_ALIGN_BUFFER(struct usb_port_status, portsts, 1);
 	unsigned short portstatus, portchange;
-	int delay = HUB_SHORT_RESET_TIME; /* start with short reset delay */
+	int delay = 10;//HUB_SHORT_RESET_TIME; /* start with short reset delay */
 
 #if CONFIG_IS_ENABLED(DM_USB)
 	debug("%s: resetting '%s' port %d...\n", __func__, dev->dev->name,
@@ -283,11 +284,12 @@ static int usb_hub_port_reset(struct usb_device *dev, int port,
 #else
 	debug("%s: resetting port %d...\n", __func__, port + 1);
 #endif
-	for (tries = 0; tries < MAX_TRIES; tries++) {
+	for (tries = 0; tries < (MAX_TRIES * 100); tries++) {
 		err = usb_set_port_feature(dev, port + 1, USB_PORT_FEAT_RESET);
 		if (err < 0)
 			return err;
 
+		debug("get_port_status try %d\n", tries);
 		mdelay(delay);
 
 		if (usb_get_port_status(dev, port + 1, portsts) < 0) {
@@ -328,7 +330,7 @@ static int usb_hub_port_reset(struct usb_device *dev, int port,
 			break;
 
 		/* Switch to long reset delay for the next round */
-		delay = HUB_LONG_RESET_TIME;
+		delay = 10;//HUB_LONG_RESET_TIME;
 	}
 
 	if (tries == MAX_TRIES) {
@@ -403,7 +405,7 @@ int usb_hub_port_connect_change(struct usb_device *dev, int port)
 	 * request (refer to Section 11.24.2 and Section 9.4 respectively)
 	 * after the reset recovery time 10 ms
 	 */
-	mdelay(10);
+	mdelay(1);
 
 #if CONFIG_IS_ENABLED(DM_USB)
 	struct udevice *child;

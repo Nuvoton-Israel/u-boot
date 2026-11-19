@@ -59,54 +59,40 @@ static void dwc3_set_mode(struct dwc3 *dwc, u32 mode)
 static int dwc3_core_soft_reset(struct dwc3 *dwc)
 {
 	u32		reg;
-	int		retries = 1000;
 
-	/*
-	 * We're resetting only the device side because, if we're in host mode,
-	 * XHCI driver will reset the host block. If dwc3 was configured for
-	 * host-only mode, then we can return early.
-	 */
-	if (dwc->dr_mode == USB_DR_MODE_HOST)
-		return 0;
+	/* Before Resetting PHY, put Core in Reset */
+	reg = dwc3_readl(dwc->regs, DWC3_GCTL);
+	reg |= DWC3_GCTL_CORESOFTRESET;
+	dwc3_writel(dwc->regs, DWC3_GCTL, reg);
 
-	reg = dwc3_readl(dwc->regs, DWC3_DCTL);
-	reg |= DWC3_DCTL_CSFTRST;
-	reg &= ~DWC3_DCTL_RUN_STOP;
-	dwc3_gadget_dctl_write_safe(dwc, reg);
+	/* Assert USB3 PHY reset */
+	reg = dwc3_readl(dwc->regs, DWC3_GUSB3PIPECTL(0));
+	reg |= DWC3_GUSB3PIPECTL_PHYSOFTRST;
+	dwc3_writel(dwc->regs, DWC3_GUSB3PIPECTL(0), reg);
 
-	/*
-	 * For DWC_usb31 controller 1.90a and later, the DCTL.CSFRST bit
-	 * is cleared only after all the clocks are synchronized. This can
-	 * take a little more than 50ms. Set the polling rate at 20ms
-	 * for 10 times instead.
-	 */
-	if (DWC3_VER_IS_WITHIN(DWC31, 190A, ANY) || DWC3_IP_IS(DWC32))
-		retries = 10;
+	/* Assert USB2 PHY reset */
+	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+	reg |= DWC3_GUSB2PHYCFG_PHYSOFTRST;
+	dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
 
-	do {
-		reg = dwc3_readl(dwc->regs, DWC3_DCTL);
-		if (!(reg & DWC3_DCTL_CSFTRST))
-			goto done;
+	mdelay(1);
 
-		if (DWC3_VER_IS_WITHIN(DWC31, 190A, ANY) || DWC3_IP_IS(DWC32))
-			mdelay(20);
-		else
-			udelay(1);
-	} while (--retries);
+	/* Clear USB3 PHY reset */
+	reg = dwc3_readl(dwc->regs, DWC3_GUSB3PIPECTL(0));
+	reg &= ~DWC3_GUSB3PIPECTL_PHYSOFTRST;
+	dwc3_writel(dwc->regs, DWC3_GUSB3PIPECTL(0), reg);
 
-	dev_warn(dwc->dev, "DWC3 controller soft reset failed.\n");
-	return -ETIMEDOUT;
+	/* Clear USB2 PHY reset */
+	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+	reg &= ~DWC3_GUSB2PHYCFG_PHYSOFTRST;
+	dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
 
-done:
-	/*
-	 * For DWC_usb31 controller 1.80a and prior, once DCTL.CSFRST bit
-	 * is cleared, we must wait at least 50ms before accessing the PHY
-	 * domain (synchronization delay).
-	 */
-	if (DWC3_VER_IS_WITHIN(DWC31, ANY, 180A))
-		mdelay(50);
+	mdelay(1);
 
-	mdelay(100);
+	/* After PHYs are stable we can take Core out of reset state */
+	reg = dwc3_readl(dwc->regs, DWC3_GCTL);
+	reg &= ~DWC3_GCTL_CORESOFTRESET;
+	dwc3_writel(dwc->regs, DWC3_GCTL, reg);
 
 	return 0;
 }
@@ -522,7 +508,7 @@ static void dwc3_phy_setup(struct dwc3 *dwc)
 
 	dwc3_hsphy_mode_setup(dwc);
 
-	mdelay(100);
+	mdelay(1);
 
 	reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
 
@@ -536,7 +522,10 @@ static void dwc3_phy_setup(struct dwc3 *dwc)
 		reg |= DWC3_GUSB2PHYCFG_SUSPHY;
 
 	if (dwc->dis_u2_susphy_quirk)
+	{
+		printf("disable suspend\n");
 		reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
+	}
 
 	if (dwc->dis_enblslpm_quirk)
 		reg &= ~DWC3_GUSB2PHYCFG_ENBLSLPM;
@@ -546,7 +535,7 @@ static void dwc3_phy_setup(struct dwc3 *dwc)
 
 	dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
 
-	mdelay(100);
+	mdelay(1);
 }
 
 /* set global incr burst type configuration registers */
@@ -660,7 +649,13 @@ static int dwc3_core_init(struct dwc3 *dwc)
 
 	reg = dwc3_readl(dwc->regs, DWC3_GCTL);
 	reg &= ~DWC3_GCTL_SCALEDOWN_MASK;
-
+#if defined(CONFIG_TARGET_TAVOR_VELOCE)
+	if (USB_DR_MODE_PERIPHERAL == dwc->dr_mode)
+	{
+		reg |= DWC3_GCTL_SCALEDOWN_MASK;
+		printf("enable scaledown\n");
+	}
+#endif
 	switch (DWC3_GHWPARAMS1_EN_PWROPT(dwc->hwparams.hwparams1)) {
 	case DWC3_GHWPARAMS1_EN_PWROPT_CLK:
 		/**
@@ -805,7 +800,7 @@ static int dwc3_core_init_mode(struct dwc3 *dwc)
 static void dwc3_gadget_run(struct dwc3 *dwc)
 {
 	dwc3_writel(dwc->regs, DWC3_DCTL, DWC3_DCTL_RUN_STOP);
-	mdelay(100);
+	mdelay(1);
 }
 
 static void dwc3_core_stop(struct dwc3 *dwc)
@@ -858,7 +853,6 @@ static void dwc3_core_exit_mode(struct dwc3 *dwc)
 int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 {
 	struct dwc3		*dwc;
-	struct device		*dev = NULL;
 	u8			lpm_nyet_threshold;
 	u8			tx_de_emphasis;
 	u8			hird_threshold;
@@ -867,13 +861,14 @@ int dwc3_uboot_init(struct dwc3_device *dwc3_dev)
 
 	void			*mem;
 
-	mem = devm_kzalloc((struct udevice *)dev,
-			   sizeof(*dwc) + DWC3_ALIGN_MASK, GFP_KERNEL);
+	mem = devm_kzalloc(dwc3_dev->parent_dev,
+			sizeof(*dwc) + DWC3_ALIGN_MASK, GFP_KERNEL);
 	if (!mem)
 		return -ENOMEM;
 
 	dwc = PTR_ALIGN(mem, DWC3_ALIGN_MASK + 1);
 	dwc->mem = mem;
+	dwc->dev = dwc3_dev->parent_dev;
 
 	dwc->regs = (void *)(uintptr_t)(dwc3_dev->base +
 					DWC3_GLOBALS_REGS_START);

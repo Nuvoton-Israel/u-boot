@@ -1,0 +1,57 @@
+name: Build u-boot for npcm750
+run-name: u-boot ${{ inputs.uboot_ref }} for npcm750
+on:
+  pull_request:   # Kick off this on every PR
+      branches:
+      - 'npcm-v2024.10'
+  workflow_dispatch:
+    inputs:
+      uboot_ref:
+        description: u-boot ref
+        required: true
+        default: npcm-v2024.10
+        type: string
+
+jobs:
+  build:
+    name: ${{ matrix.boards.name }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        boards:
+          [
+            {
+              "name": "nuvoton-npcm750-evb",
+              "config": "poleg_evb_defconfig",
+            },
+          ]
+    steps:
+      - name: Toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install gcc gcc-arm-linux-gnueabi binutils-arm-linux-gnueabi python3-pyelftools confget libgnutls28-dev uuid-dev
+
+      - name: Checkout u-boot - ${{ inputs.uboot_ref }}
+        uses: actions/checkout@v4
+        with:
+          repository: Nuvoton-Israel/u-boot
+          ref: ${{ inputs.uboot_ref }}
+          path: u-boot
+
+      - name: Build u-boot - ${{ matrix.boards.config }}
+        id: build
+        run: |
+          cd u-boot
+          make mrproper
+          make ${{ matrix.boards.config }}
+          make KCFLAGS="-Werror" CROSS_COMPILE=arm-linux-gnueabi- -j$(nproc)
+
+      - name: Upload artifacts
+        if: ${{ success() && steps.build.conclusion != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.boards.name }}
+          path: |
+            u-boot/u-boot.bin
+

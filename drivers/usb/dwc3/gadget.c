@@ -13,6 +13,8 @@
  * commit 8e74475b0e : usb: dwc3: gadget: use udc-core's reset notifier
  */
 
+//#define DEBUG
+
 #include <cpu_func.h>
 #include <log.h>
 #include <malloc.h>
@@ -336,6 +338,7 @@ int dwc3_send_gadget_ep_cmd(struct dwc3 *dwc, unsigned ep,
 	dwc3_writel(dwc->regs, DWC3_DEPCMDPAR1(ep), params->param1);
 	dwc3_writel(dwc->regs, DWC3_DEPCMDPAR2(ep), params->param2);
 
+	dev_vdbg(dwc->dev, "az: setting CMDACT\n");
 	dwc3_writel(dwc->regs, DWC3_DEPCMD(ep), cmd | DWC3_DEPCMD_CMDACT);
 	do {
 		reg = dwc3_readl(dwc->regs, DWC3_DEPCMD(ep));
@@ -1528,17 +1531,21 @@ static int dwc3_gadget_start(struct usb_gadget *g,
 	} else {
 		switch (dwc->maximum_speed) {
 		case USB_SPEED_LOW:
+			printf("LOWSPEED\n");
 			reg |= DWC3_DSTS_LOWSPEED;
 			break;
 		case USB_SPEED_FULL:
+			printf("FULLSPEED\n");
 			reg |= DWC3_DSTS_FULLSPEED1;
 			break;
 		case USB_SPEED_HIGH:
+			printf("HIGHSPEED\n");
 			reg |= DWC3_DSTS_HIGHSPEED;
 			break;
 		case USB_SPEED_SUPER:	/* FALLTHROUGH */
 		case USB_SPEED_UNKNOWN:	/* FALTHROUGH */
 		default:
+			printf("SUPERSPEED\n");
 			reg |= DWC3_DSTS_SUPERSPEED;
 		}
 	}

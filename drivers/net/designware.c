@@ -8,6 +8,8 @@
  * Designware ethernet IP driver for U-Boot
  */
 
+//#define DEBUG
+
 #include <clk.h>
 #include <cpu_func.h>
 #include <dm.h>
@@ -35,6 +37,15 @@
 #include "designware.h"
 #if IS_ENABLED(CONFIG_ARCH_NPCM8XX)
 #include <asm/arch/gmac.h>
+#endif
+
+#ifdef CONFIG_ARCH_NPCM8XX
+#include <asm/io.h>
+
+#define SR_MII_CTRL_SS6_BIT6  6
+#define SR_MII_CTRL_ANEN_BIT12  12
+#define SR_MII_CTRL_SS13_BIT13  13
+#define SR_MII_STS_LINKUP_BIT2  2
 #endif
 
 static int dw_mdio_read(struct mii_dev *bus, int addr, int devad, int reg)
@@ -467,10 +478,26 @@ static int _dw_write_hwaddr(struct dw_eth_dev *priv, u8 *mac_id)
 	return 0;
 }
 
+extern uint8_t g_gmac_loopback;
+
+
 static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 			  struct phy_device *phydev)
 {
+#ifdef CONFIG_ARCH_NPCM8XX
+	unsigned int start;
+#endif
 	u32 conf = readl(&mac_p->conf) | FRAMEBURSTENABLE | DISABLERXOWN;
+	if (1 == g_gmac_loopback)
+	{
+		conf |= BIT(12);
+		conf &= ~(DISABLERXOWN);
+	}
+	else if (2 == g_gmac_loopback)
+	{
+		conf &= ~(DISABLERXOWN);
+	}
+	//printf("initial conf=0x%x\n", readl(&mac_p->conf));
 
 	if (!phydev->link) {
 		printf("%s: No link.\n", phydev->dev->name);
@@ -488,6 +515,9 @@ static int dw_adjust_link(struct dw_eth_dev *priv, struct eth_mac_regs *mac_p,
 	if (phydev->duplex)
 		conf |= FULLDPLXMODE;
 
+//	printf("before delay\n");
+//	udelay(6000);
+//	printf("after delay conf=0x%x\n", conf);
 	writel(conf, &mac_p->conf);
 
 	printf("Speed: %d, %s duplex%s\n", phydev->speed,
@@ -562,7 +592,10 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 	ulong start;
 	int ret;
 
+	debug("dw_eth_init1\n");
+
 	writel(readl(&dma_p->busmode) | DMAMAC_SRST, &dma_p->busmode);
+	debug("dw_eth_init2\n");
 
 	/*
 	 * When a MII PHY is used, we must set the PS bit for the DMA
@@ -572,6 +605,7 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 		writel(readl(&mac_p->conf) | MII_PORTSELECT, &mac_p->conf);
 	else
 		writel(readl(&mac_p->conf) & ~MII_PORTSELECT, &mac_p->conf);
+	debug("dw_eth_init3\n");
 
 	start = get_timer(0);
 	while (readl(&dma_p->busmode) & DMAMAC_SRST) {
@@ -580,8 +614,9 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 			return -ETIMEDOUT;
 		}
 
-		mdelay(100);
+		mdelay(1);
 	};
+	debug("dw_eth_init4\n");
 
 	/*
 	 * Soft reset above clears HW address registers.
@@ -603,6 +638,7 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 #endif
 
 	writel(readl(&dma_p->opmode) | RXSTART | TXSTART, &dma_p->opmode);
+	debug("dw_eth_init5\n");
 
 #ifdef CONFIG_DW_AXI_BURST_LEN
 	writel((CONFIG_DW_AXI_BURST_LEN & 0x1FF >> 1), &dma_p->axibus);
@@ -615,6 +651,7 @@ int designware_eth_init(struct dw_eth_dev *priv, u8 *enetaddr)
 		       priv->phydev->dev->name);
 		return ret;
 	}
+	debug("dw_eth_init6\n");
 
 	ret = dw_adjust_link(priv, mac_p, priv->phydev);
 	if (ret)
@@ -697,6 +734,15 @@ static int _dw_eth_send(struct dw_eth_dev *priv, void *packet, int length)
 		desc_num = 0;
 
 	priv->tx_currdescnum = desc_num;
+
+	uint32_t *p = (uint32_t *)desc_p;
+//	printf("desc =" );
+//	for (int i = 0; i < sizeof(struct dmamacdescr); i = i + 4 )
+//	{
+//		debug("0x%X ", *p );
+//		p++;
+//	}
+//	debug("\n");
 
 	/* Start the transmission */
 	writel(POLL_DATA, &dma_p->txpolldemand);
@@ -879,6 +925,139 @@ static int designware_eth_bind(struct udevice *dev)
 	return 0;
 }
 
+
+#define PINMUX_BASE 0x45A00000
+#define PINMUX_PIN_195 (0x45A00000 + 0 + (195 * 8))
+#define MUX_SEL_PIN195_RMII1_TXD1_FUNC  1
+#define PINMUX_PIN_194 (0x45A00000 + 0 + (194 * 8))
+#define MUX_SEL_PIN194_RMII1_TXD0_FUNC  1
+#define PINMUX_PIN_198 (0x45A00000 + 0 + (198 * 8))
+#define MUX_SEL_PIN198_RMII1_RXD1_FUNC  1
+#define PINMUX_PIN_197 (0x45A00000 + 0 + (197 * 8))
+#define MUX_SEL_PIN197_RMII1_RXD0_FUNC  1
+#define PINMUX_PIN_199 (0x45A00000 + 0 + (199 * 8))
+#define MUX_SEL_PIN199_RMII1_CRSDV_FUNC  1
+#define PINMUX_PIN_196 (0x45A00000 + 0 + (196 * 8))
+#define MUX_SEL_PIN196_RMII1_TXEN_FUNC  1
+#define PINMUX_PIN_200 (0x45A00000 + 0 + (200 * 8))
+#define MUX_SEL_PIN200_RMII1_CK_FUNC  1
+
+#define PINMUX_PIN_216 (0x45A00000 + 0 + (216 * 8))
+#define MUX_SEL_PIN216_RGMII_TXD3_FUNC  1
+#define PINMUX_PIN_217 (0x45A00000 + 0 + (217 * 8))
+#define MUX_SEL_PIN217_RGMII_TXD2_FUNC  1
+#define PINMUX_PIN_218 (0x45A00000 + 0 + (218 * 8))
+#define MUX_SEL_PIN218_RGMII_TXD1_FUNC  1
+#define PINMUX_PIN_219 (0x45A00000 + 0 + (219 * 8))
+#define MUX_SEL_PIN219_RGMII_TXD0_FUNC  1
+#define PINMUX_PIN_220 (0x45A00000 + 0 + (220 * 8))
+#define MUX_SEL_PIN220_RGMII_TXC_FUNC  1
+#define PINMUX_PIN_221 (0x45A00000 + 0 + (221 * 8))
+#define MUX_SEL_PIN221_RGMII_TXCTL0_FUNC  1
+#define PINMUX_PIN_222 (0x45A00000 + 0 + (222 * 8))
+#define MUX_SEL_PIN222_RGMII_RXD3_FUNC  1
+#define PINMUX_PIN_223 (0x45A00000 + 0 + (223 * 8))
+#define MUX_SEL_PIN223_RGMII_RXD2_FUNC  1
+#define PINMUX_PIN_224 (0x45A00000 + 0 + (224 * 8))
+#define MUX_SEL_PIN224_RGMII_RXD1_FUNC  1
+#define PINMUX_PIN_225 (0x45A00000 + 0 + (225 * 8))
+#define MUX_SEL_PIN225_RGMII_RXD0_FUNC  1
+#define PINMUX_PIN_226 (0x45A00000 + 0 + (226 * 8))
+#define MUX_SEL_PIN226_RGMII_RXC_FUNC  1
+#define PINMUX_PIN_227 (0x45A00000 + 0 + (227 * 8))
+#define MUX_SEL_PIN227_RGMII_RXCTL_FUNC  1
+#define PINMUX_PIN_230 (0x45A00000 + 0 + (230 * 8))
+#define MUX_SEL_PIN230_RGMII_REFCLK_FUNC  1
+
+
+#define MUX_SEL_POS  0
+
+static void temp_set_single_pinmux(uint32_t reg, uint32_t func)
+{
+	uint32_t reg_val;
+	reg_val = readl(reg);
+	reg_val &= ~(0x7 << MUX_SEL_POS);
+	reg_val |=  (func << MUX_SEL_POS);
+	writel(reg_val, reg);
+}
+
+
+static void temp_set_pinmux(void)
+{
+	//GMAC1
+	temp_set_single_pinmux(PINMUX_PIN_195, MUX_SEL_PIN195_RMII1_TXD1_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_194, MUX_SEL_PIN194_RMII1_TXD0_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_198, MUX_SEL_PIN198_RMII1_RXD1_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_197, MUX_SEL_PIN197_RMII1_RXD0_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_199, MUX_SEL_PIN199_RMII1_CRSDV_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_196, MUX_SEL_PIN196_RMII1_TXEN_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_200, MUX_SEL_PIN200_RMII1_CK_FUNC);
+
+	//GMAC2
+	temp_set_single_pinmux(PINMUX_PIN_216, MUX_SEL_PIN216_RGMII_TXD3_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_217, MUX_SEL_PIN217_RGMII_TXD2_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_218, MUX_SEL_PIN218_RGMII_TXD1_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_219, MUX_SEL_PIN219_RGMII_TXD0_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_220, MUX_SEL_PIN220_RGMII_TXC_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_221, MUX_SEL_PIN221_RGMII_TXCTL0_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_222, MUX_SEL_PIN222_RGMII_RXD3_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_223, MUX_SEL_PIN223_RGMII_RXD2_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_224, MUX_SEL_PIN224_RGMII_RXD1_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_225, MUX_SEL_PIN225_RGMII_RXD0_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_226, MUX_SEL_PIN226_RGMII_RXC_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_227, MUX_SEL_PIN227_RGMII_RXCTL_FUNC);
+	temp_set_single_pinmux(PINMUX_PIN_230, MUX_SEL_PIN230_RGMII_REFCLK_FUNC);
+}
+
+#define RST_BA 0x45990000
+
+#define ACTIVE_HOLD_RELEASE_REG_B (RST_BA + 0x1640)
+#define ACTIVE_HOLD_RELEASE_REG_B_XGMAC_POS 25
+#define ACTIVE_HOLD_RELEASE_REG_B_GMAC1_POS 26
+#define ACTIVE_HOLD_RELEASE_REG_B_GMAC2_POS 27
+
+#define RESET_HOLD_REG_B (RST_BA + 0x440)
+#define RESET_HOLD_REG_B_XGMAC_POS 25
+#define RESET_HOLD_REG_B_GMAC1_POS 26
+#define RESET_HOLD_REG_B_GMAC2_POS 27
+
+#define GMACSS_EXT_REG_BA 0x44900000
+#define GMACSS_GMAC_CTRL_REG (GMACSS_EXT_REG_BA + 0x20)
+#define GMACSS_GMAC_CTRL_REG_GMAC1_CONFIG_DONE_POS 2
+#define GMACSS_GMAC_CTRL_REG_GMAC2_CONFIG_DONE_POS 3
+
+//#define GMACSS_XGMAC_CTRL_REG (GMACSS_EXT_REG_BA + 0x2C)
+//#define GMACSS_XGMAC_CTRL_REG_XGMAC_CONFIG_DONE_POS 0
+
+void temp_nuvoton_reset(void)
+{
+	uint32_t reg_val;
+	static uint8_t reset_done = 0;
+
+	if (reset_done) return;
+
+	reg_val = (1 << ACTIVE_HOLD_RELEASE_REG_B_GMAC1_POS) |
+			(1 << ACTIVE_HOLD_RELEASE_REG_B_GMAC2_POS)|
+			(1 << ACTIVE_HOLD_RELEASE_REG_B_XGMAC_POS) ;
+	writel(reg_val, ACTIVE_HOLD_RELEASE_REG_B);
+
+	reg_val = readl(RESET_HOLD_REG_B);
+	reg_val &= ~((1 << RESET_HOLD_REG_B_GMAC1_POS) |
+			(1 << RESET_HOLD_REG_B_GMAC2_POS)|
+			(1 << RESET_HOLD_REG_B_XGMAC_POS));
+	writel(reg_val, RESET_HOLD_REG_B);
+
+	reg_val = readl(GMACSS_GMAC_CTRL_REG);
+	reg_val |= (1 << GMACSS_GMAC_CTRL_REG_GMAC1_CONFIG_DONE_POS) |
+			(1 << GMACSS_GMAC_CTRL_REG_GMAC2_CONFIG_DONE_POS);
+	writel(reg_val, GMACSS_GMAC_CTRL_REG);
+//
+//	reg_val = readl(GMACSS_XGMAC_CTRL_REG);
+//	reg_val |= (1 << GMACSS_XGMAC_CTRL_REG_XGMAC_CONFIG_DONE_POS);
+//	writel(reg_val, GMACSS_XGMAC_CTRL_REG);
+	reset_done = 1;
+}
+
 int designware_eth_probe(struct udevice *dev)
 {
 	struct eth_pdata *pdata = dev_get_plat(dev);
@@ -887,6 +1066,10 @@ int designware_eth_probe(struct udevice *dev)
 	void *ioaddr;
 	int ret, err;
 	struct reset_ctl_bulk reset_bulk;
+
+	temp_nuvoton_reset();
+	temp_set_pinmux();
+
 #ifdef CONFIG_CLK
 	int i, clock_nb;
 
@@ -919,6 +1102,9 @@ int designware_eth_probe(struct udevice *dev)
 
 #if defined(CONFIG_DM_REGULATOR)
 	struct udevice *phy_supply;
+#ifdef CONFIG_ARCH_NPCM8XX
+	int phy_uv;
+#endif
 
 	ret = device_get_supply_regulator(dev, "phy-supply",
 					  &phy_supply);
@@ -931,8 +1117,6 @@ int designware_eth_probe(struct udevice *dev)
 			return ret;
 		}
 #if IS_ENABLED(CONFIG_ARCH_NPCM8XX)
-		int phy_uv;
-
 		phy_uv = dev_read_u32_default(dev, "phy-supply-microvolt", 0);
 		if (phy_uv) {
 			ret = regulator_set_value(phy_supply, phy_uv);
@@ -944,12 +1128,17 @@ int designware_eth_probe(struct udevice *dev)
 #endif
 	}
 #endif
+	debug("dw_eth_probe1\n");
 
 	ret = reset_get_bulk(dev, &reset_bulk);
 	if (ret)
 		dev_warn(dev, "Can't get reset: %d\n", ret);
-	else
+	else {
+#ifdef CONFIG_ARCH_NPCM8XX
+		reset_assert_bulk(&reset_bulk);
+#endif
 		reset_deassert_bulk(&reset_bulk);
+	}
 
 	/*
 	 * If we are on PCI bus, either directly attached to a PCI root port,
@@ -972,6 +1161,7 @@ int designware_eth_probe(struct udevice *dev)
 	priv->dma_regs_p = (struct eth_dma_regs *)(ioaddr + DW_DMA_BASE_OFFSET);
 	priv->interface = pdata->phy_interface;
 	priv->max_speed = pdata->max_speed;
+	debug("dw_eth_probe2\n");
 
 #if IS_ENABLED(CONFIG_BITBANGMII) && IS_ENABLED(CONFIG_DM_GPIO)
 	if (dev_read_bool(dev, "snps,bitbang-mii")) {
@@ -995,6 +1185,8 @@ int designware_eth_probe(struct udevice *dev)
 		priv->bus = miiphy_get_dev_by_name(dev->name);
 		priv->dev = dev;
 	}
+	debug("dw_eth_probe3\n");
+
 
 	ret = dw_phy_init(priv, dev);
 	debug("%s, ret=%d\n", __func__, ret);
@@ -1106,3 +1298,4 @@ static struct pci_device_id supported[] = {
 };
 
 U_BOOT_PCI_DEVICE(eth_designware, supported);
+

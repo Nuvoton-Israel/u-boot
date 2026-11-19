@@ -47,7 +47,7 @@ struct xgmac_mac_regs {
 	u32 address0_low;			/* 0x304 */
 };
 
-#define XGMAC_TIMEOUT_100MS			100000
+#define XGMAC_TIMEOUT_100MS			100
 #define XGMAC_MAC_CONF_SS_SHIFT			29
 #define XGMAC_MAC_CONF_SS_10G_XGMII		0
 #define XGMAC_MAC_CONF_SS_2_5G_GMII		2
@@ -165,7 +165,10 @@ struct xgmac_mtl_regs {
 struct xgmac_dma_regs {
 	u32 mode;					/* 0x3000 */
 	u32 sysbus_mode;				/* 0x3004 */
-	u32 unused_3008[(0x3100 - 0x3008) / 4];		/* 0x3008 */
+	u32 unused_3008[(0x3040 - 0x3008) / 4];		/* 0x3008 */
+	u32 tx_edma_control;				/* 0x3040 */
+	u32 rx_edma_control;				/* 0x3044 */
+	u32 unused_3048[(0x3100 - 0x3048) / 4];		/* 0x3048 */
 	u32 ch0_control;				/* 0x3100 */
 	u32 ch0_tx_control;				/* 0x3104 */
 	u32 ch0_rx_control;				/* 0x3108 */
@@ -180,7 +183,9 @@ struct xgmac_dma_regs {
 	u32 ch0_rxdesc_tail_pointer;			/* 0x312c */
 	u32 ch0_txdesc_ring_length;			/* 0x3130 */
 	u32 ch0_rxdesc_ring_length;			/* 0x3134 */
-	u32 unused_3138[(0x3160 - 0x3138) / 4];		/* 0x3138 */
+	u32 unused_3138[(0x3158 - 0x3138) / 4];		/* 0x3138 */
+	u32 ch0_current_rx_buffer_high;			/* 0x3158 */
+	u32 ch0_current_rx_buffer_low;			/* 0x315c */
 	u32 ch0_status;					/* 0x3160 */
 };
 
@@ -197,6 +202,10 @@ struct xgmac_dma_regs {
 #define XGMAC_DMA_SYSBUS_MODE_BLEN4			BIT(1)
 #define XGMAC_DMA_SYSBUS_MODE_UNDEF			BIT(0)
 
+#define XGMAC_DMA_TX_EDMA_CONTROL_TEDM			GENMASK(31, 30)
+#define XGMAC_DMA_RX_EDMA_CONTROL_REDM			GENMASK(31, 30)
+#define XGMAC_DMA_CH0_STATUS_FBE				BIT(12)
+
 #define XGMAC_DMA_CH0_CONTROL_DSL_SHIFT			18
 #define XGMAC_DMA_CH0_CONTROL_PBLX8			BIT(16)
 
@@ -207,8 +216,8 @@ struct xgmac_dma_regs {
 
 #define XGMAC_DMA_CH0_RX_CONTROL_RXPBL_SHIFT		16
 #define XGMAC_DMA_CH0_RX_CONTROL_RXPBL_MASK		GENMASK(5, 0)
-#define XGMAC_DMA_CH0_RX_CONTROL_RBSZ_SHIFT		4
-#define XGMAC_DMA_CH0_RX_CONTROL_RBSZ_MASK		GENMASK(10, 0)
+#define XGMAC_DMA_CH0_RX_CONTROL_RBSZ_SHIFT		1
+#define XGMAC_DMA_CH0_RX_CONTROL_RBSZ_MASK		GENMASK(13, 3)
 #define XGMAC_DMA_CH0_RX_CONTROL_SR			BIT(0)
 
 /* Descriptors */
@@ -288,6 +297,11 @@ struct xgmac_priv {
 	bool started;
 	bool reg_access_ok;
 	bool clk_ck_enabled;
+	bool trace_enabled;
+	bool dma_error;
+	unsigned int trace_rx_count;
+	unsigned int trace_tx_count;
+	ulong trace_last_dump;
 };
 
 void xgmac_inval_desc_generic(void *desc);
@@ -297,3 +311,4 @@ void xgmac_flush_buffer_generic(void *buf, size_t size);
 int xgmac_null_ops(struct udevice *dev);
 
 extern struct xgmac_config xgmac_socfpga_config;
+extern struct xgmac_config xgmac_npcm9xx_config;

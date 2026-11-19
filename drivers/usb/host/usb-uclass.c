@@ -7,6 +7,7 @@
  */
 
 #define LOG_CATEGORY UCLASS_USB
+#define DEBUG
 
 #include <bootdev.h>
 #include <uthread.h>
@@ -243,7 +244,9 @@ static void _usb_scan_bus(void *arg)
 
 	priv = dev_get_uclass_priv(bus);
 
-	ret = usb_scan_device(bus, 0, USB_SPEED_FULL, &dev);
+	printf("scanning bus %s for devices... ", bus->name);
+	debug("\n");
+	ret = usb_scan_device(bus, 0, USB_SPEED_SUPER, &dev);
 	if (ret)
 		printf("Scanning bus %s failed, error %d\n", bus->name, ret);
 }

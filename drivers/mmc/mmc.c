@@ -29,6 +29,10 @@
 #include <div64.h>
 #include "mmc_private.h"
 
+#undef CONFIG_LOGLEVEL
+#define CONFIG_LOGLEVEL 10
+
+
 #define DEFAULT_CMD6_TIMEOUT_MS  500
 
 /**
@@ -850,6 +854,30 @@ int mmc_send_ext_csd(struct mmc *mmc, u8 *ext_csd)
 	data.flags = MMC_DATA_READ;
 
 	err = mmc_send_cmd(mmc, &cmd, &data);
+
+	if (0)
+	{
+		uint32_t len = 512;
+		uint32_t val;
+		uint16_t addr = 0;
+		int i;
+		uint8_t *p_data = (uint8_t *) ext_csd;
+		while (len)
+		{
+			printf("0x%04X :  ", addr);
+			for (i = 0; i < 4; i++)
+			{
+				val = (*p_data++ << 0);
+				val |= (*p_data++ << 8);
+				val |= (*p_data++ << 16);
+				val |= (*p_data++ << 24);
+				printf("0x%08X ", val);
+			}
+			printf("\n");
+			addr += (4 * 4);
+			len -= (4 * 4);
+		}
+	}
 
 	return err;
 }
@@ -2947,8 +2975,9 @@ static int mmc_power_cycle(struct mmc *mmc)
 	 * SD spec recommends at least 1ms of 'stable supply voltage' delay.
 	 * Let's wait for 2ms to be on the safer side.
 	 */
-	udelay(2000);
-	return ret;
+	udelay(500); // AZ
+	//udelay(2000);
+	return mmc_power_on(mmc);
 }
 
 int mmc_get_op_cond(struct mmc *mmc, bool quiet)
@@ -3002,6 +3031,7 @@ retry:
 	mmc_set_initial_state(mmc);
 
 	mmc_send_init_stream(mmc);
+
 
 	/* Reset the Card */
 	err = mmc_go_idle(mmc);

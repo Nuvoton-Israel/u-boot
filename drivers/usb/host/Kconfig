@@ -134,6 +134,15 @@ config USB_XHCI_BRCM
 	  USB controller based on the Broadcom USB3 IP Core.
 	  Supports USB2/3 functionality.
 
+config USB_XHCI_NPCM
+	bool "Support for Nuvoton NPCM on-chip XHCI USB controller"
+	depends on ARCH_NPCM
+	default n
+	---help---
+	  Enables support for the on-chip XHCI controller on
+	  Nuvoton NPCM chips.
+
+
 endif # USB_XHCI_HCD
 
 config EHCI_DESC_BIG_ENDIAN

@@ -189,6 +189,78 @@ static int dm_test_eth(struct unit_test_state *uts)
 }
 DM_TEST(dm_test_eth, UTF_SCAN_FDT);
 
+struct eth_tx_capture {
+	unsigned int length;
+	u8 packet[1514];
+};
+
+static int sb_capture_tx(struct udevice *dev, void *packet, unsigned int len)
+{
+	struct eth_sandbox_priv *priv = dev_get_priv(dev);
+	struct eth_tx_capture *capture = priv->priv;
+
+	capture->length = len;
+	memcpy(capture->packet, packet,
+	       min_t(size_t, len, sizeof(capture->packet)));
+
+	return 0;
+}
+
+static int dm_test_eth_tx_truncate(struct unit_test_state *uts)
+{
+	static const struct {
+		int length;
+		int expected;
+	} cases[] = {
+		{ 42, 42 },
+		{ 60, 60 },
+		{ 506, 506 },
+		{ 507, 507 },
+		{ 508, 507 },
+		{ 511, 507 },
+		{ 512, 507 },
+		{ 1514, 507 },
+	};
+	struct eth_tx_capture capture;
+	struct udevice *dev;
+	u8 packet[1514], original[1514];
+	int i, path, ret;
+
+	ut_assertok(uclass_get_device_by_name(UCLASS_ETH, "eth@10002000", &dev));
+	eth_set_dev(dev);
+	ut_assertok(eth_start_udev(dev));
+	for (i = 0; i < sizeof(packet); i++)
+		packet[i] = i;
+	memcpy(original, packet, sizeof(packet));
+
+	sandbox_eth_set_tx_handler(0, sb_capture_tx);
+	sandbox_eth_set_priv(0, &capture);
+	for (path = 0; path < 2; path++) {
+		for (i = 0; i < ARRAY_SIZE(cases); i++) {
+			memset(&capture, 0, sizeof(capture));
+			if (path)
+				ret = eth_send_udev(dev, packet, cases[i].length);
+			else
+				ret = eth_send(packet, cases[i].length);
+			if (ret)
+				goto out;
+			ut_asserteq(cases[i].expected, capture.length);
+			ut_asserteq_mem(original, capture.packet, capture.length);
+			ut_asserteq_mem(original, packet, sizeof(packet));
+			ut_assert(capture.length + ETH_FCS_LEN < 512);
+		}
+	}
+out:
+	sandbox_eth_set_tx_handler(0, NULL);
+	sandbox_eth_set_priv(0, NULL);
+	eth_halt();
+	ut_assertok(ret);
+
+	return 0;
+}
+
+DM_TEST(dm_test_eth_tx_truncate, UTF_SCAN_FDT);
+
 static int dm_test_eth_alias(struct unit_test_state *uts)
 {
 	char *argv[] = { "ping", "1.1.2.2" };

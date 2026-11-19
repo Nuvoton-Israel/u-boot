@@ -259,6 +259,9 @@ obj-$(CONFIG_ARCH_MVEBU) += mvebu/
 obj-$(CONFIG_ARCH_KEYSTONE) += ti/
 obj-$(CONFIG_ARCH_K3) += ti/
 obj-$(CONFIG_ARCH_OMAP2PLUS) += ti/
+
+# Nuvoton
+obj-$(CONFIG_ARCH_NPCM9XX) += nuvoton/
 endif # !CONFIG_XPL_BUILD
 
 obj-$(CONFIG_$(PHASE_)CMD_TLV_EEPROM) += tlv_eeprom.o

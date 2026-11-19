@@ -200,6 +200,13 @@ config DWC_ETH_XGMAC_SOCFPGA
 	  The Synopsys Designware Ethernet XGMAC IP block with specific
 	  configuration used in Intel SoC FPGA chip.
 
+config DWC_ETH_XGMAC_NUVOTON_NPCM9XX
+	bool "Synopsys DWC Ethernet XGMAC device support for Nuvoton NPCM9xx"
+	select DWC_ETH_XGMAC
+	help
+	  The Synopsys Designware Ethernet XGMAC IP block with specific
+	  configuration used in Nuvoton NPCM9xx chip.
+
 config DRIVER_DM9000
 	bool "Davicom DM9000 controller driver"
 	help

@@ -26,9 +26,18 @@ config ARCH_NPCM8XX
 	  General support for NPCM8xx BMC (Arbel).
 	  Nuvoton NPCM8xx BMC is based on the Cortex A35.
 
+config ARCH_NPCM9XX
+	bool "Support Nuvoton NPCM9xx SoC"
+	select ARM64
+	select GICV3
+	help
+	  General support for NPCM9xx BMC (Tavor).
+	  Nuvoton NPCM9xx BMC is based on the Cortex A35.
+
 endchoice
 
 source "arch/arm/mach-npcm/npcm7xx/Kconfig"
 source "arch/arm/mach-npcm/npcm8xx/Kconfig"
+source "arch/arm/mach-npcm/npcm9xx/Kconfig"
 
 endif

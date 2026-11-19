@@ -28,6 +28,15 @@ _start:
  */
 #include <asm/arch/boot0.h>
 #else
+#if 0
+.equ CONSOLE_UART_DEV,  4
+.equ CONSOLE_UART_BASE, (0x45700000 + CONSOLE_UART_DEV * 0x10000)
+
+	/* Write 'A' to the console UART */
+	mov	x0, #CONSOLE_UART_BASE
+	mov	w1, #'A'
+	strb	w1, [x0]
+#endif
 	b	reset
 #endif
 

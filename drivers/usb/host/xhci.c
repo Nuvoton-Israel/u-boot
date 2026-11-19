@@ -19,6 +19,8 @@
  * The quirk devices support hasn't been given yet.
  */
 
+#define DEBUG
+
 #include <cpu_func.h>
 #include <dm.h>
 #include <dm/device_compat.h>
@@ -212,6 +214,8 @@ static int xhci_reset(struct xhci_hcor *hcor)
 	ret = handshake(&hcor->or_usbcmd, CMD_RESET, 0, XHCI_MAX_RESET_USEC);
 	if (ret)
 		return ret;
+
+	debug("// Reset done\n");
 
 	/*
 	 * xHCI cannot write to any doorbells or operational registers other

@@ -23,6 +23,10 @@
 #define PKTBUFSRX	CONFIG_SYS_RX_ETH_BUFFER
 #define PKTALIGN	ARCH_DMA_MINALIGN
 
+/* Include the MAC-generated FCS, but not the preamble, SFD or inter-frame gap. */
+#define ETH_TX_MAX_FRAME_LEN	511
+#define ETH_TX_MAX_LEN		(ETH_TX_MAX_FRAME_LEN - ETH_FCS_LEN)
+
 /* IPv4 addresses are always 32 bits in size */
 struct in_addr {
 	__be32 s_addr;
@@ -222,6 +226,19 @@ int usb_ether_init(void);
 int eth_init(void);			/* Initialize the device */
 int eth_start_udev(struct udevice *dev); /* ->start() if not already running */
 int eth_send(void *packet, int length);	   /* Send a packet */
+
+/**
+ * eth_send_udev() - Send a frame through an already started Ethernet device
+ * @dev: Ethernet device
+ * @packet: Frame starting with the destination MAC address, without FCS
+ * @length: Frame length including Ethernet headers, without FCS
+ *
+ * Truncate to ETH_TX_MAX_LEN without modifying headers or checksums.
+ * The remaining ETH_FCS_LEN bytes are reserved for the MAC-generated FCS.
+ *
+ * Return: Ethernet driver's send result
+ */
+int eth_send_udev(struct udevice *dev, void *packet, int length);
 #if defined(CONFIG_API) || defined(CONFIG_EFI_LOADER)
 int eth_receive(void *packet, int length); /* Receive a packet*/
 extern void (*push_packet)(void *packet, int length);

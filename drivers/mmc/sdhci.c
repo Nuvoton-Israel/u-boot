@@ -23,6 +23,8 @@
 #include <phys2bus.h>
 #include <power/regulator.h>
 
+
+
 static void sdhci_reset(struct sdhci_host *host, u8 mask)
 {
 	unsigned long timeout;
@@ -300,6 +302,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 
 	sdhci_writel(host, cmd->cmdarg, SDHCI_ARGUMENT);
 	sdhci_writew(host, SDHCI_MAKE_CMD(cmd->cmdidx, flags), SDHCI_COMMAND);
+
 	start = get_timer(0);
 	do {
 		stat = sdhci_readl(host, SDHCI_INT_STATUS);
@@ -334,6 +337,8 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 	if (host->quirks & SDHCI_QUIRK_WAIT_SEND_CMD)
 		udelay(1000);
 
+	//udelay(10000);
+
 	stat = sdhci_readl(host, SDHCI_INT_STATUS);
 	sdhci_writel(host, SDHCI_INT_ALL_MASK, SDHCI_INT_STATUS);
 	if (!ret) {
@@ -342,6 +347,7 @@ static int sdhci_send_command(struct mmc *mmc, struct mmc_cmd *cmd,
 			memcpy(data->dest, host->align_buffer, trans_bytes);
 		return 0;
 	}
+
 
 	sdhci_reset(host, SDHCI_RESET_CMD);
 	sdhci_reset(host, SDHCI_RESET_DATA);
@@ -722,9 +728,13 @@ static int sdhci_init(struct mmc *mmc)
 	gpio_request_by_name(dev, "cd-gpios", 0,
 			     &host->cd_gpio, GPIOD_IS_IN);
 #endif
-
 	sdhci_reset(host, SDHCI_RESET_ALL);
+	if (host->ops && host->ops->post_reset) {
+		int ret = host->ops->post_reset(host);
 
+		if (ret)
+			return ret;
+	}
 #if defined(CONFIG_FIXED_SDHCI_ALIGNED_BUFFER)
 	host->align_buffer = (void *)CONFIG_FIXED_SDHCI_ALIGNED_BUFFER;
 	/*
@@ -943,6 +953,8 @@ int sdhci_setup_cfg(struct mmc_config *cfg, struct sdhci_host *host,
 		else
 			host->max_clk = (caps & SDHCI_CLOCK_BASE_MASK) >>
 				SDHCI_CLOCK_BASE_SHIFT;
+
+		host->max_clk = 200; // AZ temporary fix
 		host->max_clk *= 1000000;
 		if (host->clk_mul)
 			host->max_clk *= host->clk_mul;

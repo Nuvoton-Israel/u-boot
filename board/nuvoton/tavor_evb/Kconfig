@@ -1,0 +1,19 @@
+if TARGET_ARBEL_EVB || TARGET_TAVOR_VELOCE
+
+config SYS_BOARD
+	default "tavor_evb"
+
+config SYS_VENDOR
+	default "nuvoton"
+
+config SYS_CONFIG_NAME
+	default "tavor"
+
+config SYS_MEM_TOP_HIDE
+	hex "Reserved TOP memory"
+	default 0x0
+	help
+	  Reserve memory for ECC/GFX/OPTEE/TIP/CP.
+
+source "board/nuvoton/common/Kconfig"
+endif

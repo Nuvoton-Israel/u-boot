@@ -60,7 +60,7 @@ static err_t net_lwip_tx(struct netif *netif, struct pbuf *p)
 		memcpy(pp, p->payload, p->len);
 	}
 
-	err = eth_get_ops(udev)->send(udev, pp ? pp : p->payload, p->len);
+	err = eth_send_udev(udev, pp ? pp : p->payload, p->len);
 	free(pp);
 	if (err) {
 		debug("send error %d\n", err);

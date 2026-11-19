@@ -1,0 +1,34 @@
+if ARCH_NPCM9XX
+
+config SYS_CPU
+	default "armv8"
+
+config SYS_SOC
+	default "npcm9xx"
+
+config SYS_NPCM_DCACHE_OFF
+	bool "Do not enable dcache"
+	default n
+
+
+choice
+	prompt "Tavor board select"
+	default TARGET_TAVOR_EVB
+
+config TARGET_TAVOR_EVB
+	bool "Tavor Evaluation Board"
+	help
+	  TARGET_TAVOR_EVB is Nuvoton evaluation board for NPCM945 SoC,
+	  supports general functions of Basebase Management Controller
+	  (BMC).
+
+config TARGET_TAVOR_VELOCE
+	bool "Tavor Veloce Simulation"
+	help
+	  TARGET_TAVOR_VELOCE is Nuvoton simulation on Veloce.
+
+endchoice
+
+source "board/nuvoton/tavor_evb/Kconfig"
+
+endif

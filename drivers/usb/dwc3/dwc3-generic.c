@@ -211,9 +211,15 @@ static const struct usb_gadget_generic_ops dwc3_gadget_ops = {
 	.handle_interrupts	= dwc3_gadget_handle_interrupts,
 };
 
+static const struct udevice_id dwc3_device_ids[] = {
+	{ .compatible = "nuvoton,device-dwc3" },
+	{ }
+};
+
 U_BOOT_DRIVER(dwc3_generic_peripheral) = {
 	.name	= "dwc3-generic-peripheral",
 	.id	= UCLASS_USB_GADGET_GENERIC,
+	.of_match = dwc3_device_ids,
 	.of_to_plat = dwc3_generic_of_to_plat,
 	.ops	= &dwc3_gadget_ops,
 	.probe = dwc3_generic_peripheral_probe,

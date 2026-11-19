@@ -135,6 +135,9 @@ static char default_filename[DEFAULT_NAME_LEN];
 #endif
 
 static char tftp_filename[MAX_LEN];
+static bool tftp_trace;
+static unsigned int tftp_trace_rx_count;
+static unsigned int tftp_trace_tx_count;
 
 /* 512 is poor choice for ethernet, MTU is typically 1500.
  * Minus eth.hdrs thats 1468.  Can get 2x better throughput with
@@ -317,6 +320,7 @@ static void tftp_send(void)
 	uchar *pkt;
 	uchar *xp;
 	int len = 0;
+	int ret;
 	ushort *s;
 	bool err_pkt = false;
 
@@ -431,13 +435,17 @@ static void tftp_send(void)
 	}
 
 	if (IS_ENABLED(CONFIG_IPV6) && use_ip6)
-		net_send_udp_packet6(net_server_ethaddr,
-				     &tftp_remote_ip6,
-				     tftp_remote_port,
-				     tftp_our_port, len);
+		ret = net_send_udp_packet6(net_server_ethaddr,
+					   &tftp_remote_ip6,
+					   tftp_remote_port,
+					   tftp_our_port, len);
 	else
-		net_send_udp_packet(net_server_ethaddr, tftp_remote_ip,
-				    tftp_remote_port, tftp_our_port, len);
+		ret = net_send_udp_packet(net_server_ethaddr, tftp_remote_ip,
+					  tftp_remote_port, tftp_our_port, len);
+
+	if (tftp_trace && tftp_trace_tx_count++ < 16)
+		printf("TFTP TX: state=%d block=%lu port=%d result=%d\n",
+		       tftp_state, tftp_cur_block, tftp_remote_port, ret);
 
 	if (err_pkt)
 		net_set_state(NETLOOP_FAIL);
@@ -462,6 +470,15 @@ static void tftp_handler(uchar *pkt, unsigned dest, struct in_addr sip,
 	__be16 *s;
 	int i;
 	u16 timeout_val_rcvd;
+
+	if (tftp_trace && tftp_trace_rx_count++ < 16) {
+		printf("TFTP RX: state=%d src=%u dst=%u len=%u expected=%lu",
+		       tftp_state, src, dest, len, tftp_cur_block + 1);
+		if (len >= 4)
+			printf(" op=%u word=%u", ntohs(*(__be16 *)pkt),
+			       ntohs(*(__be16 *)(pkt + 2)));
+		putc('\n');
+	}
 
 	if (dest != tftp_our_port) {
 			return;
@@ -767,6 +784,10 @@ static void sanitize_tftp_block_size_option(enum proto_t protocol)
 void tftp_start(enum proto_t protocol)
 {
 	__maybe_unused char *ep;             /* Environment pointer */
+
+	tftp_trace = env_get_yesno("nettrace") == 1;
+	tftp_trace_rx_count = 0;
+	tftp_trace_tx_count = 0;
 
 	if (saved_tftp_block_size_option) {
 		tftp_block_size_option = saved_tftp_block_size_option;

@@ -159,7 +159,7 @@ static int dsa_port_send(struct udevice *pdev, void *packet, int length)
 			return err;
 	}
 
-	return eth_get_ops(master)->send(master, packet, length);
+	return eth_send_udev(master, packet, length);
 }
 
 /* Receive a frame from master Ethernet, process it and pass it on */
