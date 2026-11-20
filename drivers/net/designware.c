@@ -946,10 +946,13 @@ int designware_eth_probe(struct udevice *dev)
 #endif
 
 	ret = reset_get_bulk(dev, &reset_bulk);
-	if (ret)
+	if (ret) {
 		dev_warn(dev, "Can't get reset: %d\n", ret);
-	else
+	} else {
+		if (IS_ENABLED(CONFIG_ARCH_NPCM8XX))
+			reset_assert_bulk(&reset_bulk);
 		reset_deassert_bulk(&reset_bulk);
+	}
 
 	/*
 	 * If we are on PCI bus, either directly attached to a PCI root port,
